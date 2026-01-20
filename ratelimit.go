@@ -2,15 +2,17 @@ package jlcpcb
 
 import (
 	"context"
+	"sync"
 	"time"
 )
 
 // RateLimiter implements token bucket rate limiting.
 type RateLimiter struct {
-	rate       float64       // requests per second
-	maxTokens  float64       // maximum tokens in bucket
-	tokens     float64       // current tokens
-	lastUpdate time.Time     // last time tokens were updated
+	mu         sync.Mutex
+	rate       float64   // requests per second
+	maxTokens  float64   // maximum tokens in bucket
+	tokens     float64   // current tokens
+	lastUpdate time.Time // last time tokens were updated
 }
 
 // NewRateLimiter creates a new rate limiter.
@@ -29,12 +31,15 @@ func NewRateLimiter(rps float64) *RateLimiter {
 // Wait blocks until a token is available.
 func (rl *RateLimiter) Wait(ctx context.Context) error {
 	for {
+		rl.mu.Lock()
 		rl.refill()
 
 		if rl.tokens >= 1.0 {
 			rl.tokens -= 1.0
+			rl.mu.Unlock()
 			return nil
 		}
+		rl.mu.Unlock()
 
 		// Calculate wait time
 		waitTime := time.Duration(float64(time.Second) / rl.rate)
@@ -48,6 +53,7 @@ func (rl *RateLimiter) Wait(ctx context.Context) error {
 }
 
 // refill adds tokens based on time elapsed.
+// Must be called with mu held.
 func (rl *RateLimiter) refill() {
 	now := time.Now()
 	elapsed := now.Sub(rl.lastUpdate).Seconds()
