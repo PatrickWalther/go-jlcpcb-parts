@@ -10,24 +10,24 @@ import (
 
 // searchRequestBody is the JSON body for the search endpoint.
 type searchRequestBody struct {
-	Keyword                  string `json:"keyword"`
-	CurrentPage              int    `json:"currentPage"`
-	PageSize                 int    `json:"pageSize"`
-	PresaleType              string `json:"presaleType"`    // "stock", "buy", "post"
-	SearchType               int    `json:"searchType"`     // 1 = suggest, 2 = full search
-	ComponentLibraryType     interface{} `json:"componentLibraryType"`
-	ComponentAttributeList   []interface{} `json:"componentAttributeList"`
-	ComponentBrandList       []interface{} `json:"componentBrandList"`
+	Keyword                    string        `json:"keyword"`
+	CurrentPage                int           `json:"currentPage"`
+	PageSize                   int           `json:"pageSize"`
+	PresaleType                string        `json:"presaleType"` // "stock", "buy", "post"
+	SearchType                 int           `json:"searchType"`  // 1 = suggest, 2 = full search
+	ComponentLibraryType       interface{}   `json:"componentLibraryType"`
+	ComponentAttributeList     []interface{} `json:"componentAttributeList"`
+	ComponentBrandList         []interface{} `json:"componentBrandList"`
 	ComponentSpecificationList []interface{} `json:"componentSpecificationList"`
-	ParamList                []interface{} `json:"paramList"`
-	FirstSortName            interface{} `json:"firstSortName"`
-	SecondSortName           interface{} `json:"secondSortName"`
-	SearchSource             string `json:"searchSource"` // "search"
-	StockFlag                bool   `json:"stockFlag"`
+	ParamList                  []interface{} `json:"paramList"`
+	FirstSortName              interface{}   `json:"firstSortName"`
+	SecondSortName             interface{}   `json:"secondSortName"`
+	SearchSource               string        `json:"searchSource"` // "search"
+	StockFlag                  bool          `json:"stockFlag"`
 }
 
-// KeywordSearch searches for products by keyword.
-// Uses POST /search endpoint.
+// KeywordSearch searches for products by keyword with optional filters.
+// Uses POST /selectSmtComponentList/v2 endpoint.
 func (c *Client) KeywordSearch(ctx context.Context, req SearchRequest) (*SearchResponse, error) {
 	keyword := strings.TrimSpace(req.Keyword)
 	if keyword == "" {
@@ -40,6 +40,9 @@ func (c *Client) KeywordSearch(ctx context.Context, req SearchRequest) (*SearchR
 	if req.PageSize <= 0 {
 		req.PageSize = 50
 	}
+	if req.PageSize > 100 {
+		req.PageSize = 100
+	}
 
 	cacheKey := c.getCacheKeySearch(keyword, req.CurrentPage, req.PageSize)
 	if c.cache != nil {
@@ -51,21 +54,48 @@ func (c *Client) KeywordSearch(ctx context.Context, req SearchRequest) (*SearchR
 		}
 	}
 
+	// Build attribute filters
+	attrList := []interface{}{}
+	for _, attr := range req.Attributes {
+		attrList = append(attrList, map[string]string{
+			"attributeName":  attr.Name,
+			"attributeValue": attr.Value,
+		})
+	}
+
+	// Build brand filters
+	brandList := []interface{}{}
+	for _, brand := range req.Brands {
+		brandList = append(brandList, brand)
+	}
+
+	// Determine presale type
+	presaleType := "stock"
+	if req.PresaleType != "" {
+		presaleType = req.PresaleType
+	}
+
+	// Determine component library type
+	var componentLibType interface{}
+	if req.ComponentType != "" {
+		componentLibType = req.ComponentType
+	}
+
 	body, err := c.doRequest(ctx, "POST", "/selectSmtComponentList/v2", nil, searchRequestBody{
-		Keyword:                  keyword,
-		CurrentPage:              req.CurrentPage,
-		PageSize:                 req.PageSize,
-		PresaleType:              "stock",
-		SearchType:               2,
-		ComponentLibraryType:     nil,
-		ComponentAttributeList:   []interface{}{},
-		ComponentBrandList:       []interface{}{},
+		Keyword:                    keyword,
+		CurrentPage:                req.CurrentPage,
+		PageSize:                   req.PageSize,
+		PresaleType:                presaleType,
+		SearchType:                 2,
+		ComponentLibraryType:       componentLibType,
+		ComponentAttributeList:     attrList,
+		ComponentBrandList:         brandList,
 		ComponentSpecificationList: []interface{}{},
-		ParamList:                []interface{}{},
-		FirstSortName:            nil,
-		SecondSortName:           nil,
-		SearchSource:             "search",
-		StockFlag:                false,
+		ParamList:                  []interface{}{},
+		FirstSortName:              req.SortBy,
+		SecondSortName:             req.SortBySecondary,
+		SearchSource:               "search",
+		StockFlag:                  req.StockOnly,
 	})
 	if err != nil {
 		return nil, err

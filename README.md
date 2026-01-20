@@ -149,6 +149,7 @@ Retrieves detailed information for a specific product.
 
 ### Product Search
 
+Basic search:
 ```go
 results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
     Keyword:  "capacitor 100nF",
@@ -157,8 +158,26 @@ results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
 
 // Access results
 for _, p := range results.Products {
-    fmt.Println(p.SKU, p.MPN, p.Manufacturer)
+    fmt.Println(p.ComponentCode, p.ComponentModelEn, p.ComponentBrandEn)
 }
+```
+
+Advanced search with filters:
+```go
+results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
+    Keyword:       "capacitor",
+    PageSize:      20,
+    PresaleType:   "stock",           // "stock", "buy", "post", or ""
+    ComponentType: "base",             // "base", "expand", or ""
+    Brands:        []string{"Samsung", "Murata"},
+    Attributes: []jlcpcb.FilterAttribute{
+        {Name: "Voltage", Value: "16V"},
+        {Name: "Capacitance", Value: "100nF"},
+    },
+    StockOnly:     true,               // Only in-stock items
+    SortBy:        "price",            // Primary sort field
+    SortBySecondary: "stock",          // Secondary sort field
+})
 ```
 
 ### Product Details
