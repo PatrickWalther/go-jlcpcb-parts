@@ -24,6 +24,7 @@ type searchRequestBody struct {
 	SecondSortName             interface{}   `json:"secondSortName"`
 	SearchSource               string        `json:"searchSource"` // "search"
 	StockFlag                  bool          `json:"stockFlag"`
+	PreferredComponentFlag     bool          `json:"preferredComponentFlag"`
 }
 
 // KeywordSearch searches for products by keyword with optional filters.
@@ -96,6 +97,7 @@ func (c *Client) KeywordSearch(ctx context.Context, req SearchRequest) (*SearchR
 		SecondSortName:             req.SortBySecondary,
 		SearchSource:               "search",
 		StockFlag:                  req.StockOnly,
+		PreferredComponentFlag:     req.PreferredOnly,
 	})
 	if err != nil {
 		return nil, err

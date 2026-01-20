@@ -102,7 +102,7 @@ func TestFlexFloat64UnmarshalInvalid(t *testing.T) {
 func TestProductGetURL(t *testing.T) {
 	product := &Product{
 		ComponentCode: "C5676715",
-		UrlSuffix: "6597989-MPM3506AGQVZ/C5676715",
+		UrlSuffix:     "6597989-MPM3506AGQVZ/C5676715",
 	}
 
 	expectedURL := "https://jlcpcb.com/parts/details/6597989-MPM3506AGQVZ/C5676715"
@@ -160,8 +160,8 @@ func TestSearchResponseStructure(t *testing.T) {
 // TestPriceBreakValidation tests PriceBreak structure.
 func TestPriceBreakValidation(t *testing.T) {
 	pb := PriceBreak{
-		StartNumber: 1,
-		EndNumber:   49,
+		StartNumber:  1,
+		EndNumber:    49,
 		ProductPrice: FlexFloat64(9.99),
 	}
 
@@ -181,20 +181,20 @@ func TestPriceBreakValidation(t *testing.T) {
 // TestProductStructure tests complete Product structure.
 func TestProductStructure(t *testing.T) {
 	product := &Product{
-		ComponentCode:        "C5676715",
-		ComponentModelEn:     "MPM3506AGQV-Z",
-		ComponentBrandEn:     "Monolithic Power Systems",
-		ComponentTypeEn:      "DC-DC Power Modules",
-		ComponentName:        "MPS MPM3506AGQV-Z",
+		ComponentCode:            "C5676715",
+		ComponentModelEn:         "MPM3506AGQV-Z",
+		ComponentBrandEn:         "Monolithic Power Systems",
+		ComponentTypeEn:          "DC-DC Power Modules",
+		ComponentName:            "MPS MPM3506AGQV-Z",
 		ComponentSpecificationEn: "QFN-19(3x5)",
-		DataManualUrl:        "https://example.com/datasheet.pdf",
-		StockCount:           549,
-		MinPurchaseNum:       1,
-		ComponentPrices:      []PriceBreak{{StartNumber: 1, EndNumber: 49, ProductPrice: 4.09}},
-		Attributes:           []Attribute{{Name: "Output Current(Max)", Value: "600mA"}},
-		FirstSortName:        "DC-DC Power Modules",
-		SecondSortName:       "Power Modules",
-		IsBuyComponent:       "1",
+		DataManualUrl:            "https://example.com/datasheet.pdf",
+		StockCount:               549,
+		MinPurchaseNum:           1,
+		ComponentPrices:          []PriceBreak{{StartNumber: 1, EndNumber: 49, ProductPrice: 4.09}},
+		Attributes:               []Attribute{{Name: "Output Current(Max)", Value: "600mA"}},
+		FirstSortName:            "DC-DC Power Modules",
+		SecondSortName:           "Power Modules",
+		IsBuyComponent:           "1",
 	}
 
 	if product.ComponentCode != "C5676715" {

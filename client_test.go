@@ -204,8 +204,8 @@ func TestParseResponseValidSuccess(t *testing.T) {
 
 	// Parse the wrapper response
 	var wrapper struct {
-		Code    int `json:"code"`
-		Data    struct {
+		Code int `json:"code"`
+		Data struct {
 			ComponentPageInfo SearchResponse `json:"componentPageInfo"`
 		} `json:"data"`
 	}

@@ -8,9 +8,9 @@ import (
 
 // RetryConfig contains retry configuration.
 type RetryConfig struct {
-	MaxRetries      int           // Maximum number of retries
-	InitialBackoff  time.Duration // Initial backoff duration
-	MaxBackoff      time.Duration // Maximum backoff duration
+	MaxRetries        int           // Maximum number of retries
+	InitialBackoff    time.Duration // Initial backoff duration
+	MaxBackoff        time.Duration // Maximum backoff duration
 	BackoffMultiplier float64       // Multiplier for exponential backoff
 }
 

@@ -16,7 +16,7 @@ const (
 	defaultTimeout   = 30 * time.Second
 	defaultRateLimit = 5.0 // requests per second
 	defaultCurrency  = "USD"
-	userAgent        = "go-jlcpcb-parts/1.0"
+	userAgent        = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 
 // Client is a JLCPCB Parts API client.
@@ -158,6 +158,8 @@ func (c *Client) executeRequest(ctx context.Context, method, path string, params
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("Origin", "https://jlcpcb.com")
+	req.Header.Set("Referer", "https://jlcpcb.com/parts")
 
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")

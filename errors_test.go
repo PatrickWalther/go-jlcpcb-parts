@@ -81,7 +81,7 @@ func TestErrorsAreDistinct(t *testing.T) {
 // TestShouldRetry tests the retry decision logic.
 func TestShouldRetry(t *testing.T) {
 	tests := []struct {
-		statusCode int
+		statusCode  int
 		shouldRetry bool
 	}{
 		{429, true},  // Rate limited
