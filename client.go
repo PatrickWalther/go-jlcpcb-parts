@@ -2,6 +2,7 @@ package jlcpcb
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -156,8 +157,11 @@ func (c *Client) executeRequest(ctx context.Context, method, path string, params
 		return nil, 0, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("Accept-Encoding", "gzip, deflate")
+	req.Header.Set("Accept", "application/json, text/plain, */*")
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 	req.Header.Set("Origin", "https://jlcpcb.com")
 	req.Header.Set("Referer", "https://jlcpcb.com/parts")
 
@@ -173,7 +177,18 @@ func (c *Client) executeRequest(ctx context.Context, method, path string, params
 		_ = resp.Body.Close()
 	}()
 
-	respBody, err := io.ReadAll(resp.Body)
+	// Handle gzip compression
+	var readCloser io.ReadCloser = resp.Body
+	if resp.Header.Get("Content-Encoding") == "gzip" {
+		var err error
+		readCloser, err = gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, resp.StatusCode, fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+		defer readCloser.Close()
+	}
+
+	respBody, err := io.ReadAll(readCloser)
 	if err != nil {
 		return nil, resp.StatusCode, fmt.Errorf("failed to read response: %w", err)
 	}

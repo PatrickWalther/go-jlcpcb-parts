@@ -17,7 +17,7 @@ func TestKeywordSearchBasicIntegration(t *testing.T) {
 	defer cancel()
 
 	resp, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword: "resistor",
+		Keyword: "led",
 	})
 
 	if err != nil {
@@ -28,24 +28,20 @@ func TestKeywordSearchBasicIntegration(t *testing.T) {
 		t.Fatal("expected non-nil response")
 	}
 
-	// API may return zero results for certain searches, but the response structure should be valid
-	if resp.TotalCount < 0 {
-		t.Error("expected non-negative total count")
+	if resp.TotalCount == 0 {
+		t.Fatal("expected at least one product (LED returns 11893 according to API spec)")
 	}
 
-	// If results exist, verify structure
-	if len(resp.Products) > 0 {
-		p := resp.Products[0]
-		if p.ComponentCode == "" {
-			t.Error("expected component code to be non-empty")
-		}
-		if p.ComponentBrandEn == "" {
-			t.Error("expected manufacturer to be non-empty")
-		}
+	p := resp.Products[0]
+	if p.ComponentCode == "" {
+		t.Error("expected component code to be non-empty")
+	}
+	if p.ComponentBrandEn == "" {
+		t.Error("expected manufacturer to be non-empty")
 	}
 }
 
-// TestKeywordSearchMPM3506Integration tests search for resistor (which exists on JLCPCB).
+// TestKeywordSearchMPM3506Integration tests search with pagination.
 func TestKeywordSearchMPM3506Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -56,7 +52,9 @@ func TestKeywordSearchMPM3506Integration(t *testing.T) {
 	defer cancel()
 
 	resp, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword: "resistor",
+		Keyword:     "led",
+		CurrentPage: 2,
+		PageSize:    5,
 	})
 
 	if err != nil {
@@ -67,10 +65,8 @@ func TestKeywordSearchMPM3506Integration(t *testing.T) {
 		t.Fatal("expected non-nil response")
 	}
 
-	// API may return zero results, which is acceptable
 	if len(resp.Products) == 0 {
-		t.Logf("API returned no results for keyword (acceptable)")
-		return
+		t.Fatal("expected at least one product on page 2 of LED search")
 	}
 
 	p := resp.Products[0]
@@ -91,15 +87,14 @@ func TestGetProductDetailsBasicIntegration(t *testing.T) {
 
 	// First, find a product SKU from search
 	searchResp, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword: "resistor",
+		Keyword: "led",
 	})
 	if err != nil {
 		t.Fatalf("search failed: %v", err)
 	}
 
 	if len(searchResp.Products) == 0 {
-		t.Logf("no products found for search (skipping details test)")
-		return
+		t.Fatal("no products found for LED search")
 	}
 
 	code := searchResp.Products[0].ComponentCode
@@ -138,7 +133,7 @@ func TestGetProductDetailsFieldsIntegration(t *testing.T) {
 
 	// First find a known product by search
 	searchResp, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword:  "resistor",
+		Keyword:  "led",
 		PageSize: 1,
 	})
 	if err != nil {
@@ -146,8 +141,7 @@ func TestGetProductDetailsFieldsIntegration(t *testing.T) {
 	}
 
 	if len(searchResp.Products) == 0 {
-		t.Logf("no products found (skipping field validation)")
-		return
+		t.Fatal("no products found for LED search")
 	}
 
 	product, err := client.GetProductDetails(ctx, searchResp.Products[0].ComponentCode)
@@ -257,7 +251,7 @@ func TestGetProductDetailsCachingIntegration(t *testing.T) {
 
 	// Find a product first
 	searchResp, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword:  "resistor",
+		Keyword:  "led",
 		PageSize: 1,
 	})
 	if err != nil {
@@ -265,8 +259,7 @@ func TestGetProductDetailsCachingIntegration(t *testing.T) {
 	}
 
 	if len(searchResp.Products) == 0 {
-		t.Logf("no products found (skipping caching test)")
-		return
+		t.Fatal("no products found for LED search")
 	}
 
 	code := searchResp.Products[0].ComponentCode
