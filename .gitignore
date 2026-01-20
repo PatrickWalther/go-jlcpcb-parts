@@ -1,0 +1,76 @@
+# Go build and development
+*.o
+*.a
+*.so
+.DS_Store
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go workspace
+go.work
+go.work.sum
+
+# Go modules
+go.sum
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.gradle/
+.gradle
+build/
+out/
+
+# Test coverage
+*.coverprofile
+coverage.out
+coverage.html
+*.cover
+.coverage/
+
+# Testing
+*.test
+test_output.txt
+
+# Dependency management
+vendor/
+
+# Build artifacts
+bin/
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS-specific
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Debug
+debug
+debugTests
+
+# Air hot-reload
+.air.toml
+tmp/
