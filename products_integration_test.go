@@ -28,8 +28,8 @@ func TestKeywordSearchBasicIntegration(t *testing.T) {
 		t.Fatal("expected non-nil response")
 	}
 
-	if resp.TotalCount == 0 {
-		t.Fatal("expected at least one product (LED returns 11893 according to API spec)")
+	if resp.TotalCount < 10000 {
+		t.Fatalf("expected at least 10000 LED products, got %d", resp.TotalCount)
 	}
 
 	p := resp.Products[0]

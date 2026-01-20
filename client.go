@@ -210,24 +210,24 @@ func (c *Client) buildCacheKey(method, path string, params url.Values) string {
 }
 
 // parseResponse parses the API response and checks for errors.
+// The JLCPCB API returns {code: 200, data: {...}, message: null} for success.
 func (c *Client) parseResponse(body []byte, result interface{}) error {
 	var wrapper struct {
-		Code    int             `json:"code"`
-		Msg     string          `json:"msg"`
-		Success bool            `json:"success"`
-		Result  json.RawMessage `json:"result"`
+		Code    int    `json:"code"`
+		Message string `json:"message"`
 	}
 
 	if err := json.Unmarshal(body, &wrapper); err != nil {
 		return fmt.Errorf("failed to parse response: %w", err)
 	}
 
-	if !wrapper.Success || wrapper.Code != 200 {
-		return errorFromCode(wrapper.Code, wrapper.Msg)
+	if wrapper.Code != 200 {
+		return errorFromCode(wrapper.Code, wrapper.Message)
 	}
 
-	if result != nil && len(wrapper.Result) > 0 {
-		if err := json.Unmarshal(wrapper.Result, result); err != nil {
+	// Unmarshal directly into the result struct which contains the full response structure
+	if result != nil {
+		if err := json.Unmarshal(body, result); err != nil {
 			return fmt.Errorf("failed to parse result: %w", err)
 		}
 	}
