@@ -9,9 +9,6 @@ import (
 
 func TestNewClientDefaults(t *testing.T) {
 	client := NewClient()
-	if client == nil {
-		t.Fatal("expected non-nil client")
-	}
 
 	if client.baseURL != defaultBaseURL {
 		t.Fatalf("expected base URL %q, got %q", defaultBaseURL, client.baseURL)

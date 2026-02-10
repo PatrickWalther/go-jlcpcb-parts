@@ -129,13 +129,15 @@ func (c *Client) setHeaders(req *http.Request, hasBody bool) {
 }
 
 func readResponseBody(resp *http.Response) ([]byte, error) {
-	var reader io.ReadCloser = resp.Body
+	reader := resp.Body
 	if resp.Header.Get("Content-Encoding") == "gzip" {
 		gzReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("jlcpcb: failed to create gzip reader: %w", err)
 		}
-		defer gzReader.Close()
+		defer func() {
+			_ = gzReader.Close()
+		}()
 		reader = gzReader
 	}
 

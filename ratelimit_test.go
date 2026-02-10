@@ -10,10 +10,6 @@ import (
 func TestNewRateLimiter(t *testing.T) {
 	rl := NewRateLimiter(5.0)
 
-	if rl == nil {
-		t.Fatal("expected non-nil rate limiter")
-	}
-
 	if rl.maxTokens != 5.0 {
 		t.Errorf("expected max tokens 5.0, got %f", rl.maxTokens)
 	}

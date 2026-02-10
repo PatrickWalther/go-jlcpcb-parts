@@ -85,7 +85,7 @@ func shouldRetry(err error, statusCode int) bool {
 
 	var netErr net.Error
 	if errors.As(err, &netErr) {
-		return netErr.Timeout() || netErr.Temporary()
+		return netErr.Timeout()
 	}
 
 	var apiErr *APIError
