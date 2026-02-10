@@ -1,111 +1,121 @@
 package jlcpcb
 
 import (
+	"context"
+	"errors"
+	"net"
+	"net/http"
+	"strings"
 	"testing"
 )
 
-// TestErrorFromCodeNotFound tests errorFromCode for 404.
-func TestErrorFromCodeNotFound(t *testing.T) {
-	err := errorFromCode(404, "product not found")
-
-	if _, ok := err.(ErrProductNotFound); !ok {
-		t.Fatalf("expected ErrProductNotFound, got %v", err)
-	}
-}
-
-// TestErrorFromCodeRateLimit tests errorFromCode for 429.
-func TestErrorFromCodeRateLimit(t *testing.T) {
-	err := errorFromCode(429, "rate limited")
-
-	if _, ok := err.(ErrRateLimited); !ok {
-		t.Fatalf("expected ErrRateLimited, got %v", err)
-	}
-}
-
-// TestErrorFromCodeInvalidInput tests errorFromCode for 400.
-func TestErrorFromCodeInvalidInput(t *testing.T) {
-	err := errorFromCode(400, "invalid input")
-
-	if _, ok := err.(ErrInvalidInput); !ok {
-		t.Fatalf("expected ErrInvalidInput, got %v", err)
-	}
-}
-
-// TestErrProductNotFoundString tests the error message format.
-func TestErrProductNotFoundString(t *testing.T) {
-	err := ErrProductNotFound{ProductCode: "C12345"}
-	errStr := err.Error()
-
-	if !contains(errStr, "product") || !contains(errStr, "not") || !contains(errStr, "found") {
-		t.Errorf("unexpected error string: %s", errStr)
-	}
-}
-
-// TestErrRateLimitedString tests the rate limit error message.
-func TestErrRateLimitedString(t *testing.T) {
-	err := ErrRateLimited{}
-	errStr := err.Error()
-
-	if !contains(errStr, "rate") {
-		t.Errorf("unexpected error string: %s", errStr)
-	}
-}
-
-// TestErrInvalidInputString tests the invalid input error message.
-func TestErrInvalidInputString(t *testing.T) {
-	err := ErrInvalidInput{Message: "test error"}
-	errStr := err.Error()
-
-	if !contains(errStr, "invalid") {
-		t.Errorf("unexpected error string: %s", errStr)
-	}
-}
-
-// TestErrorsAreDistinct tests that different error types are distinct.
-func TestErrorsAreDistinct(t *testing.T) {
-	err1 := ErrProductNotFound{ProductCode: "C1"}
-	err2 := ErrRateLimited{}
-	err3 := ErrInvalidInput{Message: "test"}
-
-	if err1.Error() == err2.Error() {
-		t.Error("different error types should have different messages")
-	}
-	if err1.Error() == err3.Error() {
-		t.Error("different error types should have different messages")
-	}
-	if err2.Error() == err3.Error() {
-		t.Error("different error types should have different messages")
-	}
-}
-
-// TestShouldRetry tests the retry decision logic.
-func TestShouldRetry(t *testing.T) {
+func TestAPIErrorUnwrap(t *testing.T) {
 	tests := []struct {
-		statusCode  int
-		shouldRetry bool
+		name string
+		err  *APIError
+		want error
 	}{
-		{429, true},  // Rate limited
-		{503, true},  // Service unavailable
-		{504, true},  // Gateway timeout
-		{200, false}, // OK
-		{404, false}, // Not found
-		{500, false}, // Internal server error
+		{
+			name: "invalid request",
+			err:  &APIError{StatusCode: http.StatusBadRequest, Code: 400},
+			want: ErrInvalidRequest,
+		},
+		{
+			name: "not found",
+			err:  &APIError{StatusCode: http.StatusNotFound, Code: 404},
+			want: ErrNotFound,
+		},
+		{
+			name: "rate limited",
+			err:  &APIError{StatusCode: http.StatusTooManyRequests, Code: 429},
+			want: ErrRateLimited,
+		},
+		{
+			name: "server error",
+			err:  &APIError{StatusCode: http.StatusInternalServerError, Code: 500},
+			want: ErrServer,
+		},
 	}
 
-	// Create a dummy error for testing
-	dummyErr := ErrInvalidInput{Message: "test"}
-	for _, test := range tests {
-		result := shouldRetry(dummyErr, test.statusCode)
-		if result != test.shouldRetry {
-			t.Errorf("shouldRetry(%d) = %v, expected %v", test.statusCode, result, test.shouldRetry)
+	for _, tt := range tests {
+		if !errors.Is(tt.err, tt.want) {
+			t.Fatalf("%s: expected errors.Is(..., %v)", tt.name, tt.want)
 		}
 	}
 }
 
-// TestShouldRetryWithNilError tests that shouldRetry handles nil errors.
-func TestShouldRetryWithNilError(t *testing.T) {
-	result := shouldRetry(nil, 200)
-	if result {
-		t.Error("shouldRetry(nil, 200) should return false")
+func TestAPIErrorString(t *testing.T) {
+	err := &APIError{
+		StatusCode: 503,
+		Code:       503,
+		Message:    "service unavailable",
+		Details:    "upstream timeout",
+	}
+	msg := err.Error()
+	if msg == "" {
+		t.Fatal("expected non-empty error message")
+	}
+	if !strings.Contains(msg, "service unavailable") {
+		t.Fatalf("expected message to contain API message, got %q", msg)
+	}
+}
+
+func TestShouldRetryByStatusCode(t *testing.T) {
+	tests := []struct {
+		status int
+		retry  bool
+	}{
+		{429, true},
+		{500, true},
+		{502, true},
+		{503, true},
+		{504, true},
+		{404, false},
+		{400, false},
+	}
+
+	baseErr := &APIError{Message: "test"}
+	for _, tt := range tests {
+		got := shouldRetry(baseErr, tt.status)
+		if got != tt.retry {
+			t.Fatalf("status %d: expected retry=%v, got %v", tt.status, tt.retry, got)
+		}
+	}
+}
+
+func TestShouldRetryByAPICode(t *testing.T) {
+	tests := []struct {
+		code  int
+		retry bool
+	}{
+		{429, true},
+		{500, true},
+		{502, true},
+		{503, true},
+		{504, true},
+		{404, false},
+	}
+
+	for _, tt := range tests {
+		got := shouldRetry(&APIError{Code: tt.code}, 0)
+		if got != tt.retry {
+			t.Fatalf("API code %d: expected retry=%v, got %v", tt.code, tt.retry, got)
+		}
+	}
+}
+
+func TestShouldRetryContextErrors(t *testing.T) {
+	if shouldRetry(context.Canceled, 0) {
+		t.Fatal("expected context.Canceled to not be retryable")
+	}
+	if !shouldRetry(context.DeadlineExceeded, 0) {
+		t.Fatal("expected context.DeadlineExceeded to be retryable")
+	}
+}
+
+func TestShouldRetryNetworkTimeout(t *testing.T) {
+	netErr := &net.DNSError{IsTimeout: true}
+	if !shouldRetry(netErr, 0) {
+		t.Fatal("expected timeout network error to be retryable")
 	}
 }

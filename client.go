@@ -1,14 +1,8 @@
 package jlcpcb
 
 import (
-	"bytes"
-	"compress/gzip"
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"net/url"
+	"strings"
 	"time"
 )
 
@@ -16,18 +10,42 @@ const (
 	defaultBaseURL   = "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood"
 	defaultTimeout   = 30 * time.Second
 	defaultRateLimit = 5.0 // requests per second
-	defaultCurrency  = "USD"
 	userAgent        = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
+
+// service is the base type shared by all services.
+type service struct {
+	client *Client
+}
+
+// CacheConfig contains response cache settings.
+type CacheConfig struct {
+	Enabled    bool
+	SearchTTL  time.Duration
+	DetailsTTL time.Duration
+}
+
+// DefaultCacheConfig returns the default cache settings.
+func DefaultCacheConfig() CacheConfig {
+	return CacheConfig{
+		Enabled:    true,
+		SearchTTL:  5 * time.Minute,
+		DetailsTTL: 5 * time.Minute,
+	}
+}
 
 // Client is a JLCPCB Parts API client.
 type Client struct {
 	httpClient  *http.Client
 	baseURL     string
-	currency    string
 	rateLimiter *RateLimiter
 	cache       Cache
+	cacheConfig CacheConfig
 	retryConfig RetryConfig
+
+	common  service
+	Search  *SearchService
+	Product *ProductService
 }
 
 // ClientOption is a function that configures a Client.
@@ -43,14 +61,7 @@ func WithHTTPClient(client *http.Client) ClientOption {
 // WithBaseURL sets a custom base URL.
 func WithBaseURL(baseURL string) ClientOption {
 	return func(c *Client) {
-		c.baseURL = baseURL
-	}
-}
-
-// WithCurrency sets the currency for price responses.
-func WithCurrency(currency string) ClientOption {
-	return func(c *Client) {
-		c.currency = currency
+		c.baseURL = strings.TrimRight(baseURL, "/")
 	}
 }
 
@@ -68,6 +79,20 @@ func WithCache(cache Cache) ClientOption {
 	}
 }
 
+// WithCacheConfig sets custom cache settings.
+func WithCacheConfig(config CacheConfig) ClientOption {
+	return func(c *Client) {
+		c.cacheConfig = config
+	}
+}
+
+// WithoutCache disables response caching.
+func WithoutCache() ClientOption {
+	return func(c *Client) {
+		c.cacheConfig.Enabled = false
+	}
+}
+
 // WithRetryConfig sets the retry configuration.
 func WithRetryConfig(config RetryConfig) ClientOption {
 	return func(c *Client) {
@@ -82,8 +107,8 @@ func NewClient(opts ...ClientOption) *Client {
 			Timeout: defaultTimeout,
 		},
 		baseURL:     defaultBaseURL,
-		currency:    defaultCurrency,
 		rateLimiter: NewRateLimiter(defaultRateLimit),
+		cacheConfig: DefaultCacheConfig(),
 		retryConfig: DefaultRetryConfig(),
 	}
 
@@ -91,146 +116,20 @@ func NewClient(opts ...ClientOption) *Client {
 		opt(c)
 	}
 
+	if c.cacheConfig.Enabled && c.cache == nil {
+		c.cache = NewMemoryCache()
+	}
+
+	c.common.client = c
+	c.Search = (*SearchService)(&c.common)
+	c.Product = (*ProductService)(&c.common)
+
 	return c
 }
 
-// doRequest performs an HTTP request to the JLCPCB API.
-func (c *Client) doRequest(ctx context.Context, method, path string, params url.Values, body interface{}) ([]byte, error) {
-	cacheKey := ""
-	if method == http.MethodGet && c.cache != nil {
-		cacheKey = c.buildCacheKey(method, path, params)
-		if cached, ok := c.cache.Get(cacheKey); ok {
-			return cached, nil
-		}
+// ClearCache clears all cached responses.
+func (c *Client) ClearCache() {
+	if c.cache != nil {
+		c.cache.Clear()
 	}
-
-	var lastErr error
-	for attempt := 0; attempt <= c.retryConfig.MaxRetries; attempt++ {
-		if attempt > 0 {
-			waitTime := c.retryConfig.calculateBackoff(attempt - 1)
-			if err := sleep(ctx, waitTime); err != nil {
-				return nil, err
-			}
-		}
-
-		if err := c.rateLimiter.Wait(ctx); err != nil {
-			return nil, fmt.Errorf("rate limiter: %w", err)
-		}
-
-		respBody, statusCode, err := c.executeRequest(ctx, method, path, params, body)
-		if err != nil {
-			lastErr = err
-			if shouldRetry(err, statusCode) {
-				continue
-			}
-			return nil, err
-		}
-
-		if cacheKey != "" && c.cache != nil {
-			c.cache.Set(cacheKey, respBody, 5*time.Minute)
-		}
-
-		return respBody, nil
-	}
-
-	return nil, fmt.Errorf("max retries exceeded: %w", lastErr)
-}
-
-// executeRequest performs a single HTTP request.
-func (c *Client) executeRequest(ctx context.Context, method, path string, params url.Values, body interface{}) ([]byte, int, error) {
-	reqURL := c.baseURL + path
-	if len(params) > 0 {
-		reqURL = fmt.Sprintf("%s?%s", reqURL, params.Encode())
-	}
-
-	var bodyReader io.Reader
-	if body != nil {
-		jsonBody, err := json.Marshal(body)
-		if err != nil {
-			return nil, 0, fmt.Errorf("failed to marshal request body: %w", err)
-		}
-		bodyReader = bytes.NewReader(jsonBody)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, method, reqURL, bodyReader)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("User-Agent", userAgent)
-	req.Header.Set("Accept-Encoding", "gzip, deflate")
-	req.Header.Set("Accept", "application/json, text/plain, */*")
-	req.Header.Set("Connection", "keep-alive")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("Origin", "https://jlcpcb.com")
-	req.Header.Set("Referer", "https://jlcpcb.com/parts")
-
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, 0, fmt.Errorf("request failed: %w", err)
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
-	// Handle gzip compression
-	var readCloser io.ReadCloser = resp.Body
-	if resp.Header.Get("Content-Encoding") == "gzip" {
-		var err error
-		readCloser, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			return nil, resp.StatusCode, fmt.Errorf("failed to create gzip reader: %w", err)
-		}
-		defer readCloser.Close()
-	}
-
-	respBody, err := io.ReadAll(readCloser)
-	if err != nil {
-		return nil, resp.StatusCode, fmt.Errorf("failed to read response: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, resp.StatusCode, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	return respBody, resp.StatusCode, nil
-}
-
-// buildCacheKey creates a cache key from request parameters.
-func (c *Client) buildCacheKey(method, path string, params url.Values) string {
-	key := method + ":" + c.currency + ":" + path
-	if params != nil {
-		key += "?" + params.Encode()
-	}
-	return key
-}
-
-// parseResponse parses the API response and checks for errors.
-// The JLCPCB API returns {code: 200, data: {...}, message: null} for success.
-func (c *Client) parseResponse(body []byte, result interface{}) error {
-	var wrapper struct {
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	}
-
-	if err := json.Unmarshal(body, &wrapper); err != nil {
-		return fmt.Errorf("failed to parse response: %w", err)
-	}
-
-	if wrapper.Code != 200 {
-		return errorFromCode(wrapper.Code, wrapper.Message)
-	}
-
-	// Unmarshal directly into the result struct which contains the full response structure
-	if result != nil {
-		if err := json.Unmarshal(body, result); err != nil {
-			return fmt.Errorf("failed to parse result: %w", err)
-		}
-	}
-
-	return nil
 }

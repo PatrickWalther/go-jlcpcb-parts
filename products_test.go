@@ -2,140 +2,349 @@ package jlcpcb
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
-// TestKeywordSearchEmptyKeyword tests error handling for empty keyword.
-func TestKeywordSearchEmptyKeyword(t *testing.T) {
+func TestSearchKeywordNilRequest(t *testing.T) {
 	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	_, err := client.Search.Keyword(context.Background(), nil)
+	if !errors.Is(err, ErrInvalidRequest) {
+		t.Fatalf("expected ErrInvalidRequest, got %v", err)
+	}
+}
 
-	_, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword: "",
+func TestSearchKeywordEmptyKeyword(t *testing.T) {
+	client := NewClient()
+	_, err := client.Search.Keyword(context.Background(), &SearchRequest{Keyword: "   "})
+	if !errors.Is(err, ErrInvalidRequest) {
+		t.Fatalf("expected ErrInvalidRequest, got %v", err)
+	}
+}
+
+func TestSearchKeywordDefaultPresaleTypeAny(t *testing.T) {
+	var captured searchRequestBody
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode request failed: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    1,
+					"pageSize": 5,
+					"pageNum":  1,
+					"list": []map[string]interface{}{
+						{"componentCode": "C3900982", "componentModelEn": "CGJ2B2C0G1H390J050BA"},
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	resp, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:  "CGJ2B2C0G1H390J050BA",
+		PageSize: 5,
 	})
-
-	if err == nil {
-		t.Fatal("expected error for empty keyword")
+	if err != nil {
+		t.Fatalf("search failed: %v", err)
 	}
-
-	if !strings.Contains(err.Error(), "keyword") {
-		t.Errorf("expected keyword-related error, got: %v", err)
+	if captured.PresaleType != "" {
+		t.Fatalf("expected empty presale type, got %q", captured.PresaleType)
+	}
+	if resp.TotalCount != 1 || len(resp.Products) != 1 {
+		t.Fatalf("expected one result, got total=%d len=%d", resp.TotalCount, len(resp.Products))
 	}
 }
 
-// TestKeywordSearchWhitespaceKeyword tests that whitespace-only keywords are rejected.
-func TestKeywordSearchWhitespaceKeyword(t *testing.T) {
-	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func TestSearchKeywordStockOnlySetsPresaleStock(t *testing.T) {
+	var captured searchRequestBody
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode request failed: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    0,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list":     []map[string]interface{}{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
 
-	_, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword: "   ",
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	_, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:   "led",
+		StockOnly: true,
 	})
-
-	if err == nil {
-		t.Fatal("expected error for whitespace-only keyword")
+	if err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if captured.PresaleType != string(PresaleTypeStock) {
+		t.Fatalf("expected presaleType=stock, got %q", captured.PresaleType)
+	}
+	if !captured.StockFlag {
+		t.Fatal("expected stockFlag=true")
 	}
 }
 
-// TestGetProductDetailsEmptyCode tests error handling for empty part code.
-func TestGetProductDetailsEmptyCode(t *testing.T) {
-	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+func TestSearchKeywordCacheKeyIncludesFilters(t *testing.T) {
+	var requestCount atomic.Int32
 
-	_, err := client.GetProductDetails(ctx, "")
-	if err == nil {
-		t.Fatal("expected error for empty part code")
-	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount.Add(1)
 
-	if !strings.Contains(err.Error(), "part code") {
-		t.Errorf("expected part code-related error, got: %v", err)
-	}
-}
+		var req searchRequestBody
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Fatalf("decode request failed: %v", err)
+		}
 
-// TestGetProductDetailsWhitespaceCode tests that whitespace-only codes are rejected.
-func TestGetProductDetailsWhitespaceCode(t *testing.T) {
-	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+		code := "C-STOCK"
+		if req.PresaleType == string(PresaleTypeBuy) {
+			code = "C-BUY"
+		}
 
-	_, err := client.GetProductDetails(ctx, "   ")
-	if err == nil {
-		t.Fatal("expected error for whitespace-only code")
-	}
-}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    1,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list": []map[string]interface{}{
+						{"componentCode": code},
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
 
-// TestProductURL tests the GetProductURL method.
-func TestProductURL(t *testing.T) {
-	product := &Product{
-		ComponentCode: "C5676715",
-		UrlSuffix:     "6597989-MPM3506AGQVZ/C5676715",
-	}
+	client := NewClient(
+		WithBaseURL(server.URL),
+		WithHTTPClient(server.Client()),
+		WithCache(NewMemoryCache()),
+	)
 
-	expectedURL := "https://jlcpcb.com/parts/details/6597989-MPM3506AGQVZ/C5676715"
-	actualURL := product.GetProductURL()
-
-	if actualURL != expectedURL {
-		t.Errorf("expected URL %s, got %s", expectedURL, actualURL)
-	}
-}
-
-// TestKeywordSearchWithFilters tests search with advanced filters.
-func TestKeywordSearchWithFilters(t *testing.T) {
-	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	req := SearchRequest{
-		Keyword:       "capacitor",
-		CurrentPage:   1,
-		PageSize:      10,
-		PresaleType:   "stock",
-		ComponentType: "base",
-		Brands:        []string{"Samsung"},
-		StockOnly:     true,
-	}
-
-	resp, err := client.KeywordSearch(ctx, req)
-	if err == nil && resp == nil {
-		t.Fatal("expected either response or error")
-	}
-	// Note: This may fail if API doesn't return results, which is acceptable
-	// for unit tests without mocking
-}
-
-// TestSearchRequestMaxPageSize tests that PageSize is capped at 100.
-func TestSearchRequestMaxPageSize(t *testing.T) {
-	client := NewClient()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	// PageSize > 100 should be handled gracefully
-	_, err := client.KeywordSearch(ctx, SearchRequest{
-		Keyword:  "resistor",
-		PageSize: 200,
+	stockResp, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:     "test",
+		PresaleType: PresaleTypeStock,
 	})
-	// Should not error due to page size validation
-	if err != nil && strings.Contains(err.Error(), "PageSize") {
-		t.Errorf("unexpected page size error: %v", err)
+	if err != nil {
+		t.Fatalf("stock search failed: %v", err)
+	}
+	buyResp, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:     "test",
+		PresaleType: PresaleTypeBuy,
+	})
+	if err != nil {
+		t.Fatalf("buy search failed: %v", err)
+	}
+
+	if stockResp.Products[0].ComponentCode == buyResp.Products[0].ComponentCode {
+		t.Fatalf("expected different products for stock vs buy filters")
+	}
+	if requestCount.Load() != 2 {
+		t.Fatalf("expected 2 upstream requests, got %d", requestCount.Load())
 	}
 }
 
-// TestFilterAttributeStructure tests the FilterAttribute model.
-func TestFilterAttributeStructure(t *testing.T) {
-	attr := FilterAttribute{
-		Name:  "Resistance",
-		Value: "10k",
+func TestProductDetailsEmptyIdentifier(t *testing.T) {
+	client := NewClient()
+	_, err := client.Product.Details(context.Background(), " ")
+	if !errors.Is(err, ErrInvalidRequest) {
+		t.Fatalf("expected ErrInvalidRequest, got %v", err)
+	}
+}
+
+func TestProductDetailsPrefersExactMatch(t *testing.T) {
+	target := "CGJ2B2C0G1H390J050BA"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    2,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list": []map[string]interface{}{
+						{"componentCode": "C1111111", "componentModelEn": "OTHER"},
+						{"componentCode": "C3900982", "componentModelEn": target},
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	product, err := client.Product.Details(context.Background(), target)
+	if err != nil {
+		t.Fatalf("product details failed: %v", err)
+	}
+	if product.ComponentCode != "C3900982" {
+		t.Fatalf("expected exact-match component code C3900982, got %s", product.ComponentCode)
+	}
+}
+
+func TestProductDetailsNotFound(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    0,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list":     []map[string]interface{}{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	_, err := client.Product.Details(context.Background(), "C99999999")
+	if !errors.Is(err, ErrNotFound) {
+		t.Fatalf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestProductDetailsCaching(t *testing.T) {
+	var requestCount atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requestCount.Add(1)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    1,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list": []map[string]interface{}{
+						{
+							"componentCode":    "C3900982",
+							"componentModelEn": "CGJ2B2C0G1H390J050BA",
+							"componentBrandEn": "TDK",
+						},
+					},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(
+		WithBaseURL(server.URL),
+		WithHTTPClient(server.Client()),
+		WithCache(NewMemoryCache()),
+	)
+
+	first, err := client.Product.Details(context.Background(), "C3900982")
+	if err != nil {
+		t.Fatalf("first details call failed: %v", err)
+	}
+	second, err := client.Product.Details(context.Background(), "C3900982")
+	if err != nil {
+		t.Fatalf("second details call failed: %v", err)
 	}
 
-	if attr.Name != "Resistance" {
-		t.Errorf("expected name Resistance, got %s", attr.Name)
+	if first.ComponentCode != second.ComponentCode {
+		t.Fatalf("expected cached response to match")
 	}
-	if attr.Value != "10k" {
-		t.Errorf("expected value 10k, got %s", attr.Value)
+	if requestCount.Load() != 1 {
+		t.Fatalf("expected 1 upstream request due to cache hit, got %d", requestCount.Load())
+	}
+}
+
+func TestSearchKeywordRequestNormalization(t *testing.T) {
+	var captured searchRequestBody
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode failed: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    0,
+					"pageSize": 100,
+					"pageNum":  1,
+					"list":     []map[string]interface{}{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	_, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:  "  led  ",
+		Page:     -10,
+		PageSize: 999,
+	})
+	if err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if captured.Keyword != "led" {
+		t.Fatalf("expected trimmed keyword, got %q", captured.Keyword)
+	}
+	if captured.CurrentPage != 1 {
+		t.Fatalf("expected default page=1, got %d", captured.CurrentPage)
+	}
+	if captured.PageSize != 100 {
+		t.Fatalf("expected max page size clamp=100, got %d", captured.PageSize)
+	}
+}
+
+func TestSearchKeywordServerContextTimeout(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(50 * time.Millisecond)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    0,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list":     []map[string]interface{}{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+
+	_, err := client.Search.Keyword(ctx, &SearchRequest{Keyword: "led"})
+	if err == nil {
+		t.Fatal("expected timeout error")
+	}
+	if !strings.Contains(strings.ToLower(err.Error()), "context") {
+		t.Fatalf("expected context-related error, got %v", err)
 	}
 }

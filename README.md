@@ -5,23 +5,14 @@
 [![Tests](https://github.com/PatrickWalther/go-jlcpcb-parts/actions/workflows/test.yml/badge.svg)](https://github.com/PatrickWalther/go-jlcpcb-parts/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Go client library for the [JLCPCB](https://jlcpcb.com) parts API. Provides access to the JLCPCB parts catalog with support for searching, retrieving product details, caching, rate limiting, and automatic retries.
+A Go client for JLCPCB parts search endpoints used by https://jlcpcb.com/parts.
 
-> **Note**: JLCPCB does not have an official public API. This library uses the publicly accessible endpoints from https://jlcpcb.com/parts that work without authentication.
+> Note: JLCPCB does not publish an official public parts API. This library uses publicly accessible endpoints and can break if JLCPCB changes their internal contracts.
 
 ## Requirements
 
-- **Go 1.21+** (tested on Go 1.21 and 1.23)
-- No external dependencies
-
-## Features
-
-- **Product Search**: Search for parts by keyword with pagination support
-- **Product Details**: Retrieve detailed information for specific parts by SKU
-- **Caching**: Built-in in-memory caching with TTL support
-- **Rate Limiting**: Token bucket rate limiting to respect API quotas
-- **Retry Logic**: Automatic exponential backoff retry on failures
-- **Flexible Configuration**: Extensive client options for customization
+- Go 1.22+
+- No external dependencies (stdlib only)
 
 ## Installation
 
@@ -29,295 +20,212 @@ A Go client library for the [JLCPCB](https://jlcpcb.com) parts API. Provides acc
 go get github.com/PatrickWalther/go-jlcpcb-parts
 ```
 
+## Features
+
+- Service-based API (`client.Search`, `client.Product`)
+- Keyword part search with filters and pagination
+- Product details lookup by JLC code or MPN
+- Typed error handling (`errors.Is`)
+- Optional in-memory response caching
+- Rate limiting and retry/backoff
+- Thread-safe client for concurrent use
+
 ## Quick Start
-
-```bash
-# Initialize a new Go module (if needed)
-go mod init example.com/myapp
-
-# Get the library
-go get github.com/PatrickWalther/go-jlcpcb-parts
-
-# Run tests to verify installation
-go test github.com/PatrickWalther/go-jlcpcb-parts/...
-```
-
-## Usage
 
 ```go
 package main
 
 import (
-    "context"
-    "fmt"
-    "log"
+	"context"
+	"fmt"
+	"log"
 
-    "github.com/PatrickWalther/go-jlcpcb-parts"
+	"github.com/PatrickWalther/go-jlcpcb-parts"
 )
 
 func main() {
-    // Create a new client
-    client := jlcpcb.NewClient()
+	client := jlcpcb.NewClient()
+	ctx := context.Background()
 
-    ctx := context.Background()
+	resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
+		Keyword:  "CGJ2B2C0G1H390J050BA",
+		PageSize: 5,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    // Search for products
-    results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
-        Keyword:  "MPM3506",
-        PageSize: 10,
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
+	for _, p := range resp.Products {
+		fmt.Printf("%s | %s | %s\n", p.ComponentCode, p.ComponentModelEn, p.ComponentBrandEn)
+	}
 
-    for _, product := range results.Products {
-        fmt.Printf("%s - %s: %s\n", 
-            product.SKU, 
-            product.MPN,
-            product.Title)
-    }
-
-    // Get product details
-    product, err := client.GetProductDetails(ctx, "C12345")
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Printf("Product: %s by %s\n", product.Title, product.Manufacturer)
-    fmt.Printf("Stock: %d, Min Order: %d\n", product.Stock, product.MinOrder)
-    fmt.Printf("URL: %s\n", product.GetProductURL())
-
-    // Access specifications
-    for _, attr := range product.Attributes {
-        fmt.Printf("  %s: %s\n", attr.Name, attr.Value)
-    }
+	product, err := client.Product.Details(ctx, "C3900982")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Details: %s - %s\n", product.ComponentCode, product.ComponentName)
 }
 ```
+
+## API Overview
+
+### Services
+
+- `client.Search.Keyword(ctx, req)`
+- `client.Product.Details(ctx, identifier)`
+
+### Search request
+
+```go
+resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
+	Keyword:       "capacitor",
+	Page:          1,   // default: 1
+	PageSize:      20,  // default: 50, max: 100
+	PresaleType:   jlcpcb.PresaleTypeAny,   // Any, Stock, Buy, Post
+	StockOnly:     false,                   // if true and PresaleTypeAny => stock search
+	ComponentType: jlcpcb.ComponentTypeBase, // Any, Base, Expand
+	Brands:        []string{"TDK", "Murata"},
+	Attributes: []jlcpcb.FilterAttribute{
+		{Name: "Package", Value: "0402"},
+	},
+	SortPrimary:   "",
+	SortSecondary: "",
+})
+```
+
+### Product details
+
+```go
+// Accepts JLC part code or MPN.
+product, err := client.Product.Details(ctx, "CGJ2B2C0G1H390J050BA")
+```
+
+Details lookup chooses:
+1. exact `componentCode` match
+2. exact `componentModelEn` match
+3. first result fallback
+
+## Public Types
+
+### `SearchResponse`
+
+- `Products []Product`
+- `TotalCount int`
+- `PageSize int`
+- `Page int`
+
+### `Product`
+
+- `ComponentCode string`
+- `ComponentModelEn string`
+- `ComponentBrandEn string`
+- `ComponentTypeEn string`
+- `ComponentName string`
+- `ComponentSpecificationEn string`
+- `StockCount int`
+- `MinPurchaseNum int`
+- `ComponentPrices []PriceBreak`
+- `BuyComponentPrices []PriceBreak`
+- `Attributes []Attribute`
+- `DataManualUrl string`
+- `Describe string`
+- `FirstSortName string`
+- `SecondSortName string`
+- `IsBuyComponent string`
+- `UrlSuffix string`
+- `LcscGoodsUrl string`
 
 ## Client Options
 
+- `WithHTTPClient(*http.Client)`
+- `WithBaseURL(string)` (useful for tests)
+- `WithRateLimit(float64)` requests/second
+- `WithRetryConfig(RetryConfig)`
+- `WithCache(Cache)`
+- `WithCacheConfig(CacheConfig)`
+- `WithoutCache()`
+
+## Caching
+
+Caching is enabled by default with in-memory cache:
+
+- Search TTL: `5m`
+- Details TTL: `5m`
+
+Custom cache config:
+
 ```go
-// Custom HTTP client
 client := jlcpcb.NewClient(
-    jlcpcb.WithHTTPClient(&http.Client{Timeout: 60*time.Second}))
-
-// Custom currency (affects pricing)
-client := jlcpcb.NewClient(jlcpcb.WithCurrency("EUR"))
-
-// Custom rate limit (requests per second)
-client := jlcpcb.NewClient(jlcpcb.WithRateLimit(10.0))
-
-// Enable caching
-cache := jlcpcb.NewMemoryCache()
-client := jlcpcb.NewClient(jlcpcb.WithCache(cache))
-
-// Custom retry configuration
-client := jlcpcb.NewClient(jlcpcb.WithRetryConfig(jlcpcb.RetryConfig{
-    MaxRetries:     5,
-    InitialBackoff: 1 * time.Second,
-    MaxBackoff:     60 * time.Second,
-    BackoffMultiplier: 2.0,
-}))
+	jlcpcb.WithCacheConfig(jlcpcb.CacheConfig{
+		Enabled:    true,
+		SearchTTL:  2 * time.Minute,
+		DetailsTTL: 10 * time.Minute,
+	}),
+)
 ```
 
-## API Reference
-
-### Client Methods
-
-#### `KeywordSearch(ctx context.Context, req SearchRequest) (*SearchResponse, error)`
-
-Searches for products by keyword with pagination support.
-
-**Parameters:**
-- `ctx`: Context for request cancellation
-- `req`: SearchRequest with:
-  - `Keyword`: Part name or keyword (required)
-  - `CurrentPage`: Page number (default: 1)
-  - `PageSize`: Results per page (default: 50)
-  - `IsAvailable`: Only available parts (default: false)
-
-**Returns:** SearchResponse with matched products and total count
-
-#### `GetProductDetails(ctx context.Context, sku string) (*Product, error)`
-
-Retrieves detailed information for a specific product.
-
-**Parameters:**
-- `ctx`: Context for request cancellation
-- `sku`: JLCPCB SKU/part number (required)
-
-**Returns:** Product with full details
-
-### Product Search
-
-Basic search:
-```go
-results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
-    Keyword:  "capacitor 100nF",
-    PageSize: 30, // max 100
-})
-
-// Access results
-for _, p := range results.Products {
-    fmt.Println(p.ComponentCode, p.ComponentModelEn, p.ComponentBrandEn)
-}
-```
-
-Advanced search with filters:
-```go
-results, err := client.KeywordSearch(ctx, jlcpcb.SearchRequest{
-    Keyword:       "capacitor",
-    PageSize:      20,
-    PresaleType:   "stock",           // "stock", "buy", "post", or ""
-    ComponentType: "base",             // "base", "expand", or ""
-    Brands:        []string{"Samsung", "Murata"},
-    Attributes: []jlcpcb.FilterAttribute{
-        {Name: "Voltage", Value: "16V"},
-        {Name: "Capacitance", Value: "100nF"},
-    },
-    StockOnly:     true,               // Only in-stock items
-    SortBy:        "price",            // Primary sort field
-    SortBySecondary: "stock",          // Secondary sort field
-})
-```
-
-### Product Details
+Clear cache:
 
 ```go
-product, err := client.GetProductDetails(ctx, "C12345")
-
-// Product info
-fmt.Println(product.SKU)           // "C12345"
-fmt.Println(product.MPN)           // Manufacturer part number
-fmt.Println(product.Manufacturer)  // Manufacturer name
-fmt.Println(product.Title)         // Description
-fmt.Println(product.Stock)         // Available stock
-fmt.Println(product.DatasheetURL)  // Datasheet URL
-fmt.Println(product.Package)       // Package/footprint
-fmt.Println(product.GetProductURL()) // JLCPCB product page
-
-// Pricing
-for _, pb := range product.PriceList {
-    fmt.Printf("Qty %d+: %.4f %s\n", pb.Quantity, pb.Price, pb.Currency)
-}
-
-// Specifications
-for _, attr := range product.Attributes {
-    fmt.Printf("%s: %s\n", attr.Name, attr.Value)
-}
+client.ClearCache()
 ```
 
-## Data Types
+## Errors
 
-### Product
+Sentinel errors:
 
-| Field | Type | Description |
-|-------|------|-------------|
-| SKU | string | JLCPCB SKU/part number |
-| MPN | string | Manufacturer part number |
-| Manufacturer | string | Manufacturer name |
-| Title | string | Product title/description |
-| DatasheetURL | string | Datasheet URL |
-| Image | string | Product image URL |
-| Stock | int | Available stock |
-| MinOrder | int | Minimum order quantity |
-| PriceList | []PriceBreak | Quantity price breaks |
-| Attributes | []Attribute | Product specifications |
-| Package | string | Package/footprint |
-| Category | string | Product category |
-| Rating | float64 | Product rating |
-| IsAvailable | bool | In-stock status |
+- `jlcpcb.ErrInvalidRequest`
+- `jlcpcb.ErrNotFound`
+- `jlcpcb.ErrRateLimited`
+- `jlcpcb.ErrServer`
 
-### PriceBreak
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Quantity | int | Minimum quantity for this price |
-| Price | float64 | Unit price |
-| Currency | string | Currency code (e.g., "USD") |
-
-### Attribute
-
-| Field | Type | Description |
-|-------|------|-------------|
-| Name | string | Attribute name |
-| Value | string | Attribute value |
-
-## Error Handling
+Use with `errors.Is`:
 
 ```go
-if errors.Is(err, jlcpcb.ErrProductNotFound) {
-    // Product not found (404)
-}
-if errors.Is(err, jlcpcb.ErrRateLimited) {
-    // Rate limited (429)
-}
-if errors.Is(err, jlcpcb.ErrInvalidInput) {
-    // Invalid input (400)
+if errors.Is(err, jlcpcb.ErrNotFound) {
+	// handle not found
 }
 ```
+
+Detailed API errors are returned as `*jlcpcb.APIError`.
+
+## Retries and Rate Limits
+
+Default retry behavior:
+
+- retries: `3`
+- backoff: exponential (`100ms` base, max `10s`, multiplier `2.0`)
+- retried on: network timeout/errors and `429/500/502/503/504`
+
+Default rate limit:
+
+- `5` requests/second token bucket
 
 ## Testing
 
-This library includes comprehensive unit and integration tests:
+Unit tests:
 
 ```bash
-# Run all tests (unit tests only, ~1.8s)
 go test ./...
-
-# Run with coverage report
-go test ./... -cover
-
-# Generate coverage HTML report
-go test ./... -coverprofile=coverage.out
-go tool cover -html=coverage.out
-
-# Run integration tests (makes real API calls, ~1.8s)
-go test -run Integration ./...
-
-# Run specific test
-go test -run TestKeywordSearchBasic ./...
 ```
 
-## Development
-
-### Code Quality
+Integration tests (live API, opt-in):
 
 ```bash
-# Run linter
-golangci-lint run ./...
-
-# Run type checker
-go vet ./...
-
-# Format code
-go fmt ./...
+go test -tags=integration -run Integration ./...
 ```
 
-### Project Structure
+## Breaking Changes in v1.0.0
 
-```
-.
-├── *.go              # Main library code
-├── *_test.go         # Unit tests
-├── go.mod            # Module definition
-├── README.md         # Documentation
-└── .gitignore        # Git ignore file
-```
+- API moved to service-based access:
+  - `client.KeywordSearch(...)` -> `client.Search.Keyword(...)`
+  - `client.GetProductDetails(...)` -> `client.Product.Details(...)`
+- Removed legacy/unused request fields:
+  - `SearchRequest.IsAvailable`
+  - `SearchRequest.PreferredOnly`
+- Removed `WithCurrency(...)` (did not affect API responses)
+- README/examples now use raw JLC field names (`ComponentCode`, `ComponentModelEn`, etc.)
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure `go test ./...` and `golangci-lint run ./...` pass
-5. Submit a pull request
-
-## Acknowledgments
-
-- [JLCPCB](https://jlcpcb.com) for providing the parts API
-- [go-lcsc](https://github.com/PatrickWalther/go-lcsc) for the API endpoint discovery approach
+MIT, see [LICENSE](LICENSE).

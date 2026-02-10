@@ -137,7 +137,7 @@ func TestSearchResponseStructure(t *testing.T) {
 		Products:   []Product{{ComponentCode: "C1"}, {ComponentCode: "C2"}},
 		TotalCount: 100,
 		PageSize:   10,
-		PageNumber: 1,
+		Page:       1,
 	}
 
 	if len(resp.Products) != 2 {
@@ -152,8 +152,8 @@ func TestSearchResponseStructure(t *testing.T) {
 		t.Errorf("expected page size 10, got %d", resp.PageSize)
 	}
 
-	if resp.PageNumber != 1 {
-		t.Errorf("expected page number 1, got %d", resp.PageNumber)
+	if resp.Page != 1 {
+		t.Errorf("expected page number 1, got %d", resp.Page)
 	}
 }
 
@@ -233,10 +233,12 @@ func TestAttributeStructure(t *testing.T) {
 // TestSearchRequestStructure tests SearchRequest structure.
 func TestSearchRequestStructure(t *testing.T) {
 	req := SearchRequest{
-		Keyword:     "MPM3506",
-		CurrentPage: 1,
-		PageSize:    20,
-		IsAvailable: true,
+		Keyword:       "MPM3506",
+		Page:          1,
+		PageSize:      20,
+		PresaleType:   PresaleTypeAny,
+		StockOnly:     true,
+		ComponentType: ComponentTypeBase,
 	}
 
 	if req.Keyword != "MPM3506" {
@@ -247,7 +249,7 @@ func TestSearchRequestStructure(t *testing.T) {
 		t.Errorf("expected page size 20, got %d", req.PageSize)
 	}
 
-	if !req.IsAvailable {
-		t.Error("expected IsAvailable to be true")
+	if !req.StockOnly {
+		t.Error("expected StockOnly to be true")
 	}
 }

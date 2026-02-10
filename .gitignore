@@ -74,3 +74,4 @@ debugTests
 # Air hot-reload
 .air.toml
 tmp/
+.tmp*/
