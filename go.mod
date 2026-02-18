@@ -1,3 +1,3 @@
 module github.com/PatrickWalther/go-jlcpcb-parts
 
-go 1.22
+go 1.23
