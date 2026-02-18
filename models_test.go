@@ -105,7 +105,7 @@ func TestProductGetURL(t *testing.T) {
 		UrlSuffix:     "6597989-MPM3506AGQVZ/C5676715",
 	}
 
-	expectedURL := "https://jlcpcb.com/parts/details/6597989-MPM3506AGQVZ/C5676715"
+	expectedURL := "https://jlcpcb.com/partdetail/6597989-MPM3506AGQVZ/C5676715"
 	actualURL := product.GetProductURL()
 
 	if actualURL != expectedURL {
@@ -125,7 +125,7 @@ func TestProductGetURLSpecialCharacters(t *testing.T) {
 		t.Fatal("expected non-empty URL")
 	}
 
-	expected := "https://jlcpcb.com/parts/details/C123456"
+	expected := "https://jlcpcb.com/partdetail/C123456"
 	if url != expected {
 		t.Errorf("expected %s, got %s", expected, url)
 	}

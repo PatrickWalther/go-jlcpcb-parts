@@ -69,9 +69,9 @@ type Product struct {
 // GetProductURL returns the JLCPCB product page URL.
 func (p *Product) GetProductURL() string {
 	if p.UrlSuffix != "" {
-		return fmt.Sprintf("https://jlcpcb.com/parts/details/%s", p.UrlSuffix)
+		return fmt.Sprintf("https://jlcpcb.com/partdetail/%s", p.UrlSuffix)
 	}
-	return fmt.Sprintf("https://jlcpcb.com/parts/details/%s", p.ComponentCode)
+	return fmt.Sprintf("https://jlcpcb.com/partdetail/%s", p.ComponentCode)
 }
 
 // FilterAttribute represents a component attribute filter.
