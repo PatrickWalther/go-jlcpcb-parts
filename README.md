@@ -102,15 +102,14 @@ resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
 product, err := client.Product.Details(ctx, "CGJ2B2C0G1H390J050BA")
 ```
 
-Details sends one keyword search. The page size depends on the identifier:
+On a cache miss, Details sends one keyword search. The page size depends on the identifier:
 
 - A JLC part code (`^[Cc][0-9]+$`, for example `C7593`) uses page size 10.
 - Any other identifier, for example an MPN, uses page size 50.
 
-Details lookup chooses:
-1. exact `componentCode` match
-2. exact `componentModelEn` match
-3. first result fallback
+Details returns the first result whose `componentCode` or `componentModelEn` is equal to the identifier.
+The match ignores case.
+If no result matches, Details returns the first result.
 
 ### Assembly library and ordering
 

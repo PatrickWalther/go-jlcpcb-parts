@@ -421,6 +421,64 @@ func TestProductDecodeLiveFixtures(t *testing.T) {
 	}
 }
 
+// TestProductDecodeNonZeroFields checks the JSON tag of each new field.
+// The live fixtures have no true assemblyComponentFlag and no non-empty
+// componentAlternativesCode, so this test uses a non-zero value for each field.
+func TestProductDecodeNonZeroFields(t *testing.T) {
+	data := []byte(`{
+		"componentCode": "C1",
+		"componentLibraryType": "expand",
+		"preferredComponentFlag": true,
+		"lossNumber": 3,
+		"leastPatchNumber": 5,
+		"canPresaleNumber": -10107,
+		"noBuyReason": "This product is no longer manufactured.",
+		"encapsulationNumber": 4000,
+		"preMinPurchaseNum": 42,
+		"minPurchaseNum": 2,
+		"componentAlternativesCode": "C1525",
+		"assemblyComponentFlag": true,
+		"isBuyComponent": "0"
+	}`)
+	want := productFields{
+		ComponentLibraryType:      "expand",
+		PreferredComponentFlag:    true,
+		LossNumber:                3,
+		LeastPatchNumber:          5,
+		CanPresaleNumber:          -10107,
+		NoBuyReason:               "This product is no longer manufactured.",
+		EncapsulationNumber:       4000,
+		PreMinPurchaseNum:         42,
+		MinPurchaseNum:            2,
+		ComponentAlternativesCode: "C1525",
+		AssemblyComponentFlag:     true,
+		IsBuyComponent:            "0",
+		LibraryType:               LibraryTypePreferred,
+		Buyable:                   false,
+	}
+
+	var product Product
+	if err := json.Unmarshal(data, &product); err != nil {
+		t.Fatalf("decode non-zero fields: %v", err)
+	}
+	if got := fieldsOf(&product); got != want {
+		t.Errorf("decoded fields mismatch\n got: %+v\nwant: %+v", got, want)
+	}
+
+	// The cache stores a product as JSON. Encode and decode it again.
+	encoded, err := json.Marshal(product)
+	if err != nil {
+		t.Fatalf("encode product: %v", err)
+	}
+	var roundTrip Product
+	if err := json.Unmarshal(encoded, &roundTrip); err != nil {
+		t.Fatalf("decode encoded product: %v", err)
+	}
+	if got := fieldsOf(&roundTrip); got != want {
+		t.Errorf("round-trip fields mismatch\n got: %+v\nwant: %+v", got, want)
+	}
+}
+
 // TestProductDecodeNullFields checks that JSON null decodes to zero values.
 func TestProductDecodeNullFields(t *testing.T) {
 	data := []byte(`{
