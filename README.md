@@ -25,6 +25,8 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 - Service-based API (`client.Search`, `client.Product`)
 - Keyword part search with filters and pagination
 - Product details lookup by JLC code or MPN
+- Assembly library class (basic, preferred, extended) and ordering fields
+- Price ladders sorted by quantity
 - Typed error handling (`errors.Is`)
 - Optional in-memory response caching
 - Rate limiting and retry/backoff
@@ -100,10 +102,61 @@ resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
 product, err := client.Product.Details(ctx, "CGJ2B2C0G1H390J050BA")
 ```
 
+Details sends one keyword search. The page size depends on the identifier:
+
+- A JLC part code (`^[Cc][0-9]+$`, for example `C7593`) uses page size 10.
+- Any other identifier, for example an MPN, uses page size 50.
+
 Details lookup chooses:
 1. exact `componentCode` match
 2. exact `componentModelEn` match
 3. first result fallback
+
+### Assembly library and ordering
+
+```go
+product, err := client.Product.Details(ctx, "C7593")
+if err != nil {
+	log.Fatal(err)
+}
+
+fmt.Println(product.LibraryType()) // "preferred"
+
+if !product.Buyable() {
+	fmt.Println("JLCPCB does not sell this part:", product.NoBuyReason)
+}
+
+for _, pb := range product.SortedBuyComponentPrices() {
+	fmt.Printf("%d+: %.4f USD\n", pb.StartNumber, float64(pb.ProductPrice))
+}
+```
+
+`LibraryType()` maps the raw fields to one class:
+
+| `componentLibraryType` | `preferredComponentFlag` | `LibraryType()` |
+|---|---|---|
+| `base` | any | `LibraryTypeBasic` (`"basic"`) |
+| `expand` | `true` | `LibraryTypePreferred` (`"preferred"`) |
+| `expand` | `false` | `LibraryTypeExtended` (`"extended"`) |
+| empty or other | any | `""` |
+
+The match ignores case and surrounding white space.
+
+`Buyable()` reads `isBuyComponent`:
+
+| `isBuyComponent` | `Buyable()` |
+|---|---|
+| `"1"` | `true` |
+| `"0"` | `false` |
+| empty (unknown) | `true` |
+
+`Buyable()` returns false only for `"0"`. When it returns false, `NoBuyReason` often gives the reason.
+The raw `IsBuyComponent` field does not change.
+
+The live API can send `buyComponentPrices` in a random order.
+`SortedComponentPrices()` and `SortedBuyComponentPrices()` return copies sorted by `StartNumber`.
+`SortPriceBreaks(breaks)` sorts any `[]PriceBreak` the same way. The sort is stable.
+These functions do not change the raw fields.
 
 ## Public Types
 
@@ -134,6 +187,36 @@ Details lookup chooses:
 - `IsBuyComponent string`
 - `UrlSuffix string`
 - `LcscGoodsUrl string`
+- `ComponentLibraryType string`: raw library type, `"base"` or `"expand"`
+- `PreferredComponentFlag bool`: true for a preferred extended part
+- `LossNumber int`: attrition, the extra parts that JLCPCB adds to an order
+- `LeastPatchNumber int`: minimum placement quantity
+- `CanPresaleNumber int`: quantity open for pre-order (can be negative)
+- `NoBuyReason string`: reason that JLCPCB does not sell the part
+- `EncapsulationNumber int`: parts per reel or package
+- `PreMinPurchaseNum int`: minimum pre-order purchase quantity
+- `ComponentAlternativesCode string`: alternative part code
+- `AssemblyComponentFlag bool`: raw `assemblyComponentFlag` value
+
+A JSON `null` decodes to the zero value: `""`, `0`, or `false`.
+
+Methods:
+
+- `GetProductURL() string`
+- `LibraryType() LibraryType`
+- `Buyable() bool`
+- `SortedComponentPrices() []PriceBreak`
+- `SortedBuyComponentPrices() []PriceBreak`
+
+### `LibraryType`
+
+- `LibraryTypeBasic` (`"basic"`)
+- `LibraryTypePreferred` (`"preferred"`)
+- `LibraryTypeExtended` (`"extended"`)
+
+### Functions
+
+- `SortPriceBreaks([]PriceBreak) []PriceBreak`
 
 ## Client Options
 
@@ -214,6 +297,13 @@ Integration tests (live API, opt-in):
 ```bash
 go test -tags=integration -run Integration ./...
 ```
+
+## Changes in v1.1.0
+
+- `Product` decodes the assembly library and ordering fields (see `Product`).
+- New `Product.LibraryType()`, `Product.Buyable()`, `Product.SortedComponentPrices()` and `Product.SortedBuyComponentPrices()`.
+- New `SortPriceBreaks` function.
+- `Product.Details` uses page size 10 for a JLC part code. It still uses page size 50 for other identifiers.
 
 ## Breaking Changes in v1.0.0
 

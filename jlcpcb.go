@@ -10,4 +10,4 @@
 package jlcpcb
 
 // Version is the current package version.
-const Version = "1.0.0"
+const Version = "1.1.0"

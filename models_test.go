@@ -2,6 +2,10 @@ package jlcpcb
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
+	"reflect"
+	"slices"
 	"testing"
 )
 
@@ -251,5 +255,323 @@ func TestSearchRequestStructure(t *testing.T) {
 
 	if !req.StockOnly {
 		t.Error("expected StockOnly to be true")
+	}
+}
+
+// loadFixture reads a raw selectSmtComponentList/v2 response from testdata.
+func loadFixture(t *testing.T, name string) []byte {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("testdata", name))
+	if err != nil {
+		t.Fatalf("read fixture %s: %v", name, err)
+	}
+	return data
+}
+
+// decodeFixture decodes a fixture and returns its products by component code.
+func decodeFixture(t *testing.T, name string) map[string]Product {
+	t.Helper()
+	var wrapper searchResponseWrapper
+	if err := json.Unmarshal(loadFixture(t, name), &wrapper); err != nil {
+		t.Fatalf("decode fixture %s: %v", name, err)
+	}
+	products := make(map[string]Product)
+	for _, p := range wrapper.Data.ComponentPageInfo.Products {
+		products[p.ComponentCode] = p
+	}
+	return products
+}
+
+// productFields holds the decoded fields that a fixture test checks.
+type productFields struct {
+	ComponentLibraryType      string
+	PreferredComponentFlag    bool
+	LossNumber                int
+	LeastPatchNumber          int
+	CanPresaleNumber          int
+	NoBuyReason               string
+	EncapsulationNumber       int
+	PreMinPurchaseNum         int
+	MinPurchaseNum            int
+	ComponentAlternativesCode string
+	AssemblyComponentFlag     bool
+	IsBuyComponent            string
+	LibraryType               LibraryType
+	Buyable                   bool
+}
+
+func fieldsOf(p *Product) productFields {
+	return productFields{
+		ComponentLibraryType:      p.ComponentLibraryType,
+		PreferredComponentFlag:    p.PreferredComponentFlag,
+		LossNumber:                p.LossNumber,
+		LeastPatchNumber:          p.LeastPatchNumber,
+		CanPresaleNumber:          p.CanPresaleNumber,
+		NoBuyReason:               p.NoBuyReason,
+		EncapsulationNumber:       p.EncapsulationNumber,
+		PreMinPurchaseNum:         p.PreMinPurchaseNum,
+		MinPurchaseNum:            p.MinPurchaseNum,
+		ComponentAlternativesCode: p.ComponentAlternativesCode,
+		AssemblyComponentFlag:     p.AssemblyComponentFlag,
+		IsBuyComponent:            p.IsBuyComponent,
+		LibraryType:               p.LibraryType(),
+		Buyable:                   p.Buyable(),
+	}
+}
+
+// TestProductDecodeLiveFixtures decodes trimmed live API responses.
+func TestProductDecodeLiveFixtures(t *testing.T) {
+	tests := []struct {
+		name    string
+		fixture string
+		code    string
+		want    productFields
+	}{
+		{
+			name:    "basic part",
+			fixture: "search_C25744.json",
+			code:    "C25744",
+			want: productFields{
+				ComponentLibraryType: "base",
+				LossNumber:           10,
+				LeastPatchNumber:     20,
+				CanPresaleNumber:     19172766,
+				EncapsulationNumber:  10000,
+				PreMinPurchaseNum:    3923,
+				MinPurchaseNum:       1,
+				IsBuyComponent:       "1",
+				LibraryType:          LibraryTypeBasic,
+				Buyable:              true,
+			},
+		},
+		{
+			name:    "preferred extended part",
+			fixture: "search_C7593.json",
+			code:    "C7593",
+			want: productFields{
+				ComponentLibraryType:   "expand",
+				PreferredComponentFlag: true,
+				CanPresaleNumber:       221447,
+				EncapsulationNumber:    2500,
+				PreMinPurchaseNum:      95,
+				MinPurchaseNum:         1,
+				IsBuyComponent:         "1",
+				LibraryType:            LibraryTypePreferred,
+				Buyable:                true,
+			},
+		},
+		{
+			name:    "extended part",
+			fixture: "search_C2040.json",
+			code:    "C2040",
+			want: productFields{
+				ComponentLibraryType: "expand",
+				CanPresaleNumber:     67973,
+				EncapsulationNumber:  3400,
+				PreMinPurchaseNum:    11,
+				MinPurchaseNum:       1,
+				IsBuyComponent:       "1",
+				LibraryType:          LibraryTypeExtended,
+				Buyable:              true,
+			},
+		},
+		{
+			name:    "negative pre-order quantity",
+			fixture: "search_C2040.json",
+			code:    "C5200613",
+			want: productFields{
+				ComponentLibraryType: "expand",
+				CanPresaleNumber:     -1,
+				EncapsulationNumber:  3000,
+				PreMinPurchaseNum:    7,
+				MinPurchaseNum:       7,
+				IsBuyComponent:       "1",
+				LibraryType:          LibraryTypeExtended,
+				Buyable:              true,
+			},
+		},
+		{
+			name:    "part that JLCPCB does not sell",
+			fixture: "search_C2040.json",
+			code:    "C19400368",
+			want: productFields{
+				ComponentLibraryType: "expand",
+				NoBuyReason:          "This product is no longer manufactured.",
+				EncapsulationNumber:  15,
+				PreMinPurchaseNum:    1,
+				MinPurchaseNum:       1,
+				IsBuyComponent:       "0",
+				LibraryType:          LibraryTypeExtended,
+				Buyable:              false,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			products := decodeFixture(t, tt.fixture)
+			product, ok := products[tt.code]
+			if !ok {
+				t.Fatalf("fixture %s has no product %s", tt.fixture, tt.code)
+			}
+			if got := fieldsOf(&product); got != tt.want {
+				t.Errorf("decoded fields mismatch\n got: %+v\nwant: %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+// TestProductDecodeNullFields checks that JSON null decodes to zero values.
+func TestProductDecodeNullFields(t *testing.T) {
+	data := []byte(`{
+		"componentCode": "C1",
+		"componentLibraryType": null,
+		"preferredComponentFlag": null,
+		"lossNumber": null,
+		"leastPatchNumber": null,
+		"canPresaleNumber": null,
+		"noBuyReason": null,
+		"encapsulationNumber": null,
+		"preMinPurchaseNum": null,
+		"minPurchaseNum": null,
+		"componentAlternativesCode": null,
+		"assemblyComponentFlag": null,
+		"isBuyComponent": null,
+		"componentPrices": null,
+		"buyComponentPrices": null
+	}`)
+
+	var product Product
+	if err := json.Unmarshal(data, &product); err != nil {
+		t.Fatalf("decode null fields: %v", err)
+	}
+	want := productFields{Buyable: true}
+	if got := fieldsOf(&product); got != want {
+		t.Errorf("null fields mismatch\n got: %+v\nwant: %+v", got, want)
+	}
+	if product.SortedComponentPrices() != nil || product.SortedBuyComponentPrices() != nil {
+		t.Error("expected nil sorted prices for null price ladders")
+	}
+}
+
+// TestProductLibraryType tests the library class mapping.
+func TestProductLibraryType(t *testing.T) {
+	tests := []struct {
+		raw       string
+		preferred bool
+		want      LibraryType
+	}{
+		{"base", false, LibraryTypeBasic},
+		{"base", true, LibraryTypeBasic},
+		{"expand", true, LibraryTypePreferred},
+		{"expand", false, LibraryTypeExtended},
+		{" Expand ", false, LibraryTypeExtended},
+		{"BASE", false, LibraryTypeBasic},
+		{"", false, ""},
+		{"", true, ""},
+		{"unknown", true, ""},
+	}
+
+	for _, tt := range tests {
+		product := &Product{ComponentLibraryType: tt.raw, PreferredComponentFlag: tt.preferred}
+		if got := product.LibraryType(); got != tt.want {
+			t.Errorf("LibraryType(%q, preferred=%v) = %q, want %q", tt.raw, tt.preferred, got, tt.want)
+		}
+	}
+}
+
+// TestProductBuyable tests the isBuyComponent mapping.
+func TestProductBuyable(t *testing.T) {
+	tests := []struct {
+		raw  string
+		want bool
+	}{
+		{"1", true},
+		{"0", false},
+		{" 0 ", false},
+		{"", true},
+	}
+
+	for _, tt := range tests {
+		product := &Product{IsBuyComponent: tt.raw}
+		if got := product.Buyable(); got != tt.want {
+			t.Errorf("Buyable(%q) = %v, want %v", tt.raw, got, tt.want)
+		}
+		if product.IsBuyComponent != tt.raw {
+			t.Errorf("Buyable changed IsBuyComponent to %q", product.IsBuyComponent)
+		}
+	}
+}
+
+func startNumbers(breaks []PriceBreak) []int {
+	out := make([]int, 0, len(breaks))
+	for _, b := range breaks {
+		out = append(out, b.StartNumber)
+	}
+	return out
+}
+
+// TestSortPriceBreaks tests sort order, stability, and input safety.
+func TestSortPriceBreaks(t *testing.T) {
+	input := []PriceBreak{
+		{StartNumber: 50000, EndNumber: -1, ProductPrice: 0.0017},
+		{StartNumber: 1000, EndNumber: 49999, ProductPrice: 0.0026},
+		{StartNumber: 1, EndNumber: 999, ProductPrice: 0.0033},
+		{StartNumber: 1000, EndNumber: 49999, ProductPrice: 0.0025},
+	}
+	original := slices.Clone(input)
+
+	sorted := SortPriceBreaks(input)
+
+	want := []PriceBreak{
+		{StartNumber: 1, EndNumber: 999, ProductPrice: 0.0033},
+		{StartNumber: 1000, EndNumber: 49999, ProductPrice: 0.0026},
+		{StartNumber: 1000, EndNumber: 49999, ProductPrice: 0.0025},
+		{StartNumber: 50000, EndNumber: -1, ProductPrice: 0.0017},
+	}
+	if !reflect.DeepEqual(sorted, want) {
+		t.Errorf("sorted = %+v, want %+v", sorted, want)
+	}
+	if !reflect.DeepEqual(input, original) {
+		t.Errorf("input changed to %+v", input)
+	}
+
+	sorted[0].StartNumber = 99
+	if input[2].StartNumber != 1 {
+		t.Error("result shares memory with input")
+	}
+
+	if SortPriceBreaks(nil) != nil {
+		t.Error("expected nil for nil input")
+	}
+	if got := SortPriceBreaks([]PriceBreak{}); got == nil || len(got) != 0 {
+		t.Errorf("expected empty non-nil slice, got %#v", got)
+	}
+}
+
+// TestProductSortedPricesFromFixture uses the unsorted buy prices of a live response.
+func TestProductSortedPricesFromFixture(t *testing.T) {
+	product := decodeFixture(t, "search_C7593.json")["C7593"]
+
+	rawBuy := startNumbers(product.BuyComponentPrices)
+	if slices.IsSorted(rawBuy) {
+		t.Fatalf("fixture buy prices are already sorted: %v", rawBuy)
+	}
+
+	want := []int{1, 50, 150, 500, 2500, 5000}
+	if got := startNumbers(product.SortedBuyComponentPrices()); !reflect.DeepEqual(got, want) {
+		t.Errorf("SortedBuyComponentPrices start numbers = %v, want %v", got, want)
+	}
+	if got := startNumbers(product.SortedComponentPrices()); !reflect.DeepEqual(got, want) {
+		t.Errorf("SortedComponentPrices start numbers = %v, want %v", got, want)
+	}
+	if got := startNumbers(product.BuyComponentPrices); !reflect.DeepEqual(got, rawBuy) {
+		t.Errorf("raw BuyComponentPrices changed to %v, want %v", got, rawBuy)
+	}
+
+	sortedBuy := product.SortedBuyComponentPrices()
+	first, last := float64(sortedBuy[0].ProductPrice), float64(sortedBuy[len(sortedBuy)-1].ProductPrice)
+	if first != 0.1158 || last != 0.0626 {
+		t.Errorf("sorted buy prices lost their price values: %+v", sortedBuy)
 	}
 }

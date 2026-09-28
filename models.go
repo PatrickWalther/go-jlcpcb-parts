@@ -1,9 +1,12 @@
 package jlcpcb
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
+	"strings"
 )
 
 // Attribute represents a product specification/parameter.
@@ -64,6 +67,90 @@ type Product struct {
 	IsBuyComponent           string       `json:"isBuyComponent"`           // Can be purchased
 	UrlSuffix                string       `json:"urlSuffix"`                // URL suffix for webpage
 	LcscGoodsUrl             string       `json:"lcscGoodsUrl"`             // LCSC product URL
+
+	// Assembly library and ordering fields. A JSON null decodes to the zero value.
+	ComponentLibraryType      string `json:"componentLibraryType"`      // Raw library type: "base" or "expand"
+	PreferredComponentFlag    bool   `json:"preferredComponentFlag"`    // True for a preferred extended part
+	LossNumber                int    `json:"lossNumber"`                // Attrition: extra parts that JLCPCB adds to an order
+	LeastPatchNumber          int    `json:"leastPatchNumber"`          // Minimum placement quantity
+	CanPresaleNumber          int    `json:"canPresaleNumber"`          // Quantity open for pre-order (can be negative)
+	NoBuyReason               string `json:"noBuyReason"`               // Reason that JLCPCB does not sell the part (empty for null)
+	EncapsulationNumber       int    `json:"encapsulationNumber"`       // Parts per reel or package
+	PreMinPurchaseNum         int    `json:"preMinPurchaseNum"`         // Minimum pre-order purchase quantity
+	ComponentAlternativesCode string `json:"componentAlternativesCode"` // Alternative part code (empty for null)
+	AssemblyComponentFlag     bool   `json:"assemblyComponentFlag"`     // Raw assemblyComponentFlag value
+}
+
+// LibraryType is the JLCPCB assembly library class of a part.
+type LibraryType string
+
+const (
+	// LibraryTypeBasic is a basic part.
+	LibraryTypeBasic LibraryType = "basic"
+	// LibraryTypePreferred is a preferred extended part.
+	LibraryTypePreferred LibraryType = "preferred"
+	// LibraryTypeExtended is an extended part that is not preferred.
+	LibraryTypeExtended LibraryType = "extended"
+)
+
+// LibraryType returns the assembly library class of the part.
+//
+// It maps ComponentLibraryType and PreferredComponentFlag as follows:
+//
+//   - "base" returns LibraryTypeBasic.
+//   - "expand" with PreferredComponentFlag true returns LibraryTypePreferred.
+//   - "expand" with PreferredComponentFlag false returns LibraryTypeExtended.
+//   - An empty or unknown value returns "".
+//
+// The match ignores case and surrounding white space.
+func (p *Product) LibraryType() LibraryType {
+	raw := strings.TrimSpace(p.ComponentLibraryType)
+	switch {
+	case strings.EqualFold(raw, "base"):
+		return LibraryTypeBasic
+	case strings.EqualFold(raw, "expand"):
+		if p.PreferredComponentFlag {
+			return LibraryTypePreferred
+		}
+		return LibraryTypeExtended
+	default:
+		return ""
+	}
+}
+
+// Buyable reports whether JLCPCB sells the part.
+//
+// It returns false only when IsBuyComponent is "0". It returns true for "1".
+// It also returns true for an empty value, because an empty value is unknown.
+// NoBuyReason often gives the reason when Buyable returns false.
+func (p *Product) Buyable() bool {
+	return strings.TrimSpace(p.IsBuyComponent) != "0"
+}
+
+// SortedComponentPrices returns a copy of ComponentPrices sorted by StartNumber.
+// It does not change ComponentPrices.
+func (p *Product) SortedComponentPrices() []PriceBreak {
+	return SortPriceBreaks(p.ComponentPrices)
+}
+
+// SortedBuyComponentPrices returns a copy of BuyComponentPrices sorted by StartNumber.
+// It does not change BuyComponentPrices.
+//
+// The live API can send BuyComponentPrices in a random order.
+func (p *Product) SortedBuyComponentPrices() []PriceBreak {
+	return SortPriceBreaks(p.BuyComponentPrices)
+}
+
+// SortPriceBreaks returns a copy of breaks sorted by StartNumber in ascending order.
+//
+// The sort is stable: breaks with the same StartNumber keep their order.
+// It does not change breaks. It returns nil when breaks is nil.
+func SortPriceBreaks(breaks []PriceBreak) []PriceBreak {
+	sorted := slices.Clone(breaks)
+	slices.SortStableFunc(sorted, func(a, b PriceBreak) int {
+		return cmp.Compare(a.StartNumber, b.StartNumber)
+	})
+	return sorted
 }
 
 // GetProductURL returns the JLCPCB product page URL.

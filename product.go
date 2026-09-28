@@ -15,6 +15,10 @@ type ProductService service
 //
 // The identifier can be a JLC component code (for example, C3900982)
 // or a manufacturer part number (for example, CGJ2B2C0G1H390J050BA).
+//
+// Details searches 10 results for a component code and 50 results for any
+// other identifier. It returns the exact componentCode or componentModelEn
+// match. If no result matches exactly, it returns the first result.
 func (s *ProductService) Details(ctx context.Context, identifier string) (*Product, error) {
 	normalized := strings.TrimSpace(identifier)
 	if normalized == "" {
@@ -35,7 +39,7 @@ func (s *ProductService) Details(ctx context.Context, identifier string) (*Produ
 	searchResp, err := c.Search.Keyword(ctx, &SearchRequest{
 		Keyword:     normalized,
 		Page:        1,
-		PageSize:    50,
+		PageSize:    detailsPageSize(normalized),
 		PresaleType: PresaleTypeAny,
 	})
 	if err != nil {
@@ -62,6 +66,35 @@ func (s *ProductService) Details(ctx context.Context, identifier string) (*Produ
 	}
 
 	return &product, nil
+}
+
+const (
+	// detailsCodePageSize is the search page size for a JLC component code.
+	// The exact match was the first result in every live probe.
+	detailsCodePageSize = 10
+	// detailsMPNPageSize is the search page size for a manufacturer part number.
+	detailsMPNPageSize = 50
+)
+
+// detailsPageSize returns the search page size for a Details lookup.
+func detailsPageSize(identifier string) int {
+	if isComponentCode(identifier) {
+		return detailsCodePageSize
+	}
+	return detailsMPNPageSize
+}
+
+// isComponentCode reports whether identifier matches ^[Cc][0-9]+$.
+func isComponentCode(identifier string) bool {
+	if len(identifier) < 2 || (identifier[0] != 'C' && identifier[0] != 'c') {
+		return false
+	}
+	for i := 1; i < len(identifier); i++ {
+		if identifier[i] < '0' || identifier[i] > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func cacheKeyForProduct(identifier string) string {

@@ -6,7 +6,9 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -346,5 +348,91 @@ func TestSearchKeywordServerContextTimeout(t *testing.T) {
 	}
 	if !strings.Contains(strings.ToLower(err.Error()), "context") {
 		t.Fatalf("expected context-related error, got %v", err)
+	}
+}
+
+// fixtureServer serves a fixture and records the pageSize of each request.
+func fixtureServer(t *testing.T, fixture string, pageSizes *[]int) *httptest.Server {
+	t.Helper()
+	body := loadFixture(t, fixture)
+	var mu sync.Mutex
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var req searchRequestBody
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			t.Errorf("decode request failed: %v", err)
+		}
+		mu.Lock()
+		*pageSizes = append(*pageSizes, req.PageSize)
+		mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(body)
+	}))
+	t.Cleanup(server.Close)
+	return server
+}
+
+func TestProductDetailsPageSize(t *testing.T) {
+	tests := []struct {
+		identifier string
+		fixture    string
+		wantCode   string
+		wantSize   int
+	}{
+		{"C7593", "search_C7593.json", "C7593", 10},
+		{"c7593", "search_C7593.json", "C7593", 10},
+		{"  C2040  ", "search_C2040.json", "C2040", 10},
+		{"NE555DR", "search_C7593.json", "C7593", 50},
+		{"RP2040", "search_C2040.json", "C2040", 50},
+		{"C", "search_C7593.json", "C7593", 50},
+		{"C75-93", "search_C7593.json", "C7593", 50},
+		{"CL05B104KO5NNNC", "search_C25744.json", "C25744", 50},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.identifier, func(t *testing.T) {
+			var pageSizes []int
+			server := fixtureServer(t, tt.fixture, &pageSizes)
+			client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()), WithoutCache())
+
+			product, err := client.Product.Details(context.Background(), tt.identifier)
+			if err != nil {
+				t.Fatalf("product details failed: %v", err)
+			}
+			if product.ComponentCode != tt.wantCode {
+				t.Errorf("expected component code %s, got %s", tt.wantCode, product.ComponentCode)
+			}
+			if len(pageSizes) != 1 || pageSizes[0] != tt.wantSize {
+				t.Errorf("expected one request with pageSize=%d, got %v", tt.wantSize, pageSizes)
+			}
+		})
+	}
+}
+
+func TestProductDetailsCacheKeepsNewFields(t *testing.T) {
+	var pageSizes []int
+	server := fixtureServer(t, "search_C2040.json", &pageSizes)
+	client := NewClient(
+		WithBaseURL(server.URL),
+		WithHTTPClient(server.Client()),
+		WithCache(NewMemoryCache()),
+	)
+
+	first, err := client.Product.Details(context.Background(), "C19400368")
+	if err != nil {
+		t.Fatalf("first details call failed: %v", err)
+	}
+	second, err := client.Product.Details(context.Background(), "C19400368")
+	if err != nil {
+		t.Fatalf("second details call failed: %v", err)
+	}
+
+	if len(pageSizes) != 1 {
+		t.Fatalf("expected 1 upstream request due to cache hit, got %d", len(pageSizes))
+	}
+	if !reflect.DeepEqual(first, second) {
+		t.Errorf("cached product differs\n got: %+v\nwant: %+v", second, first)
+	}
+	if second.Buyable() || second.NoBuyReason == "" || second.LibraryType() != LibraryTypeExtended {
+		t.Errorf("cached product lost ordering fields: %+v", second)
 	}
 }
