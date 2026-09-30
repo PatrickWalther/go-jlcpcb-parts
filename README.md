@@ -87,6 +87,7 @@ resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
 	StockOnly:     false,                   // if true and PresaleTypeAny => stock search
 	ComponentType: jlcpcb.ComponentTypeBase, // Any, Base, Expand
 	Brands:        []string{"TDK", "Murata"},
+	Packages:      []string{"0402"},           // the endpoint filters by package
 	Attributes: []jlcpcb.FilterAttribute{
 		{Name: "Package", Value: "0402"},
 	},

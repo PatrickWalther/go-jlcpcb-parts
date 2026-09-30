@@ -436,3 +436,53 @@ func TestProductDetailsCacheKeepsNewFields(t *testing.T) {
 		t.Errorf("cached product lost ordering fields: %+v", second)
 	}
 }
+
+func TestSearchKeywordSendsPackageFilter(t *testing.T) {
+	var captured searchRequestBody
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := json.NewDecoder(r.Body).Decode(&captured); err != nil {
+			t.Fatalf("decode request failed: %v", err)
+		}
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":    200,
+			"message": nil,
+			"data": map[string]interface{}{
+				"componentPageInfo": map[string]interface{}{
+					"total":    0,
+					"pageSize": 50,
+					"pageNum":  1,
+					"list":     []map[string]interface{}{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()))
+	if _, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:  "18pF",
+		Packages: []string{" 0603 ", "", "0402"},
+	}); err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if len(captured.ComponentSpecificationList) != 2 ||
+		captured.ComponentSpecificationList[0] != "0603" ||
+		captured.ComponentSpecificationList[1] != "0402" {
+		t.Fatalf("componentSpecificationList = %v, want [0603 0402]", captured.ComponentSpecificationList)
+	}
+
+	if _, err := client.Search.Keyword(context.Background(), &SearchRequest{Keyword: "18pF"}); err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if captured.ComponentSpecificationList == nil || len(captured.ComponentSpecificationList) != 0 {
+		t.Fatalf("componentSpecificationList = %v, want an empty list without a package filter", captured.ComponentSpecificationList)
+	}
+}
+
+func TestSearchKeywordCacheKeyIncludesPackages(t *testing.T) {
+	plain := cacheKeyForSearch(&SearchRequest{Keyword: "18pF"}, "")
+	filtered := cacheKeyForSearch(&SearchRequest{Keyword: "18pF", Packages: []string{"0603"}}, "")
+	if plain == filtered {
+		t.Fatal("the cache key must differ when a package filter is set")
+	}
+}

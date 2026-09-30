@@ -45,6 +45,10 @@ type SearchRequest struct {
 	ComponentType ComponentType
 	Attributes    []FilterAttribute
 	Brands        []string
+	// Packages keeps only parts whose package (componentSpecificationEn) is
+	// one of these values, for example "0603". The endpoint applies the
+	// filter, so every page holds only matching parts.
+	Packages      []string
 	SortPrimary   string
 	SortSecondary string
 }
@@ -133,6 +137,13 @@ func (s *SearchService) Keyword(ctx context.Context, req *SearchRequest) (*Searc
 		brandList = append(brandList, brand)
 	}
 
+	packageList := make([]interface{}, 0, len(searchReq.Packages))
+	for _, pkg := range searchReq.Packages {
+		if pkg = strings.TrimSpace(pkg); pkg != "" {
+			packageList = append(packageList, pkg)
+		}
+	}
+
 	var componentLibraryType interface{}
 	if searchReq.ComponentType != ComponentTypeAny {
 		componentLibraryType = string(searchReq.ComponentType)
@@ -147,7 +158,7 @@ func (s *SearchService) Keyword(ctx context.Context, req *SearchRequest) (*Searc
 		ComponentLibraryType:       componentLibraryType,
 		ComponentAttributeList:     attrList,
 		ComponentBrandList:         brandList,
-		ComponentSpecificationList: []interface{}{},
+		ComponentSpecificationList: packageList,
 		ParamList:                  []interface{}{},
 		FirstSortName:              nullableString(searchReq.SortPrimary),
 		SecondSortName:             nullableString(searchReq.SortSecondary),
@@ -181,6 +192,7 @@ func cacheKeyForSearch(req *SearchRequest, presaleType string) string {
 		ComponentType ComponentType     `json:"componentType"`
 		Attributes    []FilterAttribute `json:"attributes"`
 		Brands        []string          `json:"brands"`
+		Packages      []string          `json:"packages"`
 		SortPrimary   string            `json:"sortPrimary"`
 		SortSecondary string            `json:"sortSecondary"`
 	}{
@@ -192,6 +204,7 @@ func cacheKeyForSearch(req *SearchRequest, presaleType string) string {
 		ComponentType: req.ComponentType,
 		Attributes:    req.Attributes,
 		Brands:        req.Brands,
+		Packages:      req.Packages,
 		SortPrimary:   req.SortPrimary,
 		SortSecondary: req.SortSecondary,
 	}
