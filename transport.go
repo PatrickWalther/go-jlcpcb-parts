@@ -38,12 +38,26 @@ func (c *Client) doURL(ctx context.Context, method, endpoint string, params url.
 // doURLWithRetry performs an HTTP request to endpoint and parses API-level
 // errors. It retries a failed attempt when retry returns true.
 func (c *Client) doURLWithRetry(ctx context.Context, retry func(error, int) bool, method, endpoint string, params url.Values, reqBody interface{}, result interface{}) error {
-	var lastErr error
-	maxAttempts := c.retryConfig.MaxRetries + 1
+	return c.withRetry(ctx, retry, func() (int, error) {
+		return c.doOnce(ctx, method, endpoint, params, reqBody, result)
+	})
+}
 
-	for attempt := 0; attempt < maxAttempts; attempt++ {
-		if attempt > 0 {
-			backoff := c.retryConfig.calculateBackoff(attempt - 1)
+// withRetry calls attempt until it succeeds, until retry returns false for
+// its error, or until the attempts of the retry configuration are used. It
+// waits for the rate limiter before each attempt and for the backoff before
+// each retry. attempt returns the HTTP status code (0 when no response
+// arrived) and the error of the attempt.
+//
+// withRetry always makes at least one attempt, also when MaxRetries is less
+// than 0.
+func (c *Client) withRetry(ctx context.Context, retry func(error, int) bool, attempt func() (int, error)) error {
+	var lastErr error
+	maxAttempts := max(c.retryConfig.MaxRetries+1, 1)
+
+	for i := 0; i < maxAttempts; i++ {
+		if i > 0 {
+			backoff := c.retryConfig.calculateBackoff(i - 1)
 			if err := sleep(ctx, backoff); err != nil {
 				return err
 			}
@@ -53,13 +67,13 @@ func (c *Client) doURLWithRetry(ctx context.Context, retry func(error, int) bool
 			return fmt.Errorf("jlcpcb: rate limiter wait failed: %w", err)
 		}
 
-		statusCode, err := c.doOnce(ctx, method, endpoint, params, reqBody, result)
+		statusCode, err := attempt()
 		if err == nil {
 			return nil
 		}
 
 		lastErr = err
-		if !retry(err, statusCode) || attempt >= maxAttempts-1 {
+		if !retry(err, statusCode) || i >= maxAttempts-1 {
 			return err
 		}
 	}

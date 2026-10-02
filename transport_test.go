@@ -111,3 +111,30 @@ func TestTransportRetriesOn503(t *testing.T) {
 		t.Fatalf("expected recovered value, got %q", resp.Data.Value)
 	}
 }
+
+// TestTransportNegativeMaxRetries checks that a negative MaxRetries still
+// sends one request. Before, the client sent no request and returned no
+// error.
+func TestTransportNegativeMaxRetries(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		_, _ = w.Write([]byte(`{"code":500,"message":"server error","data":null}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()), WithRetryConfig(RetryConfig{
+		MaxRetries:        -1,
+		InitialBackoff:    1,
+		MaxBackoff:        1,
+		BackoffMultiplier: 1,
+	}))
+
+	var resp interface{}
+	if err := client.do(context.Background(), http.MethodGet, "/", nil, nil, &resp); !errors.Is(err, ErrServer) {
+		t.Fatalf("error = %v, want ErrServer", err)
+	}
+	if n := requests.Load(); n != 1 {
+		t.Errorf("server got %d requests, want 1", n)
+	}
+}

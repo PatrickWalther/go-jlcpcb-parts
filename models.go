@@ -153,6 +153,8 @@ type Product struct {
 	// Stable file access ids. A file access id has no expiry time, unlike a
 	// signed URL. The v2 search sends null for these ids today. The classic
 	// search and the detail records send them. A JSON null decodes to "".
+	// FileURL gives the download URL of an id, and FileService.Open
+	// downloads the file.
 	ProductBigImageAccessId string `json:"productBigImageAccessId"` // File access id of the large image
 	MinImageAccessId        string `json:"minImageAccessId"`        // File access id of the small image
 	DataManualFileAccessId  string `json:"dataManualFileAccessId"`  // File access id of the datasheet copy that JLCPCB hosts
@@ -206,10 +208,13 @@ func (p *Product) Buyable() bool {
 
 // ImageURL returns the best image URL of the part, or "" when the part has no
 // image. It prefers the large image to the small image, and a signed URL to an
-// unsigned URL, because the live API sends the signed URLs.
+// unsigned URL, because the live API sends the signed URLs. It skips a URL
+// without a file name, for example the LCSC folder URL
+// "https://assets.lcsc.com/images/lcsc/900x900/" that some records send.
 //
 // A signed URL expires 30 minutes after the response. Download the image soon,
-// and do not store the URL.
+// and do not store the URL. StableImageURL and StableThumbnailURL prefer the
+// URLs that have no expiry time.
 func (p *Product) ImageURL() string {
 	for _, candidate := range []string{
 		p.ProductBigImageAccessIdUrl,
@@ -217,7 +222,7 @@ func (p *Product) ImageURL() string {
 		p.ComponentImageUrl,
 		p.MinImage,
 	} {
-		if candidate = strings.TrimSpace(candidate); candidate != "" {
+		if candidate = strings.TrimSpace(candidate); candidate != "" && hasFileName(candidate) {
 			return candidate
 		}
 	}
@@ -225,18 +230,24 @@ func (p *Product) ImageURL() string {
 }
 
 // DatasheetURLs returns the datasheet URLs of the part, best first, without
-// empty or duplicate URLs. The order is DataManualUrl (usually an LCSC PDF),
-// DataManualFileAccessIdUrl (a signed URL of the copy that JLCPCB hosts) and
-// DataManualOfficialLink (the manufacturer page). It returns nil when the part
-// has no datasheet URL.
+// empty or duplicate URLs. The order is:
 //
-// The signed URL expires 30 minutes after the response. Download the file
-// soon, and do not store the URL.
+//  1. FileURL(DataManualFileAccessId): the stable URL of the PDF copy that
+//     JLCPCB hosts.
+//  2. DataManualFileAccessIdUrl: a signed URL of the same copy. It expires 30
+//     or 60 minutes after the response.
+//  3. DataManualUrl: usually an LCSC URL. A "www.lcsc.com/datasheet/" URL
+//     gives an HTML viewer page, not a PDF.
+//  4. DataManualOfficialLink: the manufacturer page.
+//
+// It returns nil when the part has no datasheet URL. Download a signed URL
+// soon, and do not store it.
 func (p *Product) DatasheetURLs() []string {
 	var urls []string
 	for _, candidate := range []string{
-		p.DataManualUrl,
+		FileURL(p.DataManualFileAccessId),
 		p.DataManualFileAccessIdUrl,
+		p.DataManualUrl,
 		p.DataManualOfficialLink,
 	} {
 		candidate = strings.TrimSpace(candidate)

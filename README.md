@@ -5,9 +5,9 @@
 [![Tests](https://github.com/PatrickWalther/go-jlcpcb-parts/actions/workflows/test.yml/badge.svg)](https://github.com/PatrickWalther/go-jlcpcb-parts/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Go client for JLCPCB parts search endpoints used by https://jlcpcb.com/parts.
+A Go client for the JLCPCB parts endpoints that https://jlcpcb.com/parts uses: part search, part detail, facet counts, category names, assembly calculators and file downloads.
 
-> Note: JLCPCB does not publish an official public parts API. This library uses publicly accessible endpoints and can break if JLCPCB changes their internal contracts.
+> Note: JLCPCB does not publish an official public parts API. This library uses publicly accessible endpoints and can break if JLCPCB changes their internal contracts. See [Risks and limits](#risks-and-limits).
 
 ## Requirements
 
@@ -22,7 +22,7 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 
 ## Features
 
-- Service-based API (`client.Search`, `client.Product`, `client.Assembly`, `client.Category`)
+- Service-based API (`client.Search`, `client.Product`, `client.Assembly`, `client.Category`, `client.File`)
 - Keyword part search with filters and pagination
 - Search without a keyword by category and attribute values
 - Server-side filters for library type, stock, PCBA type and datasheets, and sort options
@@ -39,6 +39,8 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 - Parts-order quote (stock or pre-order, minimum quantity, price ladder)
 - PCBA type eligibility and lead time fields
 - PCBA attrition and order quantity calculators, and a local estimate with the same rule
+- Image and datasheet URLs that do not expire (file access ids), and a check for signed URLs
+- File download by access id, with the content type found from the bytes
 - Typed error handling (`errors.Is`)
 - Optional in-memory response caching
 - Rate limiting and retry/backoff
@@ -95,6 +97,7 @@ func main() {
 - `client.Assembly.Attrition(ctx, rows)`: attrition (extra parts for wastage) of each placement row
 - `client.Assembly.OrderQuantities(ctx, rows)`: part quantity that JLCPCB charges for each placement row
 - `client.Category.Info(ctx, id)`: category names of a numeric category id
+- `client.File.Open(ctx, accessID)`: download a part image or a datasheet copy by file access id
 
 ### Search request
 
@@ -112,6 +115,23 @@ resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
 ```
 
 The server applies all filters together: a part must match each filter.
+
+### Basic and preferred parts in one query
+
+```go
+resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
+	Keyword:          "SOIC-8",
+	ComponentType:    jlcpcb.ComponentTypeBase,
+	IncludePreferred: true, // preferredComponentFlag
+})
+for _, p := range resp.Products {
+	fmt.Println(p.ComponentCode, p.LibraryType()) // "basic" or "preferred"
+}
+```
+
+With `ComponentTypeBase`, `IncludePreferred` adds the preferred extended parts to the basic parts.
+The total of this query is the basic total plus the preferred total, so one query replaces two.
+`IncludePreferred` without a library type returns only the preferred extended parts.
 
 ### Category and parametric search
 
@@ -391,18 +411,80 @@ These functions do not change the raw fields.
 ### Images and datasheets
 
 ```go
-if url := product.ImageURL(); url != "" {
-	// Download the image now. The signed URL expires after 30 minutes.
+image := product.StableImageURL()     // large image, 900x900
+thumb := product.StableThumbnailURL() // small image, 96x96
+sheet := product.StableDatasheetURL() // PDF copy that JLCPCB hosts
+if jlcpcb.IsSignedURL(thumb) {
+	// The record has no stable URL. Download the file now, and do not store the URL.
 }
 for _, url := range product.DatasheetURLs() {
 	// Try each URL until one download succeeds.
 }
 ```
 
-`ImageURL()` returns the first non-empty value of `productBigImageAccessIdUrl`, `minImageAccessIdUrl`, `componentImageUrl` and `minImage`.
-The live API sends the image only in the signed `AccessIdUrl` fields.
+`FileURL(accessID)` returns `https://jlcpcb.com/api/file/downloadByFileSystemAccessId/<id>`.
+This URL needs no headers and has no expiry time.
+The same id gave the same bytes 45 minutes later, and an id that was 54 days old still gave a file.
+A byte comparison over more days was not done.
+`FileURL` returns `""` when the id is not all digits.
 
-`DatasheetURLs()` returns `dataManualUrl`, `dataManualFileAccessIdUrl` and `dataManualOfficialLink` in this order, without empty or duplicate values.
+The stable methods use these fields, in this order. They return `""` when no field is set.
+
+| Method | 1. File access id | 2. URL without expiry | 3. Signed URL (expires) |
+|---|---|---|---|
+| `StableImageURL()` | `ProductBigImageAccessId` | `ComponentImageUrl`, when it is an LCSC URL | `ProductBigImageAccessIdUrl` |
+| `StableThumbnailURL()` | `MinImageAccessId` | `MinImage`, when it is an LCSC URL | `MinImageAccessIdUrl` |
+| `StableDatasheetURL()` | `DataManualFileAccessId` | `DataManualUrl`, when it is a JLCPCB file URL | `DataManualFileAccessIdUrl` |
+
+`ComponentDetail` has the same three methods.
+
+- The batch detail (`DetailsByIDs`) sends the file access ids for most parts. The v2 search and `Detail` send no access ids. Thus for a search row, the stable methods usually return a signed URL. Use `IsSignedURL` to find it.
+- Some parts have no JLCPCB image. These records send LCSC image URLs in `componentImageUrl` and `minImage` (for example C6186). LCSC image URLs have no expiry time.
+- Some records send an LCSC folder URL without a file name, for example `https://assets.lcsc.com/images/lcsc/96x96/`. The methods skip such a URL.
+- `StableDatasheetURL()` does not return an LCSC datasheet URL, because a `www.lcsc.com/datasheet/` URL gives an HTML viewer page, not a PDF.
+
+A signed URL expires 30 minutes (search and `Detail`) or 60 minutes (`DetailsByIDs`) after the response.
+Download the file soon, and do not store the URL.
+The default cache keeps a response for 5 minutes, so a signed URL from the cache has at least 25 minutes left.
+
+`DatasheetURLs()` returns all datasheet URLs, best first, without empty or duplicate values:
+
+1. `FileURL(DataManualFileAccessId)`: the stable URL of the PDF copy that JLCPCB hosts.
+2. `dataManualFileAccessIdUrl`: a signed URL of the same copy.
+3. `dataManualUrl`: usually an LCSC URL. A `www.lcsc.com/datasheet/` URL gives an HTML viewer page.
+4. `dataManualOfficialLink`: the manufacturer page.
+
+`ImageURL()` returns the first value of `productBigImageAccessIdUrl`, `minImageAccessIdUrl`, `componentImageUrl` and `minImage` that has a file name.
+It prefers the signed URLs, so do not store its result.
+
+### File downloads
+
+```go
+body, info, err := client.File.Open(ctx, detail.ProductBigImageAccessID)
+if errors.Is(err, jlcpcb.ErrNotFound) {
+	log.Fatal("JLCPCB has no file with this access id")
+}
+if err != nil {
+	log.Fatal(err)
+}
+defer body.Close()
+
+fmt.Println(info.ContentType, info.FileName, info.Size) // image/jpeg C1525-正面.jpg 55710
+```
+
+`Open` sends one GET request to the file URL below the API root.
+It waits for the rate limiter and retries like the other requests.
+The caller must close the body.
+The cache does not keep files.
+
+- `ContentType`: the server sends `application/x-msdownload` for images, so `Open` does not use the server value. `Open` reads the first 512 bytes and finds the type with `http.DetectContentType`. The body still starts at the first byte. `Open` does not check the type, so check `ContentType` before you use the file.
+- `FileName`: the name from `Content-Disposition`, without a folder prefix. `Open` decodes percent-encoded UTF-8, plain ASCII and the RFC 5987 form (`filename*=UTF-8''...`). Bytes that are not valid UTF-8, for example a raw GBK name, become `_`.
+- `Size`: the `Content-Length`, or -1 when the server sends no length.
+
+An id that is not all digits gives `ErrInvalidRequest`, and `Open` sends no request.
+The server answers an unknown id with HTTP 200 and the body `{"code":500,...}`.
+`Open` then returns an error that matches `ErrNotFound` and `ErrServer`, and it does not retry.
+An empty body also gives `ErrNotFound`.
 
 ### Parts order, PCBA type and lead time
 
@@ -495,10 +577,6 @@ A `coef` that is not a finite number above 0 uses the default.
 The rule applies no minimum order quantity and no reel rounding.
 The parts shop uses the same calculators. The use of this rule for a PCBA order is inferred.
 
-A signed URL expires 30 minutes after the response.
-Download the file soon, and do not store the URL.
-The default cache keeps a response for 5 minutes, so a cached URL is still valid.
-
 ## Public Types
 
 ### `SearchResponse`
@@ -564,6 +642,8 @@ Methods:
 - `Category() (parent, leaf string)`
 - `PartsOrderQuote(qty int) PartsOrderQuote`
 - `LeadTimeDays() (int, bool)`
+- `ImageURL() string`, `DatasheetURLs() []string`
+- `StableImageURL() string`, `StableThumbnailURL() string`, `StableDatasheetURL() string`
 
 ### `ComponentDetail`
 
@@ -599,6 +679,7 @@ Methods:
 
 - `Category() (parent, leaf string)`
 - `Product() Product`
+- `StableImageURL() string`, `StableThumbnailURL() string`, `StableDatasheetURL() string`
 
 ### `Facets`
 
@@ -645,6 +726,12 @@ Methods:
 
 - `Category() Category`
 
+### `FileInfo`
+
+- `ContentType string`: media type from the first 512 bytes, for example `image/jpeg` or `application/pdf`
+- `FileName string`: file name from `Content-Disposition`, without a folder prefix
+- `Size int64`: `Content-Length`, or -1 when it is not known
+
 ### `LibraryType`
 
 - `LibraryTypeBasic` (`"basic"`)
@@ -656,19 +743,22 @@ Methods:
 - `SortPriceBreaks([]PriceBreak) []PriceBreak`
 - `EstimateAttrition(PlacementRow, float64) int`
 - `EstimateOrderQty(PlacementRow, float64) int`
+- `FileURL(accessID string) string`: stable download URL of a file access id
+- `IsSignedURL(url string) bool`: true for a signed URL that expires
 
 ## Client Options
 
 - `WithHTTPClient(*http.Client)`
 - `WithBaseURL(string)`: base URL of the search endpoint (useful for tests)
-- `WithAPIRoot(string)`: root of the JLCPCB web API, default `https://jlcpcb.com/api`. The detail, facet, calculator and category endpoints use it. When `WithBaseURL` is not set, the search endpoint also uses it.
-
-When the `WithBaseURL` value ends with `/overseas-pcb-order/v1/shoppingCart/smtGood` and `WithAPIRoot` is not set, the client uses the part before this path as the API root.
+- `WithAPIRoot(string)`: root of the JLCPCB web API, default `https://jlcpcb.com/api`. The detail, facet, calculator, category and file endpoints use it. When `WithBaseURL` is not set, the search endpoint also uses it.
 - `WithRateLimit(float64)` requests/second
 - `WithRetryConfig(RetryConfig)`
 - `WithCache(Cache)`
 - `WithCacheConfig(CacheConfig)`
 - `WithoutCache()`
+
+When the `WithBaseURL` value ends with `/overseas-pcb-order/v1/shoppingCart/smtGood` and `WithAPIRoot` is not set, the client uses the part before this path as the API root.
+`FileURL` and the stable URL methods always use the default root, because a stored URL must work without the client.
 
 ## Caching
 
@@ -679,7 +769,7 @@ Caching is enabled by default with in-memory cache:
 - Facets TTL: `15m` (`CacheConfig.FacetsTTL`). 0 uses the default.
 - Category TTL: `24h` (`CacheConfig.CategoryTTL`). 0 uses the default.
 
-The calculators do not use the cache.
+The calculators and the file downloads do not use the cache.
 
 Custom cache config:
 
@@ -726,10 +816,21 @@ Default retry behavior:
 - retries: `3`
 - backoff: exponential (`100ms` base, max `10s`, multiplier `2.0`)
 - retried on: network timeout/errors and `429/500/502/503/504`
+- not retried: an envelope error in an HTTP 200 answer of `Category.Info` and `File.Open`, because the answer for an unknown id does not change
+- a `MaxRetries` value less than 0 counts as 0: the client sends one request
 
 Default rate limit:
 
 - `5` requests/second token bucket
+
+## Risks and limits
+
+- **Undocumented endpoints.** JLCPCB does not document these endpoints, and it can change or remove them at any time. The weekly integration workflow runs live contract tests to find a change early. Keep a fallback for each feature that you build on this library.
+- **Errors in HTTP 200 answers.** The server sends many errors with HTTP status 200 and an envelope code, for example code 101 for a request body that it cannot read, and code 500 for an unknown category id or file access id. The client maps the envelope codes to the sentinel errors. Some endpoints give no error for bad input: the calculators answer a bad row with 0, an unknown attribute name in a filter gives 0 parts, and the batch detail omits unknown ids. The client validates the input where it can. When a filter gives 0 parts, check the filter names.
+- **Signed URLs expire.** The signed image and datasheet URLs expire 30 or 60 minutes after the response. Do not store them. Store a `FileURL` URL or the downloaded bytes.
+- **Inferred rules.** Some rules come from the code or the text of the JLCPCB web pages, not from a contract: the PCBA stock limit of `PartsOrderQuote`, the link between `DefaultWastageCoefficient` and the calculators, and the use of the calculator rule for a PCBA order. The doc comment of each function tells which part is inferred.
+- **Rate limits.** JLCPCB publishes no rate limit. No live request during the development of this library got an HTTP 429, but third parties report HTTP 403 for request bursts. The default limit is 5 requests per second. Use a lower limit for bulk jobs, and use `DetailsByIDs` to send fewer requests.
+- **Site terms.** This library does not check the terms of use of jlcpcb.com. Read them before a bulk download of data, images or datasheets.
 
 ## Testing
 
@@ -739,7 +840,7 @@ Unit tests:
 go test ./...
 ```
 
-Integration tests (live API, opt-in):
+Integration tests (live API, opt-in, read-only, at most 1 request per second for the contract tests):
 
 ```bash
 go test -tags=integration -run Integration ./...
@@ -766,6 +867,12 @@ go test -tags=integration -run Integration ./...
 - New `EstimateAttrition()`, `EstimateOrderQty()` and `DefaultWastageCoefficient`.
 - New `client.Category.Info()` with `CategoryInfo`.
 - New `CacheConfig.FacetsTTL` and `CacheConfig.CategoryTTL`.
+- New `FileURL()` and `IsSignedURL()`.
+- New `StableImageURL()`, `StableThumbnailURL()` and `StableDatasheetURL()` on `Product` and `ComponentDetail`.
+- New `client.File.Open()` with `FileInfo`.
+- Changed: `DatasheetURLs()` returns the stable access id URL first, then the signed URL, then `dataManualUrl`, then `dataManualOfficialLink`. Before, `dataManualUrl` came first, but a `www.lcsc.com/datasheet/` URL gives an HTML viewer page.
+- Fix: `ImageURL()` skips a URL without a file name, for example the LCSC folder URL that some records send.
+- Fix: a `RetryConfig.MaxRetries` value less than 0 sent no request and returned no error. The client now sends one request.
 
 ## Changes in v1.1.0
 

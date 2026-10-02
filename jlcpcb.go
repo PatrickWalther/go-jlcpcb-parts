@@ -11,6 +11,12 @@
 //     by component code, and batch part detail by part id
 //   - client.Assembly — PCBA attrition and order quantity calculators
 //   - client.Category — category names by numeric category id
+//   - client.File     — file downloads (part images and datasheet copies) by
+//     file access id
+//
+// FileURL and the StableImageURL, StableThumbnailURL and StableDatasheetURL
+// methods give media URLs that do not expire, when the record has a file
+// access id.
 package jlcpcb
 
 // Version is the current package version.

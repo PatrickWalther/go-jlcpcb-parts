@@ -87,6 +87,7 @@ type Client struct {
 	Product  *ProductService
 	Assembly *AssemblyService
 	Category *CategoryService
+	File     *FileService
 }
 
 // ClientOption is a function that configures a Client.
@@ -115,8 +116,9 @@ func WithBaseURL(baseURL string) ClientOption {
 
 // WithAPIRoot sets the root of the JLCPCB web API. The default root is
 // "https://jlcpcb.com/api". ProductService.Detail,
-// ProductService.DetailsByIDs, SearchService.Facets, AssemblyService and
-// CategoryService send their requests below this root.
+// ProductService.DetailsByIDs, SearchService.Facets, AssemblyService,
+// CategoryService and FileService send their requests below this root.
+// FileURL always uses the default root.
 //
 // When WithBaseURL is not set, the search endpoint also moves below this
 // root. Thus one test server can serve all endpoints. WithBaseURL overrides
@@ -187,6 +189,7 @@ func NewClient(opts ...ClientOption) *Client {
 	c.Product = (*ProductService)(&c.common)
 	c.Assembly = (*AssemblyService)(&c.common)
 	c.Category = (*CategoryService)(&c.common)
+	c.File = (*FileService)(&c.common)
 
 	return c
 }

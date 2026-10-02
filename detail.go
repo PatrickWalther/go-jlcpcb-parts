@@ -93,6 +93,8 @@ type ComponentDetail struct {
 	// File access ids and file URLs. A file access id has no expiry time.
 	// A signed URL expires after 30 minutes (Detail) or 60 minutes
 	// (DetailsByIDs). Download the file soon, and do not store a signed URL.
+	// FileURL gives the download URL of an id. StableImageURL,
+	// StableThumbnailURL and StableDatasheetURL choose the best URL.
 	ProductBigImageAccessID  string `json:"productBigImageAccessId"`    // File access id of the large image (empty from Detail)
 	MinImageAccessID         string `json:"minImageAccessId"`           // File access id of the small image (empty from Detail)
 	DataManualFileAccessID   string `json:"dataManualFileAccessId"`     // File access id of the datasheet copy that JLCPCB hosts (empty from Detail)

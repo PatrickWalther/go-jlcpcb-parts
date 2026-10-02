@@ -582,11 +582,18 @@ func TestProductMediaURLs(t *testing.T) {
 		t.Errorf("ImageURL() = %q, want %q", got, want)
 	}
 	wantSheets := []string{
-		"https://www.lcsc.com/datasheet/C2040.pdf",
 		"https://oss.example/C2040.pdf?x-oss-expires=1800",
+		"https://www.lcsc.com/datasheet/C2040.pdf",
 	}
 	if got := product.DatasheetURLs(); !slices.Equal(got, wantSheets) {
 		t.Errorf("DatasheetURLs() = %q, want %q", got, wantSheets)
+	}
+
+	// The stable URL of the access id comes first.
+	product.DataManualFileAccessId = "8579707269996871680"
+	wantSheets = append([]string{"https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8579707269996871680"}, wantSheets...)
+	if got := product.DatasheetURLs(); !slices.Equal(got, wantSheets) {
+		t.Errorf("DatasheetURLs() with an access id = %q, want %q", got, wantSheets)
 	}
 
 	product.ProductBigImageAccessIdUrl = ""
@@ -597,6 +604,16 @@ func TestProductMediaURLs(t *testing.T) {
 	product.MinImage = "https://example.com/min.jpg"
 	if got, want := product.ImageURL(), "https://example.com/min.jpg"; got != want {
 		t.Errorf("ImageURL() with only minImage = %q, want %q", got, want)
+	}
+
+	// Some records send the LCSC folder URL without a file name.
+	product.ComponentImageUrl = "https://assets.lcsc.com/images/lcsc/900x900/"
+	if got, want := product.ImageURL(), "https://example.com/min.jpg"; got != want {
+		t.Errorf("ImageURL() with a folder URL = %q, want %q", got, want)
+	}
+	product.MinImage = "https://assets.lcsc.com/images/lcsc/96x96/"
+	if got := product.ImageURL(); got != "" {
+		t.Errorf("ImageURL() with only folder URLs = %q, want empty", got)
 	}
 
 	var empty Product

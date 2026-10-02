@@ -1,0 +1,78 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "componentDetailVo": {
+        "componentCode": "C6186",
+        "lcscComponentId": 6652,
+        "componentModelEn": "AMS1117-3.3",
+        "componentBrandEn": "Advanced Monolithic Systems",
+        "componentSpecificationEn": "SOT-223",
+        "firstSortName": "Power Management (PMIC)",
+        "secondSortName": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+        "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/20221228_Advanced-Monolithic-Systems-AMS1117-3-3_C6186_front.jpg",
+        "minImage": "https://assets.lcsc.com/images/lcsc/96x96/20221228_Advanced-Monolithic-Systems-AMS1117-3-3_C6186_front.jpg",
+        "productBigImageAccessId": null,
+        "productBigImageAccessIdUrl": null,
+        "minImageAccessId": null,
+        "minImageAccessIdUrl": null,
+        "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2410121508_Advanced-Monolithic-Systems-AMS1117-3-3_C6186.pdf",
+        "dataManualFileAccessId": "8550724073479806976",
+        "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8550724073475612672-C6186.pdf?response-content-disposition=attachment%3B%20filename%3DC6186.pdf%3B%20filename%2A%3DUTF-8%27%27C6186.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+        "dataManualOfficialLink": "",
+        "lcscGoodsUrl": "https://www.lcsc.com/product-detail/voltage-regulators-linear-low-drop-out-ldo-regulators_advanced-monolithic-systems-ams1117-3-3_C6186.html/?href=jlc-SMT",
+        "componentStatus": "yes"
+      },
+      "urlSuffix": "Advanced_MonolithicSystems-AMS1117_33/C6186"
+    },
+    {
+      "componentDetailVo": {
+        "componentCode": "C144256",
+        "lcscComponentId": 155588,
+        "componentModelEn": "AD5245BRJZ10-RL7",
+        "componentBrandEn": "Analog Devices",
+        "componentSpecificationEn": "SOT-23-8",
+        "firstSortName": "Data Acquisition",
+        "secondSortName": "Digital Potentiometers",
+        "componentImageUrl": "https://assets.lcsc.com/images/lcsc/900x900/",
+        "minImage": "https://assets.lcsc.com/images/lcsc/96x96/",
+        "productBigImageAccessId": null,
+        "productBigImageAccessIdUrl": null,
+        "minImageAccessId": null,
+        "minImageAccessIdUrl": null,
+        "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_1810092141_Analog-Devices-AD5245BRJZ10-RL7_C144256.pdf",
+        "dataManualFileAccessId": "8588881307011465216",
+        "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8588881307003076608-C144256.pdf?response-content-disposition=attachment%3B%20filename%3DC144256.pdf%3B%20filename%2A%3DUTF-8%27%27C144256.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+        "dataManualOfficialLink": "",
+        "lcscGoodsUrl": "https://www.lcsc.com/product-detail/digital-potentiometers_analog-devices-ad5245brjz10-rl7_C144256.html/?href=jlc-SMT",
+        "componentStatus": "yes"
+      },
+      "urlSuffix": "AnalogDevices-AD5245BRJZ10RL7/C144256"
+    },
+    {
+      "componentDetailVo": {
+        "componentCode": "C5213",
+        "lcscComponentId": 5634,
+        "componentModelEn": "LM358P",
+        "componentBrandEn": "Texas Instruments",
+        "componentSpecificationEn": "DIP-8",
+        "firstSortName": "Amplifiers/Comparators",
+        "secondSortName": "Operational Amplifier",
+        "componentImageUrl": "",
+        "minImage": "",
+        "productBigImageAccessId": "8583412980671254528",
+        "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583412980662865920-C5213/C5213-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+        "minImageAccessId": "8583412981593595904",
+        "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583412981581012992-C5213/C5213-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+        "dataManualUrl": "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8588905303245541376",
+        "dataManualFileAccessId": "",
+        "dataManualFileAccessIdUrl": null,
+        "dataManualOfficialLink": "http://www.ti.com/cn/lit/gpn/lm358",
+        "lcscGoodsUrl": "https://www.lcsc.com/product-detail/operational-amplifier_texas-instruments-lm358p_C5213.html/?href=jlc-SMT",
+        "componentStatus": "yes"
+      },
+      "urlSuffix": "TexasInstruments-LM358P/C5213"
+    }
+  ],
+  "message": null
+}

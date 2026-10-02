@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"strings"
 
 	"github.com/PatrickWalther/go-jlcpcb-parts"
 )
@@ -233,4 +235,59 @@ func ExampleCategoryService_Info() {
 		return
 	}
 	fmt.Println(info.ParentName, resp.TotalCount > 0)
+}
+
+func ExampleFileURL() {
+	fmt.Println(jlcpcb.FileURL("8552476004850417664"))
+	fmt.Println(jlcpcb.FileURL("not-an-id") == "")
+	// Output:
+	// https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8552476004850417664
+	// true
+}
+
+func ExampleProduct_StableImageURL() {
+	product := jlcpcb.Product{
+		ComponentCode:              "C1525",
+		ProductBigImageAccessId:    "8552476004850417664",
+		ProductBigImageAccessIdUrl: "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/C1525.jpg?x-oss-expires=1800&x-oss-signature=abc",
+		MinImage:                   "https://assets.lcsc.com/images/lcsc/96x96/C1525_front.jpg",
+	}
+
+	// The access id wins over the signed URL.
+	fmt.Println(product.StableImageURL())
+	// Without a small image access id, the LCSC URL wins over a signed URL.
+	fmt.Println(product.StableThumbnailURL())
+	fmt.Println(jlcpcb.IsSignedURL(product.ProductBigImageAccessIdUrl))
+	// Output:
+	// https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8552476004850417664
+	// https://assets.lcsc.com/images/lcsc/96x96/C1525_front.jpg
+	// true
+}
+
+func ExampleFileService_Open() {
+	client := jlcpcb.NewClient()
+	body, info, err := client.File.Open(context.Background(), "8552476004850417664")
+	if errors.Is(err, jlcpcb.ErrNotFound) {
+		fmt.Println("JLCPCB has no file with this access id")
+		return
+	}
+	if err != nil {
+		fmt.Println("download error:", err)
+		return
+	}
+	defer body.Close()
+
+	// The server sends a wrong Content-Type for images. Open finds the
+	// type from the bytes.
+	if !strings.HasPrefix(info.ContentType, "image/") {
+		fmt.Println("not an image:", info.ContentType)
+		return
+	}
+	// Copy the bytes to a file or to a store. Do not store the signed URLs.
+	n, err := io.Copy(io.Discard, body)
+	if err != nil {
+		fmt.Println("read error:", err)
+		return
+	}
+	fmt.Println(info.FileName, info.ContentType, n)
 }

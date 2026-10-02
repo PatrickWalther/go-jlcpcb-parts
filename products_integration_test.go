@@ -6,7 +6,9 @@ package jlcpcb
 import (
 	"context"
 	"errors"
+	"io"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 )
@@ -249,6 +251,17 @@ func TestIntegrationDetailsByIDsCompare(t *testing.T) {
 	if product.ComponentID != 1877 || product.LibraryType() != LibraryTypeBasic {
 		t.Errorf("Product() = id %d, library type %q, want 1877 and basic", product.ComponentID, product.LibraryType())
 	}
+	// A batch record has the file access ids, so the stable URLs are not
+	// signed.
+	for name, u := range map[string]string{
+		"StableImageURL":     detail.StableImageURL(),
+		"StableThumbnailURL": detail.StableThumbnailURL(),
+		"StableDatasheetURL": detail.StableDatasheetURL(),
+	} {
+		if !strings.HasPrefix(u, defaultAPIRoot+fileDownloadPath) || IsSignedURL(u) {
+			t.Errorf("%s() = %q, want a file access id URL", name, u)
+		}
+	}
 }
 
 // TestIntegrationAssemblyCalculators checks the J6 reference row: the
@@ -347,6 +360,45 @@ func TestIntegrationCategoryInfo(t *testing.T) {
 	}
 
 	if _, err := client.Category.Info(ctx, 999999999); !errors.Is(err, ErrNotFound) {
+		t.Errorf("unknown id error = %v, want ErrNotFound", err)
+	}
+}
+
+// TestIntegrationFileOpen checks the stable file download: the large image
+// of C1525 is a JPEG with a file name, and the OSS key number of the same
+// image (not an access id) gives ErrNotFound.
+func TestIntegrationFileOpen(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	const imageID = "8552476004850417664" // large image of C1525
+	start := time.Now()
+	body, info, err := client.File.Open(ctx, imageID)
+	if err != nil {
+		t.Fatalf("open failed after %s: %v", time.Since(start), err)
+	}
+	n, err := io.Copy(io.Discard, body)
+	_ = body.Close()
+	if err != nil {
+		t.Fatalf("read failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("file %s: %+v, %d bytes (%s)", imageID, *info, n, time.Since(start))
+
+	if info.ContentType != "image/jpeg" {
+		t.Errorf("content type = %q, want image/jpeg", info.ContentType)
+	}
+	if !strings.HasPrefix(info.FileName, "C1525") || !strings.HasSuffix(info.FileName, ".jpg") {
+		t.Errorf("file name = %q, want C1525...jpg", info.FileName)
+	}
+	if n == 0 || (info.Size >= 0 && info.Size != n) {
+		t.Errorf("read %d bytes, size %d", n, info.Size)
+	}
+
+	start = time.Now()
+	_, _, err = client.File.Open(ctx, "8552476004846223360")
+	t.Logf("unknown id: %v (%s)", err, time.Since(start))
+	if !errors.Is(err, ErrNotFound) {
 		t.Errorf("unknown id error = %v, want ErrNotFound", err)
 	}
 }

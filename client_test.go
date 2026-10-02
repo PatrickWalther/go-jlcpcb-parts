@@ -36,6 +36,9 @@ func TestNewClientDefaults(t *testing.T) {
 	if client.Category == nil {
 		t.Fatal("expected Category service to be initialized")
 	}
+	if client.File == nil {
+		t.Fatal("expected File service to be initialized")
+	}
 	if client.cacheConfig.FacetsTTL != 15*time.Minute || client.cacheConfig.CategoryTTL != 24*time.Hour {
 		t.Fatalf("expected facets TTL 15m and category TTL 24h, got %v and %v",
 			client.cacheConfig.FacetsTTL, client.cacheConfig.CategoryTTL)
@@ -215,6 +218,8 @@ func TestWithAPIRootServesAllEndpoints(t *testing.T) {
 			_, _ = w.Write([]byte(`{"code":200,"data":[190]}`))
 		case categoryInfoPath + "2929":
 			_, _ = w.Write([]byte(`{"code":200,"data":{"firstSortId":2,"firstSortName":"Capacitors","secondSortId":2929,"secondSortName":"MLCC"}}`))
+		case fileDownloadPath + "8552476004850417664":
+			_, _ = w.Write([]byte("%PDF-1.3\n"))
 		default:
 			_, _ = w.Write([]byte(`{"code":200,"data":{"componentPageInfo":{"total":0,"list":[]}}}`))
 		}
@@ -245,10 +250,16 @@ func TestWithAPIRootServesAllEndpoints(t *testing.T) {
 	if _, err := client.Category.Info(ctx, 2929); err != nil {
 		t.Fatalf("category info failed: %v", err)
 	}
+	body, _, err := client.File.Open(ctx, "8552476004850417664")
+	if err != nil {
+		t.Fatalf("file open failed: %v", err)
+	}
+	_ = body.Close()
 
 	want := []string{
 		smtGoodPath + "/selectSmtComponentList/v2", componentDetailPath, compareDetailsPath,
 		filterComponentAttributePath, calculateAttritionPath, calculateOrderQtyPath, categoryInfoPath + "2929",
+		fileDownloadPath + "8552476004850417664",
 	}
 	if !reflect.DeepEqual(paths, want) {
 		t.Errorf("paths = %v, want %v", paths, want)
