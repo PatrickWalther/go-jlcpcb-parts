@@ -79,6 +79,16 @@ type Product struct {
 	PreMinPurchaseNum         int    `json:"preMinPurchaseNum"`         // Minimum pre-order purchase quantity
 	ComponentAlternativesCode string `json:"componentAlternativesCode"` // Alternative part code (empty for null)
 	AssemblyComponentFlag     bool   `json:"assemblyComponentFlag"`     // Raw assemblyComponentFlag value
+
+	// Media URLs. An "AccessIdUrl" field is a signed URL that expires 30
+	// minutes after the response. Download the file soon, and do not store
+	// the URL. A JSON null decodes to the zero value.
+	ComponentImageUrl          string `json:"componentImageUrl"`          // Image URL (often empty)
+	MinImage                   string `json:"minImage"`                   // Small image URL (often empty)
+	ProductBigImageAccessIdUrl string `json:"productBigImageAccessIdUrl"` // Signed URL of the large image
+	MinImageAccessIdUrl        string `json:"minImageAccessIdUrl"`        // Signed URL of the small image
+	DataManualFileAccessIdUrl  string `json:"dataManualFileAccessIdUrl"`  // Signed URL of the datasheet copy that JLCPCB hosts
+	DataManualOfficialLink     string `json:"dataManualOfficialLink"`     // Datasheet URL at the manufacturer (often empty)
 }
 
 // LibraryType is the JLCPCB assembly library class of a part.
@@ -125,6 +135,50 @@ func (p *Product) LibraryType() LibraryType {
 // NoBuyReason often gives the reason when Buyable returns false.
 func (p *Product) Buyable() bool {
 	return strings.TrimSpace(p.IsBuyComponent) != "0"
+}
+
+// ImageURL returns the best image URL of the part, or "" when the part has no
+// image. It prefers the large image to the small image, and a signed URL to an
+// unsigned URL, because the live API sends the signed URLs.
+//
+// A signed URL expires 30 minutes after the response. Download the image soon,
+// and do not store the URL.
+func (p *Product) ImageURL() string {
+	for _, candidate := range []string{
+		p.ProductBigImageAccessIdUrl,
+		p.MinImageAccessIdUrl,
+		p.ComponentImageUrl,
+		p.MinImage,
+	} {
+		if candidate = strings.TrimSpace(candidate); candidate != "" {
+			return candidate
+		}
+	}
+	return ""
+}
+
+// DatasheetURLs returns the datasheet URLs of the part, best first, without
+// empty or duplicate URLs. The order is DataManualUrl (usually an LCSC PDF),
+// DataManualFileAccessIdUrl (a signed URL of the copy that JLCPCB hosts) and
+// DataManualOfficialLink (the manufacturer page). It returns nil when the part
+// has no datasheet URL.
+//
+// The signed URL expires 30 minutes after the response. Download the file
+// soon, and do not store the URL.
+func (p *Product) DatasheetURLs() []string {
+	var urls []string
+	for _, candidate := range []string{
+		p.DataManualUrl,
+		p.DataManualFileAccessIdUrl,
+		p.DataManualOfficialLink,
+	} {
+		candidate = strings.TrimSpace(candidate)
+		if candidate == "" || slices.Contains(urls, candidate) {
+			continue
+		}
+		urls = append(urls, candidate)
+	}
+	return urls
 }
 
 // SortedComponentPrices returns a copy of ComponentPrices sorted by StartNumber.

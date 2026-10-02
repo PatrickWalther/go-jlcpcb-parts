@@ -158,6 +158,26 @@ The live API can send `buyComponentPrices` in a random order.
 `SortPriceBreaks(breaks)` sorts any `[]PriceBreak` the same way. The sort is stable.
 These functions do not change the raw fields.
 
+### Images and datasheets
+
+```go
+if url := product.ImageURL(); url != "" {
+	// Download the image now. The signed URL expires after 30 minutes.
+}
+for _, url := range product.DatasheetURLs() {
+	// Try each URL until one download succeeds.
+}
+```
+
+`ImageURL()` returns the first non-empty value of `productBigImageAccessIdUrl`, `minImageAccessIdUrl`, `componentImageUrl` and `minImage`.
+The live API sends the image only in the signed `AccessIdUrl` fields.
+
+`DatasheetURLs()` returns `dataManualUrl`, `dataManualFileAccessIdUrl` and `dataManualOfficialLink` in this order, without empty or duplicate values.
+
+A signed URL expires 30 minutes after the response.
+Download the file soon, and do not store the URL.
+The default cache keeps a response for 5 minutes, so a cached URL is still valid.
+
 ## Public Types
 
 ### `SearchResponse`
@@ -197,6 +217,10 @@ These functions do not change the raw fields.
 - `PreMinPurchaseNum int`: minimum pre-order purchase quantity
 - `ComponentAlternativesCode string`: alternative part code
 - `AssemblyComponentFlag bool`: raw `assemblyComponentFlag` value
+- `ComponentImageUrl string`, `MinImage string`: unsigned image URLs (often empty)
+- `ProductBigImageAccessIdUrl string`, `MinImageAccessIdUrl string`: signed image URLs
+- `DataManualFileAccessIdUrl string`: signed URL of the datasheet copy that JLCPCB hosts
+- `DataManualOfficialLink string`: datasheet URL at the manufacturer (often empty)
 
 A JSON `null` decodes to the zero value: `""`, `0`, or `false`.
 

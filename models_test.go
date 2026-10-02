@@ -561,6 +561,50 @@ func TestProductBuyable(t *testing.T) {
 	}
 }
 
+// TestProductMediaURLs checks the JSON tags of the media fields and the order
+// of ImageURL and DatasheetURLs.
+func TestProductMediaURLs(t *testing.T) {
+	data := []byte(`{
+		"componentCode": "C2040",
+		"componentImageUrl": "",
+		"minImage": null,
+		"productBigImageAccessIdUrl": "https://oss.example/big.jpg?x-oss-expires=1800",
+		"minImageAccessIdUrl": "https://oss.example/min.jpg?x-oss-expires=1800",
+		"dataManualUrl": "https://www.lcsc.com/datasheet/C2040.pdf",
+		"dataManualFileAccessIdUrl": "https://oss.example/C2040.pdf?x-oss-expires=1800",
+		"dataManualOfficialLink": " https://www.lcsc.com/datasheet/C2040.pdf "
+	}`)
+	var product Product
+	if err := json.Unmarshal(data, &product); err != nil {
+		t.Fatalf("decode media fields: %v", err)
+	}
+	if got, want := product.ImageURL(), "https://oss.example/big.jpg?x-oss-expires=1800"; got != want {
+		t.Errorf("ImageURL() = %q, want %q", got, want)
+	}
+	wantSheets := []string{
+		"https://www.lcsc.com/datasheet/C2040.pdf",
+		"https://oss.example/C2040.pdf?x-oss-expires=1800",
+	}
+	if got := product.DatasheetURLs(); !slices.Equal(got, wantSheets) {
+		t.Errorf("DatasheetURLs() = %q, want %q", got, wantSheets)
+	}
+
+	product.ProductBigImageAccessIdUrl = ""
+	if got, want := product.ImageURL(), "https://oss.example/min.jpg?x-oss-expires=1800"; got != want {
+		t.Errorf("ImageURL() without the large image = %q, want %q", got, want)
+	}
+	product.MinImageAccessIdUrl = ""
+	product.MinImage = "https://example.com/min.jpg"
+	if got, want := product.ImageURL(), "https://example.com/min.jpg"; got != want {
+		t.Errorf("ImageURL() with only minImage = %q, want %q", got, want)
+	}
+
+	var empty Product
+	if empty.ImageURL() != "" || empty.DatasheetURLs() != nil {
+		t.Errorf("empty product: ImageURL() = %q, DatasheetURLs() = %q", empty.ImageURL(), empty.DatasheetURLs())
+	}
+}
+
 func startNumbers(breaks []PriceBreak) []int {
 	out := make([]int, 0, len(breaks))
 	for _, b := range breaks {
