@@ -622,6 +622,41 @@ func TestProductMediaURLs(t *testing.T) {
 	}
 }
 
+// TestDatasheetURLsSkipsPlaceholders uses the dataManualUrl values of live
+// records that are not URLs: "--" (for example C7171 and C142647) and "1".
+func TestDatasheetURLsSkipsPlaceholders(t *testing.T) {
+	for _, value := range []string{"--", " -- ", "1", "datasheet.pdf", "ftp://example.com/a.pdf", "https://www.lcsc.com/"} {
+		product := Product{ComponentCode: "C7171", DataManualUrl: value, DataManualOfficialLink: value}
+		if got := product.DatasheetURLs(); got != nil {
+			t.Errorf("DataManualUrl %q: DatasheetURLs() = %q, want nil", value, got)
+		}
+		if got := product.StableDatasheetURL(); got != "" {
+			t.Errorf("DataManualUrl %q: StableDatasheetURL() = %q, want empty", value, got)
+		}
+	}
+
+	// A placeholder does not hide the other URLs.
+	product := Product{
+		DataManualUrl:          "--",
+		DataManualFileAccessId: "8579707269996871680",
+		DataManualOfficialLink: "https://www.ti.com/lit/ds/symlink/ne555.pdf",
+	}
+	want := []string{
+		"https://jlcpcb.com/api/file/downloadByFileSystemAccessId/8579707269996871680",
+		"https://www.ti.com/lit/ds/symlink/ne555.pdf",
+	}
+	if got := product.DatasheetURLs(); !slices.Equal(got, want) {
+		t.Errorf("DatasheetURLs() = %q, want %q", got, want)
+	}
+
+	// A detail record with the placeholder gives no datasheet URL through
+	// ComponentDetail.Product.
+	detail := ComponentDetail{ComponentCode: "C7171", DataManualURL: "--"}
+	if got := detail.Product().DatasheetURLs(); got != nil {
+		t.Errorf("ComponentDetail.Product().DatasheetURLs() = %q, want nil", got)
+	}
+}
+
 func startNumbers(breaks []PriceBreak) []int {
 	out := make([]int, 0, len(breaks))
 	for _, b := range breaks {

@@ -460,6 +460,9 @@ The default cache keeps a response for 5 minutes, so a signed URL from the cache
 3. `dataManualUrl`: usually an LCSC URL. A `www.lcsc.com/datasheet/` URL gives an HTML viewer page.
 4. `dataManualOfficialLink`: the manufacturer page.
 
+`DatasheetURLs()` skips a value that is not an http or https URL with a file name.
+Some records send a placeholder such as `--` in `dataManualUrl`.
+
 `ImageURL()` returns the first value of `productBigImageAccessIdUrl`, `minImageAccessIdUrl`, `componentImageUrl` and `minImage` that has a file name.
 It prefers the signed URLs, so do not store its result.
 
@@ -880,6 +883,7 @@ go test -tags=integration -run Integration ./...
 - New `client.File.Open()` with `FileInfo`.
 - Changed: `DatasheetURLs()` returns the stable access id URL first, then the signed URL, then `dataManualUrl`, then `dataManualOfficialLink`. Before, `dataManualUrl` came first, but a `www.lcsc.com/datasheet/` URL gives an HTML viewer page.
 - Fix: `ImageURL()` skips a URL without a file name, for example the LCSC folder URL that some records send.
+- Fix: `DatasheetURLs()` skips a value that is not an http or https URL with a file name, for example the placeholder `--` that some records send in `dataManualUrl`.
 - Fix: a `RetryConfig.MaxRetries` value less than 0 sent no request and returned no error. The client now sends one request.
 
 ## Changes in v1.1.0

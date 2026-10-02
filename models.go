@@ -240,6 +240,9 @@ func (p *Product) ImageURL() string {
 //     gives an HTML viewer page, not a PDF.
 //  4. DataManualOfficialLink: the manufacturer page.
 //
+// DatasheetURLs skips a value that is not an http or https URL with a file
+// name. Some records send a placeholder such as "--" in dataManualUrl.
+//
 // It returns nil when the part has no datasheet URL. Download a signed URL
 // soon, and do not store it.
 func (p *Product) DatasheetURLs() []string {
@@ -251,7 +254,7 @@ func (p *Product) DatasheetURLs() []string {
 		p.DataManualOfficialLink,
 	} {
 		candidate = strings.TrimSpace(candidate)
-		if candidate == "" || slices.Contains(urls, candidate) {
+		if !hasFileName(candidate) || slices.Contains(urls, candidate) {
 			continue
 		}
 		urls = append(urls, candidate)
