@@ -1,0 +1,11 @@
+{
+  "code": 200,
+  "data": {
+    "firstSortId": 2,
+    "firstSortName": "Capacitors",
+    "secondSortId": 2929,
+    "secondSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT"
+  },
+  "message": "请求成功",
+  "success": true
+}

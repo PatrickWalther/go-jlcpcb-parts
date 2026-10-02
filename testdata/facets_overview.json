@@ -1,0 +1,123 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 7263122,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "23",
+        "name": "Amplifiers/Comparators",
+        "docCount": 37526,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "10",
+        "name": "Audio Products / Vibration Motors",
+        "docCount": 10510,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "62",
+        "name": "Building materials / Building hardware",
+        "docCount": 68,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "'IDC-14-1.27",
+        "name": "'IDC-14-1.27",
+        "docCount": 1,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "(7.5*3.5)",
+        "name": "(7.5*3.5)",
+        "docCount": 1,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": ",CAP-TH_BD10.0-P5.00-D0.6",
+        "name": ",CAP-TH_BD10.0-P5.00-D0.6",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "(DIOTEC)",
+        "name": "(DIOTEC)",
+        "docCount": 5160,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "(JEC)",
+        "name": "(JEC)",
+        "docCount": 14,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "--",
+        "name": "--",
+        "docCount": 83978,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [],
+    "parentParamList": [],
+    "paramRangeList": [],
+    "parentParamRangeList": [],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "",
+        "name": "",
+        "docCount": 8,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "buy",
+        "name": "buy",
+        "docCount": 5605592,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 916563,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "stock",
+        "name": "stock",
+        "docCount": 740959,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [],
+    "basePart": 351,
+    "preferredPart": 1235,
+    "economicPart": 7165479,
+    "standardPart": 7263120,
+    "dataSheetPart": 6149006,
+    "photo": 820805,
+    "extendPart": 7262771,
+    "assemblyComponent": 79962
+  }
+}

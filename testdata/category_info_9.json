@@ -1,0 +1,11 @@
+{
+  "code": 200,
+  "data": {
+    "firstSortId": 9,
+    "firstSortName": "Power Management (PMIC)",
+    "secondSortId": null,
+    "secondSortName": null
+  },
+  "message": "请求成功",
+  "success": true
+}

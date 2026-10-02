@@ -32,6 +32,12 @@ func (c *Client) doAPI(ctx context.Context, method, path string, params url.Valu
 // doURL performs an HTTP request to endpoint with retry support and parses
 // API-level errors.
 func (c *Client) doURL(ctx context.Context, method, endpoint string, params url.Values, reqBody interface{}, result interface{}) error {
+	return c.doURLWithRetry(ctx, shouldRetry, method, endpoint, params, reqBody, result)
+}
+
+// doURLWithRetry performs an HTTP request to endpoint and parses API-level
+// errors. It retries a failed attempt when retry returns true.
+func (c *Client) doURLWithRetry(ctx context.Context, retry func(error, int) bool, method, endpoint string, params url.Values, reqBody interface{}, result interface{}) error {
 	var lastErr error
 	maxAttempts := c.retryConfig.MaxRetries + 1
 
@@ -53,7 +59,7 @@ func (c *Client) doURL(ctx context.Context, method, endpoint string, params url.
 		}
 
 		lastErr = err
-		if !shouldRetry(err, statusCode) || attempt >= maxAttempts-1 {
+		if !retry(err, statusCode) || attempt >= maxAttempts-1 {
 			return err
 		}
 	}

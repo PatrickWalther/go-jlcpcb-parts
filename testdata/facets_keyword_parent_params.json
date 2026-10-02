@@ -1,0 +1,311 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 1,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "Plugin",
+        "name": "Plugin",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "Hunan Xiangyee in S&T",
+        "name": "Hunan Xiangyee in S&T",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [],
+    "parentParamList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 1,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 1,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±20%",
+            "name": "±20%",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 1,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "35V",
+            "name": "35V",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "paramRangeList": [],
+    "parentParamRangeList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 1,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 31,
+        "unitConversionMap": {
+          "fF": 0.001,
+          "pF": 1.0,
+          "nF": 1000.0,
+          "uF": 1000000.0,
+          "mF": 1000000000.0,
+          "F": 1000000000000.0
+        },
+        "unitList": [
+          "fF",
+          "pF",
+          "nF",
+          "uF",
+          "mF",
+          "F"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 100000,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 31,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 1,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 39,
+        "unitConversionMap": {
+          "‰": 0.1,
+          "%": 1.0
+        },
+        "unitList": [
+          "‰",
+          "%"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±20%",
+            "name": "±20%",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 20,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 1,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 1,
+        "unitConversionMap": {
+          "nV": 1e-09,
+          "uV": 1e-06,
+          "mV": 0.001,
+          "V": 1.0,
+          "kV": 1000.0
+        },
+        "unitList": [
+          "nV",
+          "uV",
+          "mV",
+          "V",
+          "kV"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "35V",
+            "name": "35V",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 35,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 1,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "2930",
+            "name": "Tantalum Capacitors",
+            "docCount": 1,
+            "subAggs": null
+          }
+        ]
+      }
+    ],
+    "basePart": 0,
+    "preferredPart": 0,
+    "economicPart": 1,
+    "standardPart": 1,
+    "dataSheetPart": 1,
+    "photo": 0,
+    "extendPart": 1,
+    "assemblyComponent": 0
+  }
+}

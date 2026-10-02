@@ -24,20 +24,52 @@ type service struct {
 	client *Client
 }
 
+const (
+	// defaultFacetsTTL is the default cache time of a facet answer.
+	defaultFacetsTTL = 15 * time.Minute
+	// defaultCategoryTTL is the default cache time of a category name.
+	defaultCategoryTTL = 24 * time.Hour
+)
+
 // CacheConfig contains response cache settings.
 type CacheConfig struct {
 	Enabled    bool
 	SearchTTL  time.Duration
 	DetailsTTL time.Duration
+	// FacetsTTL is the cache time of SearchService.Facets. 0 uses the
+	// default of 15 minutes.
+	FacetsTTL time.Duration
+	// CategoryTTL is the cache time of CategoryService.Info. 0 uses the
+	// default of 24 hours.
+	CategoryTTL time.Duration
 }
 
 // DefaultCacheConfig returns the default cache settings.
 func DefaultCacheConfig() CacheConfig {
 	return CacheConfig{
-		Enabled:    true,
-		SearchTTL:  5 * time.Minute,
-		DetailsTTL: 5 * time.Minute,
+		Enabled:     true,
+		SearchTTL:   5 * time.Minute,
+		DetailsTTL:  5 * time.Minute,
+		FacetsTTL:   defaultFacetsTTL,
+		CategoryTTL: defaultCategoryTTL,
 	}
+}
+
+// facetsTTL returns FacetsTTL, or the default when FacetsTTL is 0 or less.
+func (cc CacheConfig) facetsTTL() time.Duration {
+	if cc.FacetsTTL <= 0 {
+		return defaultFacetsTTL
+	}
+	return cc.FacetsTTL
+}
+
+// categoryTTL returns CategoryTTL, or the default when CategoryTTL is 0 or
+// less.
+func (cc CacheConfig) categoryTTL() time.Duration {
+	if cc.CategoryTTL <= 0 {
+		return defaultCategoryTTL
+	}
+	return cc.CategoryTTL
 }
 
 // Client is a JLCPCB Parts API client.
@@ -50,9 +82,11 @@ type Client struct {
 	cacheConfig CacheConfig
 	retryConfig RetryConfig
 
-	common  service
-	Search  *SearchService
-	Product *ProductService
+	common   service
+	Search   *SearchService
+	Product  *ProductService
+	Assembly *AssemblyService
+	Category *CategoryService
 }
 
 // ClientOption is a function that configures a Client.
@@ -80,8 +114,9 @@ func WithBaseURL(baseURL string) ClientOption {
 }
 
 // WithAPIRoot sets the root of the JLCPCB web API. The default root is
-// "https://jlcpcb.com/api". ProductService.Detail and
-// ProductService.DetailsByIDs send their requests below this root.
+// "https://jlcpcb.com/api". ProductService.Detail,
+// ProductService.DetailsByIDs, SearchService.Facets, AssemblyService and
+// CategoryService send their requests below this root.
 //
 // When WithBaseURL is not set, the search endpoint also moves below this
 // root. Thus one test server can serve all endpoints. WithBaseURL overrides
@@ -150,6 +185,8 @@ func NewClient(opts ...ClientOption) *Client {
 	c.common.client = c
 	c.Search = (*SearchService)(&c.common)
 	c.Product = (*ProductService)(&c.common)
+	c.Assembly = (*AssemblyService)(&c.common)
+	c.Category = (*CategoryService)(&c.common)
 
 	return c
 }

@@ -250,3 +250,103 @@ func TestIntegrationDetailsByIDsCompare(t *testing.T) {
 		t.Errorf("Product() = id %d, library type %q, want 1877 and basic", product.ComponentID, product.LibraryType())
 	}
 }
+
+// TestIntegrationAssemblyCalculators checks the J6 reference row: the
+// attrition calculator answers 190 and the order quantity calculator
+// answers 100190. The local estimate gives the same values.
+func TestIntegrationAssemblyCalculators(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	rows := []PlacementRow{{
+		Side:                AssemblySideSingle,
+		Boards:              1000,
+		PerBoard:            100,
+		LossNumber:          10,
+		LeastPatchNumber:    20,
+		EncapsulationNumber: 10000,
+	}}
+
+	start := time.Now()
+	attrition, err := client.Assembly.Attrition(ctx, rows)
+	if err != nil {
+		t.Fatalf("attrition failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("attrition: %v (%s)", attrition, time.Since(start))
+	if len(attrition) != 1 || attrition[0] != 190 {
+		t.Errorf("attrition = %v, want [190]", attrition)
+	}
+	if estimate := EstimateAttrition(rows[0], DefaultWastageCoefficient); len(attrition) == 1 && estimate != attrition[0] {
+		t.Errorf("EstimateAttrition = %d, calculator = %d", estimate, attrition[0])
+	}
+
+	start = time.Now()
+	qty, err := client.Assembly.OrderQuantities(ctx, rows)
+	if err != nil {
+		t.Fatalf("order quantities failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("order quantities: %v (%s)", qty, time.Since(start))
+	if len(qty) != 1 || qty[0] != 100190 {
+		t.Errorf("order quantities = %v, want [100190]", qty)
+	}
+}
+
+// TestIntegrationFacetsViewSimilar checks the facet query of the C1525
+// "View Similar" link: the server counts the basic part C1525, and the
+// capacitance facet maps "0.1uF" to "100nF".
+func TestIntegrationFacetsViewSimilar(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	facets, err := client.Search.Facets(ctx, &FacetRequest{
+		ParentID: 2,
+		LeafID:   2929,
+		Packages: []string{"0402"},
+		Attributes: []AttributeFilter{
+			{Name: "Voltage Rating", Values: []string{"16V"}},
+			{Name: "Capacitance", Values: []string{"100nF"}},
+			{Name: "Temperature Coefficient", Values: []string{"X7R"}},
+		},
+	})
+	if err != nil {
+		t.Fatalf("facets failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("facets: total %d, counts %+v, presale %v, %d params (%s)",
+		facets.Total, facets.Counts, facets.Presale, len(facets.Params), time.Since(start))
+
+	if facets.Total <= 0 || facets.Counts.Basic < 1 {
+		t.Errorf("total %d, basic %d, want both above 0", facets.Total, facets.Counts.Basic)
+	}
+	capacitance, ok := facets.Param("Capacitance")
+	if !ok {
+		t.Fatal("no Capacitance facet")
+	}
+	if got := capacitance.Canonical("0.1uF"); !slices.Contains(got, "100nF") {
+		t.Errorf("Canonical(0.1uF) = %v, want 100nF", got)
+	}
+}
+
+// TestIntegrationCategoryInfo checks the category name lookup: 2929 is a
+// leaf of "Capacitors", and an unknown id gives ErrNotFound.
+func TestIntegrationCategoryInfo(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	info, err := client.Category.Info(ctx, 2929)
+	if err != nil {
+		t.Fatalf("category info failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("category 2929: %+v (%s)", *info, time.Since(start))
+	if info.ParentName != "Capacitors" || info.ParentID != 2 || info.LeafID != 2929 || info.LeafName != "Multilayer Ceramic Capacitors MLCC - SMD/SMT" {
+		t.Errorf("info = %+v", *info)
+	}
+
+	if _, err := client.Category.Info(ctx, 999999999); !errors.Is(err, ErrNotFound) {
+		t.Errorf("unknown id error = %v, want ErrNotFound", err)
+	}
+}

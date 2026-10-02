@@ -174,8 +174,9 @@ type SearchResponse struct {
 	Categories []CategoryCount `json:"categories,omitempty"`
 }
 
-// CategoryCount is one node of the category tree in a search response
-// (data.sortAndCountVoList).
+// CategoryCount is one node of a category tree with part counts. A search
+// response (data.sortAndCountVoList) and Facets.Categories hold this tree.
+// The JSON tags are the wire names of the search response.
 type CategoryCount struct {
 	ID       int             `json:"componentSortKeyId"` // Numeric category id, for example 2929
 	ParentID int             `json:"parentId"`           // Numeric id of the parent category (0 for a first-level category)

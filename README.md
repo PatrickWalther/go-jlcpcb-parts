@@ -22,12 +22,15 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 
 ## Features
 
-- Service-based API (`client.Search`, `client.Product`)
+- Service-based API (`client.Search`, `client.Product`, `client.Assembly`, `client.Category`)
 - Keyword part search with filters and pagination
 - Search without a keyword by category and attribute values
 - Server-side filters for library type, stock, PCBA type and datasheets, and sort options
 - Page walk that keeps the totals of the first page
 - Category tree with part counts
+- Facet counts by library type, availability, category, package, brand and attribute value
+- Attribute value lookup that maps an input such as `0.1uF` to the exact facet string `100nF`
+- Category names by numeric category id
 - Product details lookup by JLC code or MPN
 - Exact part detail by JLC code, with assembly, MSL, ECCN and category id fields
 - Batch part detail by part id (250 ids for each request), with the pre-order ladder and stable file access ids
@@ -35,6 +38,7 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 - Price ladders sorted by quantity
 - Parts-order quote (stock or pre-order, minimum quantity, price ladder)
 - PCBA type eligibility and lead time fields
+- PCBA attrition and order quantity calculators, and a local estimate with the same rule
 - Typed error handling (`errors.Is`)
 - Optional in-memory response caching
 - Rate limiting and retry/backoff
@@ -87,6 +91,10 @@ func main() {
 - `client.Product.Details(ctx, identifier)`: keyword search for one part
 - `client.Product.Detail(ctx, code)`: exact detail record of one JLC part code
 - `client.Product.DetailsByIDs(ctx, ids)`: detail records of many parts by part id
+- `client.Search.Facets(ctx, req)`: part counts by library type, availability, category, package, brand and attribute value
+- `client.Assembly.Attrition(ctx, rows)`: attrition (extra parts for wastage) of each placement row
+- `client.Assembly.OrderQuantities(ctx, rows)`: part quantity that JLCPCB charges for each placement row
+- `client.Category.Info(ctx, id)`: category names of a numeric category id
 
 ### Search request
 
@@ -167,6 +175,94 @@ err := client.Search.Pages(ctx, &jlcpcb.SearchRequest{
 `Pages` starts at `req.Page` and stops after the last page or at the first page without products.
 When `fn` returns an error, `Pages` stops and returns that error.
 A page past the last page returns `TotalCount` 0 and `Pages` 0, so `Pages` copies these values from the first page into each later page.
+
+### Facets
+
+```go
+facets, err := client.Search.Facets(ctx, &jlcpcb.FacetRequest{
+	ParentID: 2,    // Capacitors
+	LeafID:   2929, // Multilayer Ceramic Capacitors MLCC - SMD/SMT
+	Packages: []string{"0402"},
+	Attributes: []jlcpcb.AttributeFilter{
+		{Name: "Voltage Rating", Values: []string{"16V"}},
+		{Name: "Capacitance", Values: []string{"100nF"}},
+		{Name: "Temperature Coefficient", Values: []string{"X7R"}},
+	},
+})
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(facets.Total, facets.Counts.Basic, facets.Counts.Extended) // 151 1 150
+fmt.Println(facets.Presale[jlcpcb.PresaleTypeStock])                   // 60
+
+capacitance, _ := facets.Param("Capacitance")
+fmt.Println(capacitance.Canonical("0.1uF")) // [100nF]
+```
+
+`Facets` sends one POST request to `filterComponentAttribute`, the endpoint of the filter panel of the JLCPCB part pages.
+The cache keeps the answer for 15 minutes.
+
+The facet endpoint takes numeric category ids, not names.
+Get the ids from `ComponentDetail.ParentCategoryID` and `LeafCategoryID`, from `CategoryCount.ID`, or from `client.Category.Info`.
+
+| Field | Wire field | Effect |
+|---|---|---|
+| `Keyword` | `keyword`, `queryString` | Optional search text. |
+| `ParentID`, `LeafID` | `productTypeIdList`, `componentTypeIdList` | Category filter by numeric id. Set `ParentID` with `LeafID`. |
+| `Packages`, `Brands` | `componentSpecificationList`, `componentBrandList` | Package and manufacturer filters. |
+| `LibraryTypes` | `orderLibraryTypeList` | Library type filter. The facet endpoint ignores `componentLibTypes`. |
+| `IncludePreferred` | `preferredComponentFlag` | With the `base` library type: basic OR preferred parts. |
+| `PresaleTypes`, `PCBA`, `HasDatasheet` | `presaleTypes`, `pcbAType`, `dateSheet` | The same filters as in a search. |
+| `Attributes` | `paramList` | Attribute filters. The server matches exact strings. |
+| `FacetFor` | `nowCondition` | Removes one filter from the facet counts. |
+
+The client sets `catalogLevel` from the request: 2 with `LeafID`, 1 with `ParentID` or `Keyword`, and 0 without them.
+
+`Facets` holds these counts:
+
+- `Total`: the parts that match all filters.
+- `Counts`: basic, preferred, extended, Economic PCBA, Standard PCBA, datasheet, photo and mechanical assembly parts. `Extended` includes the preferred parts.
+- `Presale`: the parts of each availability class (`stock`, `buy`, `post`).
+- `Categories`: the category tree with part counts. Skip the tree "Others" (id 35) to classify a part.
+- `Packages`, `Brands`: the part count of each package and manufacturer.
+- `Params`: the values of each attribute with part counts, the units and the unit factors.
+
+`FacetFor` takes a parameter name or one of the `FacetFor` constants (`FacetForLibraryType`, `FacetForStock`, `FacetForPCBA`, `FacetForInformation`, `FacetForPackage`).
+The server then counts every facet without that filter, so one call shows which values exist for the row.
+`Total` stays filtered.
+The library counts become flags: 1 for a class with parts, 0 for a class without parts.
+`Facets.CountsAreFlags` is then true.
+
+The server counts a part twice for a symmetric "±" value, for example "±10%".
+`ParamValue.Count` holds the true part count, and `ParamValue.DocCount` holds the raw count.
+
+`ParamFacet.Canonical(input)` returns the facet values with the same meaning as `input`.
+Use the result in a filter, because the server matches exact strings: `"100nF"` gives 866 parts, and `"0.1uF"` gives 0.
+
+- The string match ignores case: `"x7r"` gives `["X7R"]`.
+- A number with a unit compares in the base unit of the attribute: `"0.1uF"`, `"100000pF"` and `"100n"` give `["100nF"]`, and `"10k"` gives `["10kΩ"]`.
+- A range compares both ends: `"-40°C~+125°C"` gives `"-40℃~+125℃"`, `"-40℃~+125℃@(Ta)"` and `"-40℃~+125℃@(Tj)"`.
+- A symmetric range needs the sign: `"±1%"` gives `["±1%"]`, but `"1%"` gives no value.
+- A number without a unit uses the base unit (the unit with the factor 1, for example pF for Capacitance).
+
+### Category names
+
+```go
+info, err := client.Category.Info(ctx, 2929)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(info.ParentName, "/", info.LeafName) // Capacitors / Multilayer Ceramic Capacitors MLCC - SMD/SMT
+
+resp, err := client.Search.Query(ctx, &jlcpcb.SearchRequest{Category: info.Category()})
+```
+
+`Info` sends one GET request to `sort/info/{id}`.
+The cache keeps the answer for 24 hours.
+For a first-level category, `LeafID` is 0 and `LeafName` is empty.
+An id of 0 or less gives `ErrInvalidRequest` and sends no request.
+The server answers an unknown id with envelope code 500.
+`Info` then returns an error that matches `ErrNotFound` and `ErrServer`, and it does not retry.
 
 ### Product details
 
@@ -351,6 +447,54 @@ It is null on pre-order rows with stock 0, so it is not a lead time for such a p
 A search row sends the leaf in `firstSortName` and the parent in `secondSortName`.
 A search request and a detail record use the reverse order.
 
+### PCBA attrition and order quantity
+
+```go
+rows := []jlcpcb.PlacementRow{{
+	Side:                jlcpcb.AssemblySideSingle,
+	Boards:              1000, // pasteNumber
+	PerBoard:            100,  // componentDesignator
+	LossNumber:          product.LossNumber,
+	LeastPatchNumber:    product.LeastPatchNumber,
+	EncapsulationNumber: product.EncapsulationNumber,
+}}
+
+attrition, err := client.Assembly.Attrition(ctx, rows) // [190] for loss 10 and reel 10000
+qty, err := client.Assembly.OrderQuantities(ctx, rows) // [100190]
+
+// The same rule without a request:
+fmt.Println(jlcpcb.EstimateAttrition(rows[0], jlcpcb.DefaultWastageCoefficient)) // 190
+fmt.Println(jlcpcb.EstimateOrderQty(rows[0], jlcpcb.DefaultWastageCoefficient))  // 100190
+```
+
+`Attrition` and `OrderQuantities` send one POST request to the calculators of the JLCPCB parts shop (`calculateAttrition` and `calculateComponentOrderQty`).
+They return one value for each row, in the order of the rows.
+An empty row list returns an empty list and sends no request.
+
+The calculators answer a bad row with 0 and no error.
+Thus both methods validate each row first with `PlacementRow.Validate()`:
+
+- `Boards` and `PerBoard` must be more than 0.
+- `Side` must be `AssemblySideSingle`, `AssemblySideBoth` or empty. An empty side means single.
+- `LossNumber`, `LeastPatchNumber` and `EncapsulationNumber` must not be less than 0.
+
+A row that is not valid gives `ErrInvalidRequest`, and the method sends no request.
+
+`EstimateAttrition` and `EstimateOrderQty` compute the rule of the calculators:
+
+```text
+need      = Boards × PerBoard
+attrition = k × (LossNumber + floor(coef × max(0, need − EncapsulationNumber)))   k = 2 for "both", else 1
+qty       = max(need + attrition, LeastPatchNumber)
+```
+
+The rule gave the answer of the live calculators for all 68 recorded rows.
+`DefaultWastageCoefficient` is 0.002, the value of the JLCPCB config key `SYSTEM.smt_config.smt_wastage_coefficient`.
+The link between this key and the calculators is inferred.
+A `coef` that is not a finite number above 0 uses the default.
+The rule applies no minimum order quantity and no reel rounding.
+The parts shop uses the same calculators. The use of this rule for a PCBA order is inferred.
+
 A signed URL expires 30 minutes after the response.
 Download the file soon, and do not store the URL.
 The default cache keeps a response for 5 minutes, so a cached URL is still valid.
@@ -456,6 +600,51 @@ Methods:
 - `Category() (parent, leaf string)`
 - `Product() Product`
 
+### `Facets`
+
+- `Total int`
+- `Counts LibraryCounts`: `Basic`, `Preferred`, `Extended`, `Economic`, `Standard`, `Datasheet`, `Photo`, `MechanicalAssembly`
+- `CountsAreFlags bool`: true when `FacetFor` is set
+- `Presale map[PresaleType]int`
+- `Categories []CategoryCount`
+- `Packages []Bucket`, `Brands []Bucket`: `Value`, `Name`, `Count`
+- `Params []ParamFacet`
+
+Methods:
+
+- `Param(name string) (ParamFacet, bool)`
+
+### `ParamFacet`
+
+- `Name string`
+- `Range bool`: true for a numeric attribute
+- `Units []string`, `UnitScale map[string]float64`: units and their factors to the base unit
+- `Values []ParamValue`: `Value`, `Count`, `DocCount`, `Norm`, `IntervalStart`, `IntervalEnd`
+
+Methods:
+
+- `Canonical(input string) []string`
+
+### `PlacementRow`
+
+- `Side AssemblySide` (`assemblySide`): `AssemblySideSingle` or `AssemblySideBoth`
+- `Boards int` (`pasteNumber`)
+- `PerBoard int` (`componentDesignator`)
+- `LossNumber int`, `LeastPatchNumber int`, `EncapsulationNumber int`
+
+Methods:
+
+- `Validate() error`
+
+### `CategoryInfo`
+
+- `ParentID int`, `ParentName string`
+- `LeafID int`, `LeafName string`
+
+Methods:
+
+- `Category() Category`
+
 ### `LibraryType`
 
 - `LibraryTypeBasic` (`"basic"`)
@@ -465,12 +654,14 @@ Methods:
 ### Functions
 
 - `SortPriceBreaks([]PriceBreak) []PriceBreak`
+- `EstimateAttrition(PlacementRow, float64) int`
+- `EstimateOrderQty(PlacementRow, float64) int`
 
 ## Client Options
 
 - `WithHTTPClient(*http.Client)`
 - `WithBaseURL(string)`: base URL of the search endpoint (useful for tests)
-- `WithAPIRoot(string)`: root of the JLCPCB web API, default `https://jlcpcb.com/api`. The detail endpoints use it. When `WithBaseURL` is not set, the search endpoint also uses it.
+- `WithAPIRoot(string)`: root of the JLCPCB web API, default `https://jlcpcb.com/api`. The detail, facet, calculator and category endpoints use it. When `WithBaseURL` is not set, the search endpoint also uses it.
 
 When the `WithBaseURL` value ends with `/overseas-pcb-order/v1/shoppingCart/smtGood` and `WithAPIRoot` is not set, the client uses the part before this path as the API root.
 - `WithRateLimit(float64)` requests/second
@@ -485,6 +676,10 @@ Caching is enabled by default with in-memory cache:
 
 - Search TTL: `5m`
 - Details TTL: `5m`. It applies to `Details`, `Detail` and the records of `DetailsByIDs`.
+- Facets TTL: `15m` (`CacheConfig.FacetsTTL`). 0 uses the default.
+- Category TTL: `24h` (`CacheConfig.CategoryTTL`). 0 uses the default.
+
+The calculators do not use the cache.
 
 Custom cache config:
 
@@ -566,6 +761,11 @@ go test -tags=integration -run Integration ./...
 - New `client.Product.DetailsByIDs()`: the detail records of many parts by part id, 250 ids for each request.
 - New `ComponentDetail` type with `Category()` and `Product()`.
 - New `WithAPIRoot()` client option.
+- New `client.Search.Facets()` with `FacetRequest`, `Facets`, `ParamFacet` and `ParamFacet.Canonical()`.
+- New `client.Assembly.Attrition()` and `client.Assembly.OrderQuantities()` with `PlacementRow`.
+- New `EstimateAttrition()`, `EstimateOrderQty()` and `DefaultWastageCoefficient`.
+- New `client.Category.Info()` with `CategoryInfo`.
+- New `CacheConfig.FacetsTTL` and `CacheConfig.CategoryTTL`.
 
 ## Changes in v1.1.0
 

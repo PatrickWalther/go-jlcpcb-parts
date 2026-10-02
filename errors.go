@@ -109,3 +109,14 @@ func shouldRetry(err error, statusCode int) bool {
 
 	return false
 }
+
+// retryUnlessEnvelopeError works like shouldRetry, but it does not retry an
+// envelope error in an HTTP 200 response. Some endpoints answer a missing
+// resource with envelope code 500, so a retry does not help.
+func retryUnlessEnvelopeError(err error, statusCode int) bool {
+	var apiErr *APIError
+	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusOK {
+		return false
+	}
+	return shouldRetry(err, statusCode)
+}

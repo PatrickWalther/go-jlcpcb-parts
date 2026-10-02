@@ -46,7 +46,8 @@ type ComponentDetail struct {
 	ComponentStatus          string      `json:"componentStatus"`          // "yes" for a listed part. Detail also returns unlisted parts ("no")
 
 	// Category names and numeric category ids. The search ignores the
-	// numeric ids. Use the names in a Category filter.
+	// numeric ids. Use the names in a Category filter, and the ids in a
+	// FacetRequest.
 	ParentCategory   string `json:"firstSortName"`    // Parent category (e.g., "Capacitors")
 	LeafCategory     string `json:"secondSortName"`   // Leaf category (e.g., "Multilayer Ceramic Capacitors MLCC - SMD/SMT")
 	ParentCategoryID int    `json:"firstTypeNameId"`  // Numeric id of the parent category (e.g., 2)

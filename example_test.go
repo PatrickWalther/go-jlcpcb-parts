@@ -141,3 +141,96 @@ func ExampleProduct_PartsOrderQuote() {
 	// qty 8: pre-order false, minimum 1, first tier 0.0012 USD
 	// qty 9: pre-order true, minimum 8203, first tier 0.0011 USD
 }
+
+func ExampleEstimateAttrition() {
+	row := jlcpcb.PlacementRow{
+		Side:                jlcpcb.AssemblySideSingle,
+		Boards:              1000,
+		PerBoard:            100,
+		LossNumber:          10,
+		LeastPatchNumber:    20,
+		EncapsulationNumber: 10000,
+	}
+	fmt.Println(jlcpcb.EstimateAttrition(row, jlcpcb.DefaultWastageCoefficient))
+	fmt.Println(jlcpcb.EstimateOrderQty(row, jlcpcb.DefaultWastageCoefficient))
+	// Output:
+	// 190
+	// 100190
+}
+
+func ExampleAssemblyService_OrderQuantities() {
+	client := jlcpcb.NewClient()
+	qty, err := client.Assembly.OrderQuantities(context.Background(), []jlcpcb.PlacementRow{
+		{Boards: 50, PerBoard: 4, LossNumber: 10, LeastPatchNumber: 20, EncapsulationNumber: 10000},
+		{Side: jlcpcb.AssemblySideBoth, Boards: 50, PerBoard: 2, LossNumber: 3, LeastPatchNumber: 5, EncapsulationNumber: 4000},
+	})
+	if err != nil {
+		fmt.Println("calculator error:", err)
+		return
+	}
+	fmt.Println(qty)
+}
+
+func ExampleSearchService_Facets() {
+	client := jlcpcb.NewClient()
+	ctx := context.Background()
+
+	// The numeric category ids come from a detail record or a category tree.
+	facets, err := client.Search.Facets(ctx, &jlcpcb.FacetRequest{
+		ParentID: 2,
+		LeafID:   2929,
+		Packages: []string{"0402"},
+		Attributes: []jlcpcb.AttributeFilter{
+			{Name: "Voltage Rating", Values: []string{"16V"}},
+			{Name: "Capacitance", Values: []string{"100nF"}},
+		},
+	})
+	if err != nil {
+		fmt.Println("facets error:", err)
+		return
+	}
+	fmt.Println(facets.Total, facets.Counts.Basic, facets.Presale[jlcpcb.PresaleTypeStock])
+
+	// The server matches exact strings. Find the strings for "0.1uF".
+	if capacitance, ok := facets.Param("Capacitance"); ok {
+		fmt.Println(capacitance.Canonical("0.1uF"))
+	}
+}
+
+func ExampleParamFacet_Canonical() {
+	capacitance := jlcpcb.ParamFacet{
+		Name:      "Capacitance",
+		Range:     true,
+		UnitScale: map[string]float64{"pF": 1, "nF": 1e3, "uF": 1e6},
+		Values: []jlcpcb.ParamValue{
+			{Value: "10nF", Norm: 1e4},
+			{Value: "100nF", Norm: 1e5},
+			{Value: "1uF", Norm: 1e6},
+		},
+	}
+	fmt.Println(capacitance.Canonical("0.1uF"))
+	fmt.Println(capacitance.Canonical("100000pF"))
+	fmt.Println(capacitance.Canonical("1000n"))
+	// Output:
+	// [100nF]
+	// [100nF]
+	// [1uF]
+}
+
+func ExampleCategoryService_Info() {
+	client := jlcpcb.NewClient()
+	info, err := client.Category.Info(context.Background(), 2929)
+	if err != nil {
+		fmt.Println("category error:", err)
+		return
+	}
+	resp, err := client.Search.Query(context.Background(), &jlcpcb.SearchRequest{
+		Category: info.Category(),
+		PageSize: 10,
+	})
+	if err != nil {
+		fmt.Println("query error:", err)
+		return
+	}
+	fmt.Println(info.ParentName, resp.TotalCount > 0)
+}

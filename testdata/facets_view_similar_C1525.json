@@ -1,0 +1,579 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 151,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 151,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "0402",
+        "name": "0402",
+        "docCount": 151,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "--",
+        "name": "--",
+        "docCount": 9,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "AMOTECH",
+        "name": "AMOTECH",
+        "docCount": 1,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "CAL-CHIP ELECTRONICS, INC.",
+        "name": "CAL-CHIP ELECTRONICS, INC.",
+        "docCount": 4,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "CCTC",
+        "name": "CCTC",
+        "docCount": 4,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "Darfon Elec",
+        "name": "Darfon Elec",
+        "docCount": 2,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 151,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 151,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Operating Temperature",
+        "name": "Operating Temperature",
+        "docCount": 3,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-55℃~+125℃",
+            "name": "-55℃~+125℃",
+            "docCount": 3,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Temperature Coefficient",
+        "name": "Temperature Coefficient",
+        "docCount": 151,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "X7R",
+            "name": "X7R",
+            "docCount": 151,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 298,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±10%",
+            "name": "±10%",
+            "docCount": 170,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 85,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±20%",
+            "name": "±20%",
+            "docCount": 76,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 38,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5%",
+            "name": "±5%",
+            "docCount": 52,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 26,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 151,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "16V",
+            "name": "16V",
+            "docCount": 151,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamList": [],
+    "paramRangeList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 151,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 31,
+        "unitConversionMap": {
+          "fF": 0.001,
+          "pF": 1.0,
+          "nF": 1000.0,
+          "uF": 1000000.0,
+          "mF": 1000000000.0,
+          "F": 1000000000000.0
+        },
+        "unitList": [
+          "fF",
+          "pF",
+          "nF",
+          "uF",
+          "mF",
+          "F"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 151,
+            "rangeFlag": true,
+            "numericalNormValue": 100000,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 31,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Operating Temperature",
+        "name": "Operating Temperature",
+        "docCount": 3,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 27,
+        "unitConversionMap": {
+          "℃": 1.0
+        },
+        "unitList": [
+          "℃"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-55℃~+125℃",
+            "name": "-55℃~+125℃",
+            "docCount": 3,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -55,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Temperature Coefficient",
+        "name": "Temperature Coefficient",
+        "docCount": 151,
+        "rangeFlag": false,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 0,
+        "unitConversionMap": {},
+        "unitList": [],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "X7R",
+            "name": "X7R",
+            "docCount": 151,
+            "rangeFlag": false,
+            "numericalNormValue": 0,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 0,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 298,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 39,
+        "unitConversionMap": {
+          "‰": 0.1,
+          "%": 1.0
+        },
+        "unitList": [
+          "‰",
+          "%"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±10%",
+            "name": "±10%",
+            "docCount": 170,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -10,
+            "intervalEndValue": 10,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 85,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±20%",
+            "name": "±20%",
+            "docCount": 76,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 20,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 38,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5%",
+            "name": "±5%",
+            "docCount": 52,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -5,
+            "intervalEndValue": 5,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 26,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 151,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 1,
+        "unitConversionMap": {
+          "nV": 1e-09,
+          "uV": 1e-06,
+          "mV": 0.001,
+          "V": 1.0,
+          "kV": 1000.0
+        },
+        "unitList": [
+          "nV",
+          "uV",
+          "mV",
+          "V",
+          "kV"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "16V",
+            "name": "16V",
+            "docCount": 151,
+            "rangeFlag": true,
+            "numericalNormValue": 16,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamRangeList": [],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "buy",
+        "name": "buy",
+        "docCount": 71,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 20,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "stock",
+        "name": "stock",
+        "docCount": 60,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 151,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "2929",
+            "name": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "docCount": 151,
+            "subAggs": null
+          }
+        ]
+      }
+    ],
+    "basePart": 1,
+    "preferredPart": 0,
+    "economicPart": 151,
+    "standardPart": 151,
+    "dataSheetPart": 143,
+    "photo": 75,
+    "extendPart": 150,
+    "assemblyComponent": 0
+  }
+}

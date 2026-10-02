@@ -30,6 +30,16 @@ func TestNewClientDefaults(t *testing.T) {
 	if client.Product == nil {
 		t.Fatal("expected Product service to be initialized")
 	}
+	if client.Assembly == nil {
+		t.Fatal("expected Assembly service to be initialized")
+	}
+	if client.Category == nil {
+		t.Fatal("expected Category service to be initialized")
+	}
+	if client.cacheConfig.FacetsTTL != 15*time.Minute || client.cacheConfig.CategoryTTL != 24*time.Hour {
+		t.Fatalf("expected facets TTL 15m and category TTL 24h, got %v and %v",
+			client.cacheConfig.FacetsTTL, client.cacheConfig.CategoryTTL)
+	}
 	if !client.cacheConfig.Enabled {
 		t.Fatal("expected cache to be enabled by default")
 	}
@@ -199,6 +209,12 @@ func TestWithAPIRootServesAllEndpoints(t *testing.T) {
 			_, _ = w.Write([]byte(`{"code":200,"data":{"componentCode":"C1525","lcscComponentId":1877}}`))
 		case compareDetailsPath:
 			_, _ = w.Write([]byte(`{"code":200,"data":[{"urlSuffix":"x/C1525","componentDetailVo":{"componentCode":"C1525","lcscComponentId":1877}}]}`))
+		case filterComponentAttributePath:
+			_, _ = w.Write([]byte(`{"code":200,"data":{"total":1,"basePart":1}}`))
+		case calculateAttritionPath, calculateOrderQtyPath:
+			_, _ = w.Write([]byte(`{"code":200,"data":[190]}`))
+		case categoryInfoPath + "2929":
+			_, _ = w.Write([]byte(`{"code":200,"data":{"firstSortId":2,"firstSortName":"Capacitors","secondSortId":2929,"secondSortName":"MLCC"}}`))
 		default:
 			_, _ = w.Write([]byte(`{"code":200,"data":{"componentPageInfo":{"total":0,"list":[]}}}`))
 		}
@@ -216,8 +232,24 @@ func TestWithAPIRootServesAllEndpoints(t *testing.T) {
 	if _, err := client.Product.DetailsByIDs(ctx, []int64{1877}); err != nil {
 		t.Fatalf("batch detail failed: %v", err)
 	}
+	if _, err := client.Search.Facets(ctx, &FacetRequest{ParentID: 2}); err != nil {
+		t.Fatalf("facets failed: %v", err)
+	}
+	row := []PlacementRow{{Boards: 1000, PerBoard: 100, LossNumber: 10, LeastPatchNumber: 20, EncapsulationNumber: 10000}}
+	if _, err := client.Assembly.Attrition(ctx, row); err != nil {
+		t.Fatalf("attrition failed: %v", err)
+	}
+	if _, err := client.Assembly.OrderQuantities(ctx, row); err != nil {
+		t.Fatalf("order quantities failed: %v", err)
+	}
+	if _, err := client.Category.Info(ctx, 2929); err != nil {
+		t.Fatalf("category info failed: %v", err)
+	}
 
-	want := []string{smtGoodPath + "/selectSmtComponentList/v2", componentDetailPath, compareDetailsPath}
+	want := []string{
+		smtGoodPath + "/selectSmtComponentList/v2", componentDetailPath, compareDetailsPath,
+		filterComponentAttributePath, calculateAttritionPath, calculateOrderQtyPath, categoryInfoPath + "2929",
+	}
 	if !reflect.DeepEqual(paths, want) {
 		t.Errorf("paths = %v, want %v", paths, want)
 	}

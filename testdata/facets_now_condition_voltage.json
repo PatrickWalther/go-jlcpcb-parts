@@ -1,0 +1,486 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 151,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 418,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "0402",
+        "name": "0402",
+        "docCount": 418,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "--",
+        "name": "--",
+        "docCount": 26,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "AMOTECH",
+        "name": "AMOTECH",
+        "docCount": 2,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "CAL-CHIP ELECTRONICS, INC.",
+        "name": "CAL-CHIP ELECTRONICS, INC.",
+        "docCount": 17,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 418,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 418,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 418,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 418,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "6.3V",
+            "name": "6.3V",
+            "docCount": 18,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 18,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "10V",
+            "name": "10V",
+            "docCount": 71,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 71,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "16V",
+            "name": "16V",
+            "docCount": 151,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "25V",
+            "name": "25V",
+            "docCount": 90,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 90,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "35V",
+            "name": "35V",
+            "docCount": 9,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 9,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "50V",
+            "name": "50V",
+            "docCount": 79,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 79,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamList": [],
+    "paramRangeList": [
+      {
+        "displayFlag": true,
+        "key": "Capacitance",
+        "name": "Capacitance",
+        "docCount": 418,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 31,
+        "unitConversionMap": {
+          "fF": 0.001,
+          "pF": 1.0,
+          "nF": 1000.0,
+          "uF": 1000000.0,
+          "mF": 1000000000.0,
+          "F": 1000000000000.0
+        },
+        "unitList": [
+          "fF",
+          "pF",
+          "nF",
+          "uF",
+          "mF",
+          "F"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "100nF",
+            "name": "100nF",
+            "docCount": 418,
+            "rangeFlag": true,
+            "numericalNormValue": 100000,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 31,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 418,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Voltage Rating",
+        "name": "Voltage Rating",
+        "docCount": 418,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 1,
+        "unitConversionMap": {
+          "nV": 1e-09,
+          "uV": 1e-06,
+          "mV": 0.001,
+          "V": 1.0,
+          "kV": 1000.0
+        },
+        "unitList": [
+          "nV",
+          "uV",
+          "mV",
+          "V",
+          "kV"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "6.3V",
+            "name": "6.3V",
+            "docCount": 18,
+            "rangeFlag": true,
+            "numericalNormValue": 6.3,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 18,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "10V",
+            "name": "10V",
+            "docCount": 71,
+            "rangeFlag": true,
+            "numericalNormValue": 10,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 71,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "16V",
+            "name": "16V",
+            "docCount": 151,
+            "rangeFlag": true,
+            "numericalNormValue": 16,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 151,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "25V",
+            "name": "25V",
+            "docCount": 90,
+            "rangeFlag": true,
+            "numericalNormValue": 25,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 90,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "35V",
+            "name": "35V",
+            "docCount": 9,
+            "rangeFlag": true,
+            "numericalNormValue": 35,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 9,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "50V",
+            "name": "50V",
+            "docCount": 79,
+            "rangeFlag": true,
+            "numericalNormValue": 50,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 79,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamRangeList": [],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "buy",
+        "name": "buy",
+        "docCount": 190,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 56,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "stock",
+        "name": "stock",
+        "docCount": 172,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "2",
+        "name": "Capacitors",
+        "docCount": 418,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "2929",
+            "name": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "docCount": 418,
+            "subAggs": null
+          }
+        ]
+      }
+    ],
+    "basePart": 1,
+    "preferredPart": 0,
+    "economicPart": 1,
+    "standardPart": 1,
+    "dataSheetPart": 1,
+    "photo": 1,
+    "extendPart": 1,
+    "assemblyComponent": 0
+  }
+}

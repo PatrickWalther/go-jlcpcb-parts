@@ -1,0 +1,1123 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 501,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "1",
+        "name": "Resistors",
+        "docCount": 501,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "0402",
+        "name": "0402",
+        "docCount": 501,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "BOURNS",
+        "name": "BOURNS",
+        "docCount": 9,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "CAL-CHIP ELECTRONICS, INC.",
+        "name": "CAL-CHIP ELECTRONICS, INC.",
+        "docCount": 6,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "CHANGLONG",
+        "name": "CHANGLONG",
+        "docCount": 2,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [
+      {
+        "displayFlag": true,
+        "key": "Resistance",
+        "name": "Resistance",
+        "docCount": 501,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "10kΩ",
+            "name": "10kΩ",
+            "docCount": 501,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 501,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Temperature Coefficient",
+        "name": "Temperature Coefficient",
+        "docCount": 965,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±100ppm/℃",
+            "name": "±100ppm/℃",
+            "docCount": 338,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 169,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±10ppm/℃",
+            "name": "±10ppm/℃",
+            "docCount": 92,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 46,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±150ppm/℃",
+            "name": "±150ppm/℃",
+            "docCount": 6,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±15ppm/℃",
+            "name": "±15ppm/℃",
+            "docCount": 10,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 5,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±200ppm/℃",
+            "name": "±200ppm/℃",
+            "docCount": 134,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 67,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±25ppm/℃",
+            "name": "±25ppm/℃",
+            "docCount": 198,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 99,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±2ppm/℃",
+            "name": "±2ppm/℃",
+            "docCount": 2,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±30ppm/℃",
+            "name": "±30ppm/℃",
+            "docCount": 2,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±50ppm/℃",
+            "name": "±50ppm/℃",
+            "docCount": 166,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 83,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5ppm/℃",
+            "name": "±5ppm/℃",
+            "docCount": 16,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 8,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 1002,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±0.01%",
+            "name": "±0.01%",
+            "docCount": 14,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 7,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.02%",
+            "name": "±0.02%",
+            "docCount": 6,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.05%",
+            "name": "±0.05%",
+            "docCount": 20,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 10,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.1%",
+            "name": "±0.1%",
+            "docCount": 230,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 115,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.25%",
+            "name": "±0.25%",
+            "docCount": 44,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 22,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.5%",
+            "name": "±0.5%",
+            "docCount": 148,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 74,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±1%",
+            "name": "±1%",
+            "docCount": 332,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 166,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±2%",
+            "name": "±2%",
+            "docCount": 12,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 6,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5%",
+            "name": "±5%",
+            "docCount": 196,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 98,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamList": [],
+    "paramRangeList": [
+      {
+        "displayFlag": true,
+        "key": "Resistance",
+        "name": "Resistance",
+        "docCount": 501,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 3,
+        "unitConversionMap": {
+          "mΩ": 0.001,
+          "Ω": 1.0,
+          "kΩ": 1000.0,
+          "MΩ": 1000000.0
+        },
+        "unitList": [
+          "mΩ",
+          "Ω",
+          "kΩ",
+          "MΩ"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "10kΩ",
+            "name": "10kΩ",
+            "docCount": 501,
+            "rangeFlag": true,
+            "numericalNormValue": 10000,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 3,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 501,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Temperature Coefficient",
+        "name": "Temperature Coefficient",
+        "docCount": 965,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 15,
+        "unitConversionMap": {
+          "ppb/℃": 0.001,
+          "ppm/℃": 1.0,
+          "ppm/K": 1.0
+        },
+        "unitList": [
+          "ppb/℃",
+          "ppm/℃",
+          "ppm/K"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±100ppm/℃",
+            "name": "±100ppm/℃",
+            "docCount": 338,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -100,
+            "intervalEndValue": 100,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 169,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±10ppm/℃",
+            "name": "±10ppm/℃",
+            "docCount": 92,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -10,
+            "intervalEndValue": 10,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 46,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±150ppm/℃",
+            "name": "±150ppm/℃",
+            "docCount": 6,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -150,
+            "intervalEndValue": 150,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±15ppm/℃",
+            "name": "±15ppm/℃",
+            "docCount": 10,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -15,
+            "intervalEndValue": 15,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 5,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±200ppm/℃",
+            "name": "±200ppm/℃",
+            "docCount": 134,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -200,
+            "intervalEndValue": 200,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 67,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±25ppm/℃",
+            "name": "±25ppm/℃",
+            "docCount": 198,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -25,
+            "intervalEndValue": 25,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 99,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±2ppm/℃",
+            "name": "±2ppm/℃",
+            "docCount": 2,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -2,
+            "intervalEndValue": 2,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±30ppm/℃",
+            "name": "±30ppm/℃",
+            "docCount": 2,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -30,
+            "intervalEndValue": 30,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±50ppm/℃",
+            "name": "±50ppm/℃",
+            "docCount": 166,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -50,
+            "intervalEndValue": 50,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 83,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5ppm/℃",
+            "name": "±5ppm/℃",
+            "docCount": 16,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -5,
+            "intervalEndValue": 5,
+            "lcscUnitTemplateId": 15,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 8,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Tolerance",
+        "name": "Tolerance",
+        "docCount": 1002,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 39,
+        "unitConversionMap": {
+          "‰": 0.1,
+          "%": 1.0
+        },
+        "unitList": [
+          "‰",
+          "%"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "±0.01%",
+            "name": "±0.01%",
+            "docCount": 14,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.01,
+            "intervalEndValue": 0.01,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 7,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.02%",
+            "name": "±0.02%",
+            "docCount": 6,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.02,
+            "intervalEndValue": 0.02,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.05%",
+            "name": "±0.05%",
+            "docCount": 20,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.05,
+            "intervalEndValue": 0.05,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 10,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.1%",
+            "name": "±0.1%",
+            "docCount": 230,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.1,
+            "intervalEndValue": 0.1,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 115,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.25%",
+            "name": "±0.25%",
+            "docCount": 44,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.25,
+            "intervalEndValue": 0.25,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 22,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±0.5%",
+            "name": "±0.5%",
+            "docCount": 148,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -0.5,
+            "intervalEndValue": 0.5,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 74,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±1%",
+            "name": "±1%",
+            "docCount": 332,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -1,
+            "intervalEndValue": 1,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 166,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±2%",
+            "name": "±2%",
+            "docCount": 12,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -2,
+            "intervalEndValue": 2,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 6,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "±5%",
+            "name": "±5%",
+            "docCount": 196,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -5,
+            "intervalEndValue": 5,
+            "lcscUnitTemplateId": 39,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 98,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamRangeList": [],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "buy",
+        "name": "buy",
+        "docCount": 281,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 34,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "stock",
+        "name": "stock",
+        "docCount": 186,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "1",
+        "name": "Resistors",
+        "docCount": 501,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "2980",
+            "name": "Chip Resistor - Surface Mount",
+            "docCount": 501,
+            "subAggs": null
+          }
+        ]
+      }
+    ],
+    "basePart": 1,
+    "preferredPart": 0,
+    "economicPart": 501,
+    "standardPart": 501,
+    "dataSheetPart": 488,
+    "photo": 229,
+    "extendPart": 500,
+    "assemblyComponent": 0
+  }
+}

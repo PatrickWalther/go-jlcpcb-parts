@@ -1,0 +1,934 @@
+{
+  "success": true,
+  "code": 200,
+  "message": null,
+  "data": {
+    "total": 110,
+    "componentTypeList": [],
+    "productTypeList": [
+      {
+        "displayFlag": true,
+        "key": "9",
+        "name": "Power Management (PMIC)",
+        "docCount": 110,
+        "subAggs": null
+      }
+    ],
+    "componentSpecificationList": [
+      {
+        "displayFlag": true,
+        "key": "SOT-223",
+        "name": "SOT-223",
+        "docCount": 110,
+        "subAggs": null
+      }
+    ],
+    "componentBrandList": [
+      {
+        "displayFlag": true,
+        "key": "(DIOTEC)",
+        "name": "(DIOTEC)",
+        "docCount": 1,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "Advanced Monolithic Systems",
+        "name": "Advanced Monolithic Systems",
+        "docCount": 1,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "AF",
+        "name": "AF",
+        "docCount": 1,
+        "subAggs": null
+      }
+    ],
+    "orderLibraryTypeList": [],
+    "packageTypeList": [],
+    "paramList": [
+      {
+        "displayFlag": true,
+        "key": "Number of Outputs",
+        "name": "Number of Outputs",
+        "docCount": 107,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 4,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 4,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "1",
+            "name": "1",
+            "docCount": 103,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 103,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Operating Temperature",
+        "name": "Operating Temperature",
+        "docCount": 106,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+105℃@(Ta)",
+            "name": "-20℃~+105℃@(Ta)",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+125℃@(Ta)",
+            "name": "-20℃~+125℃@(Ta)",
+            "docCount": 3,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+125℃@(Tj)",
+            "name": "-20℃~+125℃@(Tj)",
+            "docCount": 6,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 6,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+85℃@(Ta)",
+            "name": "-20℃~+85℃@(Ta)",
+            "docCount": 2,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 2,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-25℃~+125℃@(Tj)",
+            "name": "-25℃~+125℃@(Tj)",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃",
+            "name": "-40℃~+125℃",
+            "docCount": 14,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 14,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(Ta)",
+            "name": "-40℃~+125℃@(Ta)",
+            "docCount": 9,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 9,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(Tj)",
+            "name": "-40℃~+125℃@(Tj)",
+            "docCount": 33,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 33,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(TJ)",
+            "name": "-40℃~+125℃@(TJ)",
+            "docCount": 1,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+85℃",
+            "name": "-40℃~+85℃",
+            "docCount": 5,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 5,
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+85℃@(Ta)",
+            "name": "-40℃~+85℃@(Ta)",
+            "docCount": 11,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 11,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Output Current",
+        "name": "Output Current",
+        "docCount": 110,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "1A",
+            "name": "1A",
+            "docCount": 110,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 110,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Output Voltage",
+        "name": "Output Voltage",
+        "docCount": 110,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "3.3V",
+            "name": "3.3V",
+            "docCount": 110,
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 110,
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamList": [],
+    "paramRangeList": [
+      {
+        "displayFlag": true,
+        "key": "Number of Outputs",
+        "name": "Number of Outputs",
+        "docCount": 107,
+        "rangeFlag": false,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 0,
+        "unitConversionMap": {},
+        "unitList": [],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 4,
+            "rangeFlag": false,
+            "numericalNormValue": 0,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 0,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 4,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "1",
+            "name": "1",
+            "docCount": 103,
+            "rangeFlag": false,
+            "numericalNormValue": 1,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 0,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 103,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Operating Temperature",
+        "name": "Operating Temperature",
+        "docCount": 106,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 27,
+        "unitConversionMap": {
+          "℃": 1.0
+        },
+        "unitList": [
+          "℃"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "-",
+            "name": "-",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+105℃@(Ta)",
+            "name": "-20℃~+105℃@(Ta)",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 105,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+125℃@(Ta)",
+            "name": "-20℃~+125℃@(Ta)",
+            "docCount": 3,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 3,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+125℃@(Tj)",
+            "name": "-20℃~+125℃@(Tj)",
+            "docCount": 6,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 6,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-20℃~+85℃@(Ta)",
+            "name": "-20℃~+85℃@(Ta)",
+            "docCount": 2,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -20,
+            "intervalEndValue": 85,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 2,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-25℃~+125℃@(Tj)",
+            "name": "-25℃~+125℃@(Tj)",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -25,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃",
+            "name": "-40℃~+125℃",
+            "docCount": 14,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 14,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(Ta)",
+            "name": "-40℃~+125℃@(Ta)",
+            "docCount": 9,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 9,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(Tj)",
+            "name": "-40℃~+125℃@(Tj)",
+            "docCount": 33,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 33,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+125℃@(TJ)",
+            "name": "-40℃~+125℃@(TJ)",
+            "docCount": 1,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 125,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 1,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+85℃",
+            "name": "-40℃~+85℃",
+            "docCount": 5,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 85,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 5,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          },
+          {
+            "displayFlag": true,
+            "key": "-40℃~+85℃@(Ta)",
+            "name": "-40℃~+85℃@(Ta)",
+            "docCount": 11,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": -40,
+            "intervalEndValue": 85,
+            "lcscUnitTemplateId": 27,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 11,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Output Current",
+        "name": "Output Current",
+        "docCount": 110,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 5,
+        "unitConversionMap": {
+          "fA": 1e-15,
+          "pA": 1e-12,
+          "nA": 1e-09,
+          "uA": 1e-06,
+          "mA": 0.001,
+          "A": 1.0,
+          "kA": 1000.0
+        },
+        "unitList": [
+          "fA",
+          "pA",
+          "nA",
+          "uA",
+          "mA",
+          "A",
+          "kA"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "1A",
+            "name": "1A",
+            "docCount": 110,
+            "rangeFlag": true,
+            "numericalNormValue": 1,
+            "intervalStartValue": 0,
+            "intervalEndValue": 0,
+            "lcscUnitTemplateId": 5,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 110,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "displayFlag": true,
+        "key": "Output Voltage",
+        "name": "Output Voltage",
+        "docCount": 110,
+        "rangeFlag": true,
+        "numericalNormValue": null,
+        "intervalStartValue": null,
+        "intervalEndValue": null,
+        "lcscUnitTemplateId": 1,
+        "unitConversionMap": {
+          "nV": 1e-09,
+          "uV": 1e-06,
+          "mV": 0.001,
+          "V": 1.0,
+          "kV": 1000.0
+        },
+        "unitList": [
+          "nV",
+          "uV",
+          "mV",
+          "V",
+          "kV"
+        ],
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "3.3V",
+            "name": "3.3V",
+            "docCount": 110,
+            "rangeFlag": true,
+            "numericalNormValue": 0,
+            "intervalStartValue": 3.3,
+            "intervalEndValue": 3.3,
+            "lcscUnitTemplateId": 1,
+            "unitConversionMap": {},
+            "unitList": [],
+            "subAggs": [
+              {
+                "displayFlag": true,
+                "key": "-",
+                "name": "-",
+                "docCount": 110,
+                "rangeFlag": false,
+                "numericalNormValue": null,
+                "intervalStartValue": null,
+                "intervalEndValue": null,
+                "lcscUnitTemplateId": null,
+                "unitConversionMap": {},
+                "unitList": [],
+                "subAggs": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "parentParamRangeList": [],
+    "presaleTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "buy",
+        "name": "buy",
+        "docCount": 13,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "post",
+        "name": "post",
+        "docCount": 15,
+        "subAggs": null
+      },
+      {
+        "displayFlag": true,
+        "key": "stock",
+        "name": "stock",
+        "docCount": 82,
+        "subAggs": null
+      }
+    ],
+    "productTypeAggs": [
+      {
+        "displayFlag": true,
+        "key": "9",
+        "name": "Power Management (PMIC)",
+        "docCount": 110,
+        "subAggs": [
+          {
+            "displayFlag": true,
+            "key": "2956",
+            "name": "Voltage Regulators - Linear, Low Drop Out (LDO) Regulators",
+            "docCount": 110,
+            "subAggs": null
+          }
+        ]
+      }
+    ],
+    "basePart": 1,
+    "preferredPart": 0,
+    "economicPart": 110,
+    "standardPart": 110,
+    "dataSheetPart": 91,
+    "photo": 95,
+    "extendPart": 109,
+    "assemblyComponent": 0
+  }
+}

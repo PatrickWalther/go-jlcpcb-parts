@@ -1,6 +1,7 @@
 package jlcpcb
 
 import (
+	"encoding/json"
 	"sync"
 	"time"
 )
@@ -73,4 +74,28 @@ func (mc *MemoryCache) Clear() {
 	defer mc.mu.Unlock()
 
 	mc.items = make(map[string]*cacheItem)
+}
+
+// cachedValue decodes the cached value of key into v. It returns false when
+// the cache is off, when the key is not in the cache, or when the value does
+// not decode.
+func (c *Client) cachedValue(key string, v interface{}) bool {
+	if !c.cacheConfig.Enabled || c.cache == nil {
+		return false
+	}
+	cached, ok := c.cache.Get(key)
+	if !ok {
+		return false
+	}
+	return json.Unmarshal(cached, v) == nil
+}
+
+// cacheValue stores v as JSON under key for ttl.
+func (c *Client) cacheValue(key string, v interface{}, ttl time.Duration) {
+	if !c.cacheConfig.Enabled || c.cache == nil {
+		return
+	}
+	if data, err := json.Marshal(v); err == nil {
+		c.cache.Set(key, data, ttl)
+	}
 }
