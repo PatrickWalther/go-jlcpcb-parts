@@ -15,8 +15,8 @@
 //     file access id
 //
 // FileURL and the StableImageURL, StableThumbnailURL and StableDatasheetURL
-// methods give media URLs that do not expire, when the record has a file
-// access id.
+// methods give media URLs that are not signed, when the record has a file
+// access id. A signed URL expires after 30 or 60 minutes.
 package jlcpcb
 
 // Version is the current package version.

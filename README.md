@@ -39,7 +39,7 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 - Parts-order quote (stock or pre-order, minimum quantity, price ladder)
 - PCBA type eligibility and lead time fields
 - PCBA attrition and order quantity calculators, and a local estimate with the same rule
-- Image and datasheet URLs that do not expire (file access ids), and a check for signed URLs
+- Image and datasheet URLs that are not signed (file access ids), and a check for signed URLs
 - File download by access id, with the content type found from the bytes
 - Typed error handling (`errors.Is`)
 - Optional in-memory response caching
@@ -429,23 +429,24 @@ for _, url := range product.DatasheetURLs() {
 ```
 
 `FileURL(accessID)` returns `https://jlcpcb.com/api/file/downloadByFileSystemAccessId/<id>`.
-This URL needs no headers and has no expiry time.
+This URL needs no headers. Unlike a signed URL, it has no signature and no expiry parameter.
 The same id gave the same bytes 45 minutes later, and an id that was 54 days old still gave a file.
-A byte comparison over more days was not done.
+A byte comparison over more days was not done, so the durability over many days is not verified.
 `FileURL` returns `""` when the id is not all digits.
 
 The stable methods use these fields, in this order. They return `""` when no field is set.
 
-| Method | 1. File access id | 2. URL without expiry | 3. Signed URL (expires) |
+| Method | 1. File access id | 2. Unsigned URL | 3. Signed URL (expires) |
 |---|---|---|---|
-| `StableImageURL()` | `ProductBigImageAccessId` | `ComponentImageUrl`, when it is an LCSC URL | `ProductBigImageAccessIdUrl` |
-| `StableThumbnailURL()` | `MinImageAccessId` | `MinImage`, when it is an LCSC URL | `MinImageAccessIdUrl` |
+| `StableImageURL()` | `ProductBigImageAccessId` | `ComponentImageUrl`, when it is an LCSC URL or a JLCPCB file URL | `ProductBigImageAccessIdUrl` |
+| `StableThumbnailURL()` | `MinImageAccessId` | `MinImage`, when it is an LCSC URL or a JLCPCB file URL | `MinImageAccessIdUrl` |
 | `StableDatasheetURL()` | `DataManualFileAccessId` | `DataManualUrl`, when it is a JLCPCB file URL | `DataManualFileAccessIdUrl` |
 
+For a JLCPCB file URL in column 2, the methods return `FileURL` of the access id in that URL.
 `ComponentDetail` has the same three methods.
 
 - The batch detail (`DetailsByIDs`) sends the file access ids for most parts. The v2 search and `Detail` send no access ids. Thus for a search row, the stable methods usually return a signed URL. Use `IsSignedURL` to find it.
-- Some parts have no JLCPCB image. These records send LCSC image URLs in `componentImageUrl` and `minImage` (for example C6186). LCSC image URLs have no expiry time.
+- Some parts have no JLCPCB image. These records send LCSC image URLs in `componentImageUrl` and `minImage` (for example C6186). LCSC image URLs are not signed.
 - Some records send an LCSC folder URL without a file name, for example `https://assets.lcsc.com/images/lcsc/96x96/`. The methods skip such a URL.
 - `StableDatasheetURL()` does not return an LCSC datasheet URL, because a `www.lcsc.com/datasheet/` URL gives an HTML viewer page, not a PDF.
 
@@ -469,7 +470,17 @@ It prefers the signed URLs, so do not store its result.
 ### File downloads
 
 ```go
-body, info, err := client.File.Open(ctx, detail.ProductBigImageAccessID)
+// The batch detail sends the file access ids. Detail does not send them.
+details, err := client.Product.DetailsByIDs(ctx, []int64{1877}) // C1525
+if err != nil {
+	log.Fatal(err)
+}
+c1525, ok := details[1877]
+if !ok || c1525.ProductBigImageAccessID == "" {
+	log.Fatal("no image access id for C1525")
+}
+
+body, info, err := client.File.Open(ctx, c1525.ProductBigImageAccessID)
 if errors.Is(err, jlcpcb.ErrNotFound) {
 	log.Fatal("JLCPCB has no file with this access id")
 }
@@ -485,6 +496,19 @@ fmt.Println(info.ContentType, info.FileName, info.Size) // image/jpeg C1525-æ­£é
 It waits for the rate limiter and retries like the other requests.
 The caller must close the body.
 The cache does not keep files.
+
+The `Timeout` of the HTTP client (30 seconds by default) limits the full download.
+The limit includes the time to read the body after `Open` returns.
+A large datasheet (for example 8 MB) can need more time on a slow connection, and then a read from the body fails.
+To download large files, set a longer `Timeout` or no `Timeout` with `WithHTTPClient`, and limit the download with the context:
+
+```go
+client := jlcpcb.NewClient(jlcpcb.WithHTTPClient(&http.Client{})) // no total time limit
+
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+defer cancel()
+body, info, err := client.File.Open(ctx, accessID)
+```
 
 - `ContentType`: the server sends `application/x-msdownload` for images, so `Open` does not use the server value. `Open` reads the first 512 bytes and finds the type with `http.DetectContentType`. The body still starts at the first byte. `Open` does not check the type, so check `ContentType` before you use the file.
 - `FileName`: the name from `Content-Disposition`, without a folder prefix. `Open` decodes percent-encoded UTF-8, plain ASCII and the RFC 5987 form (`filename*=UTF-8''...`). Bytes that are not valid UTF-8, for example a raw GBK name, become `_`.
@@ -637,7 +661,7 @@ The parts shop uses the same calculators. The use of this rule for a PCBA order 
 - `AllowPostFlag bool`: true when the customer can consign the part to JLCPCB
 - `MergedComponentCode string`: merge or alternative part code. Active parts have it too, so it is not an EOL marker.
 - `ReplaceUrlSuffix string`: part page URL suffix of `MergedComponentCode`
-- `ProductBigImageAccessId string`, `MinImageAccessId string`, `DataManualFileAccessId string`: stable file access ids. The v2 search sends null for them today.
+- `ProductBigImageAccessId string`, `MinImageAccessId string`, `DataManualFileAccessId string`: stable file access ids. The classic search and `DetailsByIDs` send them. The v2 search and `Detail` do not send them today.
 
 A JSON `null` decodes to the zero value: `""`, `0`, or `false`.
 
@@ -664,10 +688,10 @@ Methods:
 - `ParentCategoryID int`, `LeafCategoryID int`: numeric category ids (`firstTypeNameId`, `secondTypeNameId`)
 - `ComponentLibraryType string`, `AssemblyComponentFlag bool`
 - `AssemblyProcess string`: `"SMT"` or `"THT"`
-- `AssemblyMode string`: for example `"smtWeld"` or `"manualWeld"` (hand soldering)
+- `AssemblyMode string`: the raw soldering method. SMT parts send `"smtWeld"`. Every THT part in the live samples sends `"manualWeld"`, and no part sends `"thtWeld"`. The JLCPCB part pages show both `"manualWeld"` and `"thtWeld"` as "Wave Soldering". A hand soldering meaning of `"manualWeld"` is inferred from the name only.
 - `ComponentProductType PCBAEligibility`
 - `XrayFlag bool`: true when the part needs an X-ray inspection
-- `SpecialComponentFee FlexFloat64`: extra assembly fee in USD (0 for most parts)
+- `SpecialComponentFee FlexFloat64`: special component fee for each piece, as the JLCPCB part pages show it (0 for most parts). The currency is probably USD, but this is not verified.
 - `NeedAuditFlag bool`, `OrderInstructionEnglish string`
 - `ComponentDesignator string`: designator prefix. It is not reliable.
 - `MoistureSensitivityLevelEn string`, `EccnCode string`
@@ -681,7 +705,8 @@ Methods:
 - `ComponentAlternativesCode string`, `AlternativesLCSCComponentID int64`, `ReplaceURLSuffix string`: replacement part
 - `ProductBigImageAccessID`, `MinImageAccessID`, `DataManualFileAccessID string`: stable file access ids
 - `ProductBigImageSignedURL`, `MinImageSignedURL`, `DataManualFileSignedURL string`: signed URLs
-- `ComponentImageURL`, `MinImageURL`, `DataManualURL`, `DataManualOfficialLink`, `LCSCGoodsURL string`
+- `ComponentImageURL`, `MinImageURL`, `DataManualOfficialLink`, `LCSCGoodsURL string`
+- `DataManualURL string`: usually an LCSC URL. A `www.lcsc.com/datasheet/` URL gives an HTML viewer page. It can also be empty or a placeholder such as `--`. Use `StableDatasheetURL()` or `Product().DatasheetURLs()`.
 - `URLSuffix string`: part page URL suffix (only from `DetailsByIDs`)
 
 The field names use Go initialisms. The `Product` fields with the same JSON tags keep the wire spelling (for example `ProductBigImageAccessID` and `ProductBigImageAccessId`).

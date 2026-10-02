@@ -60,18 +60,27 @@ type ComponentDetail struct {
 	LeafCategoryID   int    `json:"secondTypeNameId"` // Numeric id of the leaf category (e.g., 2929)
 
 	// Assembly fields.
-	ComponentLibraryType       string          `json:"componentLibraryType"`       // Raw library type: "base" or "expand". A detail record has no preferred flag
-	AssemblyComponentFlag      bool            `json:"assemblyComponentFlag"`      // Raw assemblyComponentFlag value
-	AssemblyProcess            string          `json:"assemblyProcess"`            // Assembly process: "SMT" or "THT"
-	AssemblyMode               string          `json:"assemblyMode"`               // Assembly method (e.g., "smtWeld" or "manualWeld" for hand soldering)
-	ComponentProductType       PCBAEligibility `json:"componentProductType"`       // PCBA types that accept the part
-	XrayFlag                   bool            `json:"xrayFlag"`                   // True when the part needs an X-ray inspection (e.g., a BGA)
-	SpecialComponentFee        FlexFloat64     `json:"specialComponentFee"`        // Extra assembly fee of the part in USD (0 for most parts, the fee basis is not known)
-	NeedAuditFlag              bool            `json:"needAuditFlag"`              // Raw needAuditFlag value (false for most parts)
-	OrderInstructionEnglish    string          `json:"orderInstructionEnglish"`    // Order instruction text (empty for most parts)
-	ComponentDesignator        string          `json:"componentDesignator"`        // Designator prefix (e.g., "C" or "U"). It is not reliable
-	MoistureSensitivityLevelEn string          `json:"moistureSensitivityLevelEn"` // Moisture sensitivity level (e.g., "MSL 1")
-	EccnCode                   string          `json:"eccnCode"`                   // Export control class (e.g., "EAR99")
+	ComponentLibraryType  string `json:"componentLibraryType"`  // Raw library type: "base" or "expand". A detail record has no preferred flag
+	AssemblyComponentFlag bool   `json:"assemblyComponentFlag"` // Raw assemblyComponentFlag value
+	AssemblyProcess       string `json:"assemblyProcess"`       // Assembly process: "SMT" or "THT"
+	// AssemblyMode is the raw soldering method of JLCPCB. SMT parts send
+	// "smtWeld". Every THT part in the live samples sends "manualWeld", and
+	// no part sends "thtWeld". The JLCPCB part pages show both "manualWeld"
+	// and "thtWeld" as "Wave Soldering", and "furnaceWeld" as "Reflow
+	// Soldering". A hand soldering meaning of "manualWeld" is INFERRED from
+	// the name only.
+	AssemblyMode         string          `json:"assemblyMode"`
+	ComponentProductType PCBAEligibility `json:"componentProductType"` // PCBA types that accept the part
+	XrayFlag             bool            `json:"xrayFlag"`             // True when the part needs an X-ray inspection (e.g., a BGA)
+	// SpecialComponentFee is the special component fee of the part for each
+	// piece, as the JLCPCB part pages show it. It is 0 for most parts. The
+	// currency is probably USD, but this is not verified.
+	SpecialComponentFee        FlexFloat64 `json:"specialComponentFee"`
+	NeedAuditFlag              bool        `json:"needAuditFlag"`              // Raw needAuditFlag value (false for most parts)
+	OrderInstructionEnglish    string      `json:"orderInstructionEnglish"`    // Order instruction text (empty for most parts)
+	ComponentDesignator        string      `json:"componentDesignator"`        // Designator prefix (e.g., "C" or "U"). It is not reliable
+	MoistureSensitivityLevelEn string      `json:"moistureSensitivityLevelEn"` // Moisture sensitivity level (e.g., "MSL 1")
+	EccnCode                   string      `json:"eccnCode"`                   // Export control class (e.g., "EAR99")
 
 	// Stock and ordering fields.
 	StockCount          int          `json:"stockCount"`          // Stock quantity
@@ -96,11 +105,12 @@ type ComponentDetail struct {
 	AlternativesLCSCComponentID int64  `json:"alternativesLcscComponentId"` // Numeric part id of the replacement
 	ReplaceURLSuffix            string `json:"replaceUrlSuffix"`            // Part page URL suffix of the replacement
 
-	// File access ids and file URLs. A file access id has no expiry time.
-	// A signed URL expires after 30 minutes (Detail) or 60 minutes
-	// (DetailsByIDs). Download the file soon, and do not store a signed URL.
-	// FileURL gives the download URL of an id. StableImageURL,
-	// StableThumbnailURL and StableDatasheetURL choose the best URL.
+	// File access ids and file URLs. The URL of a file access id is not
+	// signed (see FileURL for the durability tests). A signed URL expires
+	// after 30 minutes (Detail) or 60 minutes (DetailsByIDs). Download the
+	// file soon, and do not store a signed URL. FileURL gives the download
+	// URL of an id. StableImageURL, StableThumbnailURL and
+	// StableDatasheetURL choose the best URL.
 	ProductBigImageAccessID  string `json:"productBigImageAccessId"`    // File access id of the large image (empty from Detail)
 	MinImageAccessID         string `json:"minImageAccessId"`           // File access id of the small image (empty from Detail)
 	DataManualFileAccessID   string `json:"dataManualFileAccessId"`     // File access id of the datasheet copy that JLCPCB hosts (empty from Detail)
@@ -109,9 +119,13 @@ type ComponentDetail struct {
 	DataManualFileSignedURL  string `json:"dataManualFileAccessIdUrl"`  // Signed URL of the datasheet copy that JLCPCB hosts
 	ComponentImageURL        string `json:"componentImageUrl"`          // Image URL (often empty)
 	MinImageURL              string `json:"minImage"`                   // Small image URL (often empty)
-	DataManualURL            string `json:"dataManualUrl"`              // Datasheet URL (usually an LCSC PDF)
-	DataManualOfficialLink   string `json:"dataManualOfficialLink"`     // Datasheet URL at the manufacturer (often empty)
-	LCSCGoodsURL             string `json:"lcscGoodsUrl"`               // LCSC product URL
+	// DataManualURL is the datasheet URL. It is usually an LCSC URL, and a
+	// "www.lcsc.com/datasheet/" URL gives an HTML viewer page, not a PDF.
+	// It can also be empty or a placeholder such as "--". Use
+	// StableDatasheetURL or Product().DatasheetURLs to get a usable URL.
+	DataManualURL          string `json:"dataManualUrl"`
+	DataManualOfficialLink string `json:"dataManualOfficialLink"` // Datasheet URL at the manufacturer (often empty)
+	LCSCGoodsURL           string `json:"lcscGoodsUrl"`           // LCSC product URL
 
 	// URLSuffix is the part page URL suffix. Only DetailsByIDs sets it. The
 	// batch response sends it next to the record. Do not parse the part id

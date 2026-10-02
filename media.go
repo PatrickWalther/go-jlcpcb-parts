@@ -14,9 +14,10 @@ const fileDownloadPath = "/file/downloadByFileSystemAccessId/"
 // It returns "" when accessID is empty or has a character that is not a
 // digit. FileURL ignores surrounding white space.
 //
-// The URL needs no headers and has no expiry time, unlike a signed URL. The
-// same id gave the same bytes 45 minutes later, and an id that was 54 days
-// old still gave a file. A byte comparison over more days was not done.
+// The URL needs no headers. Unlike a signed URL, it has no signature and no
+// expiry parameter. The same id gave the same bytes 45 minutes later, and an
+// id that was 54 days old still gave a file. A byte comparison over more
+// days was not done, so the durability over many days is not verified.
 //
 // The server sends a wrong Content-Type for images. Use FileService.Open,
 // which finds the type from the bytes.
@@ -112,7 +113,7 @@ func isHostOf(host, domain string) bool {
 
 // isLCSCMediaURL reports whether rawURL is an LCSC file URL without a
 // signature, for example "https://assets.lcsc.com/images/lcsc/900x900/<name>.jpg".
-// LCSC media URLs have no expiry time.
+// LCSC media URLs are not signed.
 func isLCSCMediaURL(rawURL string) bool {
 	u, ok := parseFileURL(rawURL)
 	return ok && isHostOf(u.Hostname(), "lcsc.com") && !IsSignedURL(rawURL)
@@ -170,10 +171,12 @@ func stableDatasheetURL(accessID, dataManualURL, signed string) string {
 // StableImageURL returns the best URL of the large image (900x900) of the
 // part. The order is:
 //
-//  1. FileURL(ProductBigImageAccessId). This URL has no expiry time.
-//  2. ComponentImageUrl when it is an LCSC image URL. Some parts have no
-//     JLCPCB image and send an LCSC URL here (for example C6186). This URL
-//     has no expiry time.
+//  1. FileURL(ProductBigImageAccessId). This URL is not signed (see
+//     FileURL).
+//  2. ComponentImageUrl when it is an LCSC image URL or a JLCPCB file URL.
+//     Some parts have no JLCPCB image and send an LCSC URL here (for
+//     example C6186). An LCSC image URL is not signed. For a JLCPCB file
+//     URL, the method returns FileURL of the access id in the URL.
 //  3. ProductBigImageAccessIdUrl, a signed URL that expires 30 or 60 minutes
 //     after the response.
 //  4. "" when the part has no large image.
@@ -196,7 +199,8 @@ func (p *Product) StableThumbnailURL() string {
 // StableDatasheetURL returns the best URL of the datasheet copy that
 // JLCPCB hosts. The order is:
 //
-//  1. FileURL(DataManualFileAccessId). This URL has no expiry time.
+//  1. FileURL(DataManualFileAccessId). This URL is not signed (see
+//     FileURL).
 //  2. DataManualUrl when it is a JLCPCB file URL. Some records send the
 //     file URL there and no access id.
 //  3. DataManualFileAccessIdUrl, a signed URL that expires 30 or 60 minutes

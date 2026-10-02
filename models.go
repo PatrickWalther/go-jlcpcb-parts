@@ -150,9 +150,11 @@ type Product struct {
 	MergedComponentCode  string          `json:"mergedComponentCode"`  // Merge or alternative part code; active parts have it too, so it is not an EOL marker
 	ReplaceUrlSuffix     string          `json:"replaceUrlSuffix"`     // Part page URL suffix of MergedComponentCode, for example "RaspberryPi-RP2040/C2040"
 
-	// Stable file access ids. A file access id has no expiry time, unlike a
-	// signed URL. The v2 search sends null for these ids today. The classic
-	// search and the detail records send them. A JSON null decodes to "".
+	// Stable file access ids. The URL of a file access id is not signed
+	// (see FileURL for the durability tests). The v2 search sends null for
+	// these ids today. The classic search and the batch detail
+	// (ProductService.DetailsByIDs) send them. The exact detail
+	// (ProductService.Detail) does not send them. A JSON null decodes to "".
 	// FileURL gives the download URL of an id, and FileService.Open
 	// downloads the file.
 	ProductBigImageAccessId string `json:"productBigImageAccessId"` // File access id of the large image
@@ -214,7 +216,7 @@ func (p *Product) Buyable() bool {
 //
 // A signed URL expires 30 minutes after the response. Download the image soon,
 // and do not store the URL. StableImageURL and StableThumbnailURL prefer the
-// URLs that have no expiry time.
+// URLs that are not signed.
 func (p *Product) ImageURL() string {
 	for _, candidate := range []string{
 		p.ProductBigImageAccessIdUrl,

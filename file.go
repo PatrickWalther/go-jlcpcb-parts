@@ -50,6 +50,13 @@ type FileInfo struct {
 // Open waits for the rate limiter before the request. It retries an HTTP
 // 429 or 5xx answer and a network timeout like the other requests.
 //
+// The Timeout of the HTTP client (30 seconds by default) limits the full
+// download. The limit includes the time to read the body after Open
+// returns. A large datasheet (for example 8 MB) can need more time on a
+// slow connection. Then a read from the body fails. To download large
+// files, set a longer Timeout or no Timeout with WithHTTPClient, and limit
+// the download with ctx. A cancel of ctx also stops a body read.
+//
 // Open reads the first 512 bytes to find the content type. The returned
 // body still starts at the first byte. Open does not check the content
 // type. Check FileInfo.ContentType before you use the file.
