@@ -438,7 +438,18 @@ func TestSearchCacheKeyCoversNewOptions(t *testing.T) {
 // shape: list null, total 0 and pages 0.
 func pagedServer(t *testing.T, total, pageSize int, requests *atomic.Int32) *httptest.Server {
 	t.Helper()
+	return pagedServerWithPageCount(t, total, pageSize, true, requests)
+}
+
+// pagedServerWithPageCount works like pagedServer. When sendPages is false,
+// each page reports the total, but the page count is 0.
+func pagedServerWithPageCount(t *testing.T, total, pageSize int, sendPages bool, requests *atomic.Int32) *httptest.Server {
+	t.Helper()
 	pages := (total + pageSize - 1) / pageSize
+	reportedPages := pages
+	if !sendPages {
+		reportedPages = 0
+	}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requests.Add(1)
 		var req searchRequestBody
@@ -454,7 +465,7 @@ func pagedServer(t *testing.T, total, pageSize int, requests *atomic.Int32) *htt
 			for i := (req.CurrentPage - 1) * pageSize; i < min(total, req.CurrentPage*pageSize); i++ {
 				list = append(list, map[string]interface{}{"componentCode": fmt.Sprintf("C%d", i+1)})
 			}
-			info = map[string]interface{}{"total": total, "pageSize": pageSize, "pageNum": req.CurrentPage, "pages": pages, "list": list}
+			info = map[string]interface{}{"total": total, "pageSize": pageSize, "pageNum": req.CurrentPage, "pages": reportedPages, "list": list}
 		}
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"code": 200, "message": nil,
@@ -568,6 +579,62 @@ func TestSearchPagesKeepsFirstPageTotals(t *testing.T) {
 	// Page 3 has no products, so the walk stops there.
 	if got := requests.Load(); got != 3 {
 		t.Errorf("server got %d requests, want 3", got)
+	}
+}
+
+// TestSearchPagesTotalWithoutPageCount uses a server that sends the total
+// but no page count. Pages then stops when it has all rows, or at an empty
+// page when the walk starts after page 1.
+func TestSearchPagesTotalWithoutPageCount(t *testing.T) {
+	var requests atomic.Int32
+	server := pagedServerWithPageCount(t, 5, 2, false, &requests)
+	client := NewClient(WithBaseURL(server.URL), WithHTTPClient(server.Client()), WithoutCache())
+
+	walk := func(start int) ([]string, []int) {
+		t.Helper()
+		requests.Store(0)
+		var codes []string
+		var pageNums []int
+		err := client.Search.Pages(context.Background(), &SearchRequest{PageSize: 2, Page: start}, func(resp *SearchResponse) error {
+			pageNums = append(pageNums, resp.Page)
+			if resp.TotalCount != 5 || resp.Pages != 0 {
+				t.Errorf("page %d: total %d, pages %d; want 5 and 0", resp.Page, resp.TotalCount, resp.Pages)
+			}
+			for _, p := range resp.Products {
+				codes = append(codes, p.ComponentCode)
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("Pages from page %d failed: %v", start, err)
+		}
+		return codes, pageNums
+	}
+
+	// From page 1, the walk stops after the last row and does not request
+	// page 4.
+	codes, pageNums := walk(1)
+	if want := []string{"C1", "C2", "C3", "C4", "C5"}; !reflect.DeepEqual(codes, want) {
+		t.Errorf("from page 1: codes = %v, want %v", codes, want)
+	}
+	if want := []int{1, 2, 3}; !reflect.DeepEqual(pageNums, want) {
+		t.Errorf("from page 1: pages = %v, want %v", pageNums, want)
+	}
+	if got := requests.Load(); got != 3 {
+		t.Errorf("from page 1: server got %d requests, want 3", got)
+	}
+
+	// From page 2, the walk sees fewer rows than the total, so it stops at
+	// the empty page 4.
+	codes, pageNums = walk(2)
+	if want := []string{"C3", "C4", "C5"}; !reflect.DeepEqual(codes, want) {
+		t.Errorf("from page 2: codes = %v, want %v", codes, want)
+	}
+	if want := []int{2, 3}; !reflect.DeepEqual(pageNums, want) {
+		t.Errorf("from page 2: pages = %v, want %v", pageNums, want)
+	}
+	if got := requests.Load(); got != 3 {
+		t.Errorf("from page 2: server got %d requests, want 3", got)
 	}
 }
 

@@ -67,9 +67,13 @@ type FacetRequest struct {
 	// PresaleTypes keeps only parts of these availability classes
 	// (presaleTypes).
 	PresaleTypes []PresaleType
-	// PCBA keeps only parts that a PCBA type accepts (pcbAType).
+	// PCBA keeps only parts that a PCBA type accepts (pcbAType). The
+	// JLCPCB part pages send this field in the facet body.
+	// TestIntegrationFacetFilterFlags checks that the server applies it.
 	PCBA PCBAFilter
-	// HasDatasheet keeps only parts with a datasheet (dateSheet).
+	// HasDatasheet keeps only parts with a datasheet (dateSheet). The
+	// JLCPCB part pages send this field in the facet body.
+	// TestIntegrationFacetFilterFlags checks that the server applies it.
 	HasDatasheet bool
 	// AttributeFilters keeps only parts with the given attribute values
 	// (paramList). The values are exact strings: "100nF" matches, but

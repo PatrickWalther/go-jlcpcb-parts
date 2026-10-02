@@ -232,7 +232,7 @@ Get the ids from `ComponentDetail.ParentCategoryID` and `LeafCategoryID`, from `
 | `Packages`, `Brands` | `componentSpecificationList`, `componentBrandList` | Package and manufacturer filters. |
 | `LibraryTypes` | `orderLibraryTypeList` | Library type filter. The facet endpoint ignores `componentLibTypes`. |
 | `IncludePreferred` | `preferredComponentFlag` | With the `base` library type: basic OR preferred parts. |
-| `PresaleTypes`, `PCBA`, `HasDatasheet` | `presaleTypes`, `pcbAType`, `dateSheet` | The same filters as in a search. |
+| `PresaleTypes`, `PCBA`, `HasDatasheet` | `presaleTypes`, `pcbAType`, `dateSheet` | The same filters as in a search. A live contract test checks that the facet endpoint applies `pcbAType` and `dateSheet`. |
 | `AttributeFilters` | `paramList` | Attribute filters. The server matches exact strings. |
 | `FacetFor` | `nowCondition` | Removes one filter from the facet counts. |
 
@@ -876,7 +876,7 @@ Unit tests:
 go test ./...
 ```
 
-Integration tests (live API, opt-in, read-only, at most 1 request per second for the contract tests):
+Integration tests (live API, opt-in, read-only). All integration tests share one client, so the run sends at most 1 request per second:
 
 ```bash
 go test -tags=integration -run Integration ./...

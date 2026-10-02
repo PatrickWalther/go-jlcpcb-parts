@@ -9,12 +9,13 @@ import (
 	"io"
 	"slices"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
 
 func TestIntegrationSearchKeywordBasic(t *testing.T) {
-	client := NewClient()
+	client := contractClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
@@ -34,7 +35,7 @@ func TestIntegrationSearchKeywordBasic(t *testing.T) {
 }
 
 func TestIntegrationSearchKeywordKnownMPN(t *testing.T) {
-	client := NewClient()
+	client := contractClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
@@ -61,7 +62,7 @@ func TestIntegrationSearchKeywordKnownMPN(t *testing.T) {
 }
 
 func TestIntegrationProductDetails(t *testing.T) {
-	client := NewClient()
+	client := contractClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
@@ -78,7 +79,7 @@ func TestIntegrationProductDetails(t *testing.T) {
 }
 
 func TestIntegrationSearchAndDetailsFlow(t *testing.T) {
-	client := NewClient()
+	client := contractClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
 	defer cancel()
 
@@ -103,10 +104,17 @@ func TestIntegrationSearchAndDetailsFlow(t *testing.T) {
 	}
 }
 
-// contractClient returns a client for the search contract tests. It sends
-// at most 1 request per second and does not cache responses.
-func contractClient() *Client {
+// sharedLiveClient is the client of all integration tests. It sends at
+// most 1 request per second and does not cache responses. The tests share
+// one client, so that one rate limiter spaces all live requests, also the
+// first request of a test after the last request of the test before it.
+var sharedLiveClient = sync.OnceValue(func() *Client {
 	return NewClient(WithRateLimit(1), WithoutCache())
+})
+
+// contractClient returns the shared client of the integration tests.
+func contractClient() *Client {
+	return sharedLiveClient()
 }
 
 // TestIntegrationSearchIncludePreferredTotals checks that the server honors
@@ -339,6 +347,55 @@ func TestIntegrationFacetsViewSimilar(t *testing.T) {
 	}
 	if got := capacitance.Canonical("0.1uF"); !slices.Contains(got, "100nF") {
 		t.Errorf("Canonical(0.1uF) = %v, want 100nF", got)
+	}
+}
+
+// TestIntegrationFacetFilterFlags checks that the facet endpoint applies
+// pcbAType (FacetRequest.PCBA) and dateSheet (FacetRequest.HasDatasheet).
+// The total of a filtered query must be the class count of the same query
+// without the filter. The library can change between two requests, so the
+// test accepts a difference of 0.1%.
+func TestIntegrationFacetFilterFlags(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	query := func(name string, req FacetRequest) *Facets {
+		t.Helper()
+		start := time.Now()
+		facets, err := client.Search.Facets(ctx, &req)
+		if err != nil {
+			t.Fatalf("%s: facets failed after %s: %v", name, time.Since(start), err)
+		}
+		t.Logf("%s: total %d, economic %d, datasheet %d (%s)",
+			name, facets.Total, facets.Counts.Economic, facets.Counts.Datasheet, time.Since(start))
+		return facets
+	}
+	// near reports whether got is not more than 0.1% away from want.
+	near := func(got, want int) bool {
+		diff := got - want
+		if diff < 0 {
+			diff = -diff
+		}
+		return float64(diff) <= 0.001*float64(want)
+	}
+
+	all := query("all parts", FacetRequest{})
+	if all.Counts.Economic >= all.Total || all.Counts.Datasheet >= all.Total {
+		t.Fatalf("total %d, economic %d, datasheet %d: each class must be smaller than the total to check the filters",
+			all.Total, all.Counts.Economic, all.Counts.Datasheet)
+	}
+
+	economic := query("Economic PCBA", FacetRequest{PCBA: PCBAFilterEconomic})
+	if economic.Total >= all.Total || !near(economic.Total, all.Counts.Economic) {
+		t.Errorf("PCBA filter: total %d, want about %d (economic count of all %d parts)",
+			economic.Total, all.Counts.Economic, all.Total)
+	}
+
+	datasheet := query("with datasheet", FacetRequest{HasDatasheet: true})
+	if datasheet.Total >= all.Total || !near(datasheet.Total, all.Counts.Datasheet) {
+		t.Errorf("datasheet filter: total %d, want about %d (datasheet count of all %d parts)",
+			datasheet.Total, all.Counts.Datasheet, all.Total)
 	}
 }
 

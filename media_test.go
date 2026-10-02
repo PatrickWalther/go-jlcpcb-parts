@@ -284,6 +284,16 @@ func TestStableMediaURLOrder(t *testing.T) {
 			want: mediaWant{datasheet: fileURLPrefix + "8588905303245541376"},
 		},
 		{
+			name: "JLCPCB file URLs in componentImageUrl and minImage",
+			product: Product{
+				ComponentImageUrl:          "https://jlcpcb.com/api/file/downloadByFileSystemAccessId/123",
+				MinImage:                   " https://JLCPCB.com/api/file/downloadByFileSystemAccessId/456?download=1 ",
+				ProductBigImageAccessIdUrl: signedBig,
+				MinImageAccessIdUrl:        signedMin,
+			},
+			want: mediaWant{image: fileURLPrefix + "123", thumbnail: fileURLPrefix + "456"},
+		},
+		{
 			name: "other JLCPCB URL in dataManualUrl",
 			product: Product{
 				DataManualUrl: "https://jlcpcb.com/api/file/other/8588905303245541376",
