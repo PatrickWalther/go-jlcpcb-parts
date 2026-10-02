@@ -259,8 +259,10 @@ The server counts a part twice for a symmetric "±" value, for example "±10%".
 `ParamFacet.Canonical(input)` returns the facet values with the same meaning as `input`.
 Use the result in a filter, because the server matches exact strings: `"100nF"` gives 866 parts, and `"0.1uF"` gives 0.
 
-- The string match ignores case: `"x7r"` gives `["X7R"]`.
+- An equal string matches.
 - A number with a unit compares in the base unit of the attribute: `"0.1uF"`, `"100000pF"` and `"100n"` give `["100nF"]`, and `"10k"` gives `["10kΩ"]`.
+- When input or a value has no number, the string match ignores case: `"x7r"` gives `["X7R"]`.
+- The unit match ignores case, but `m` (milli) never matches `M` (mega): `"1mΩ"` does not give `"1MΩ"`, and `"1.8mhz"` does not give `"1.8MHz"`.
 - A range compares both ends: `"-40°C~+125°C"` gives `"-40℃~+125℃"`, `"-40℃~+125℃@(Ta)"` and `"-40℃~+125℃@(Tj)"`.
 - A symmetric range needs the sign: `"±1%"` gives `["±1%"]`, but `"1%"` gives no value.
 - A number without a unit uses the base unit (the unit with the factor 1, for example pF for Capacitance).

@@ -529,15 +529,21 @@ func atoiOrZero(s string) int {
 //
 // A value matches when one of these conditions is true:
 //
-//   - The value is equal to input. The match ignores case.
+//   - The value is equal to input.
 //   - The value has the same number in the base unit as input. For example
 //     "0.1uF" matches "100nF", and "-40°C~+125°C" matches "-40℃~+125℃" and
 //     "-40℃~+125℃@(Tj)".
+//   - Canonical cannot read a number from input or from the value, and the
+//     value is equal to input when the match ignores case. For example
+//     "x7r" matches "X7R".
 //
 // Canonical reads input as a number with an optional unit of UnitScale
 // ("0.1uF", "100 nF", "10k" for "10kΩ"), a range ("-40℃~+125℃") or a
 // symmetric range ("±1%"). A number without a unit uses the base unit.
 // Canonical ignores a condition after "@", for example "@(Tj)".
+//
+// The unit match ignores case, but "m" (milli) never matches "M" (mega).
+// Thus "1mΩ" does not match "1MΩ", and "1.8mhz" does not match "1.8MHz".
 //
 // For a value, Canonical uses Norm. When Norm is 0, it uses IntervalStart
 // and IntervalEnd: equal ends are a single value (for example "3.3V"), and
@@ -552,18 +558,52 @@ func (f ParamFacet) Canonical(input string) []string {
 
 	var out []string
 	for _, v := range f.Values {
-		if strings.EqualFold(v.Value, input) {
+		if v.Value == input {
 			out = append(out, v.Value)
 			continue
 		}
-		if !numeric {
+		// The numbers decide the match when input and the value both have
+		// one. Do not compare the strings then, because a match that
+		// ignores case folds "m" (milli) into "M" (mega).
+		if got, ok := f.valueQuantity(v); ok && numeric {
+			if got.equal(want) {
+				out = append(out, v.Value)
+			}
 			continue
 		}
-		if got, ok := f.valueQuantity(v); ok && got.equal(want) {
+		if equalFoldText(v.Value, input) {
 			out = append(out, v.Value)
 		}
 	}
 	return out
+}
+
+// equalFoldText reports whether a and b are equal when the match ignores
+// case. When a or b starts with a number, "m" and "M" do not match, because
+// the letter after a number can be a unit prefix (milli or mega).
+func equalFoldText(a, b string) bool {
+	if !strings.EqualFold(a, b) {
+		return false
+	}
+	if !startsWithNumber(a) && !startsWithNumber(b) {
+		return true
+	}
+	// EqualFold compares rune by rune, so a and b have the same number of
+	// runes here.
+	rb := []rune(b)
+	for i, r := range []rune(a) {
+		if r != rb[i] && (r == 'm' || r == 'M') {
+			return false
+		}
+	}
+	return true
+}
+
+// startsWithNumber reports whether s starts with a number. A sign or a
+// symmetric range sign ("±" or "+/-") can come before the number.
+func startsWithNumber(s string) bool {
+	s = strings.TrimPrefix(unitReplacer.Replace(strings.TrimSpace(s)), "±")
+	return numberWithUnit.MatchString(s)
 }
 
 // quantity is a single value (lo == hi) or a range in the base unit.

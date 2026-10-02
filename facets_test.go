@@ -500,8 +500,11 @@ func TestParamFacetCanonicalHandBuilt(t *testing.T) {
 		want  []string
 	}{
 		{"1.8M", []string{"1.8MHz"}},
-		{"1.8m", nil},                  // milli does not fold into mega
-		{"1.8mhz", []string{"1.8MHz"}}, // the string match ignores case
+		{"1.8m", nil},    // milli does not fold into mega
+		{"1.8mhz", nil},  // "mhz" is millihertz, not megahertz
+		{"1.8 mHz", nil}, // millihertz
+		{"1.8MHZ", []string{"1.8MHz"}},
+		{"1.8 MHz", []string{"1.8MHz"}},
 		{"1800kHz", []string{"1.8MHz"}},
 		{"0.1MHz", []string{"100kHz"}},
 		{"0", []string{"0Hz"}},
@@ -512,6 +515,87 @@ func TestParamFacetCanonicalHandBuilt(t *testing.T) {
 	for _, tt := range tests {
 		if got := frequency.Canonical(tt.input); !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("Canonical(%q) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
+}
+
+// TestParamFacetCanonicalMilliMega uses a resistance facet with milliohm
+// and megaohm values, as the full chip resistor leaf has. A milli value must
+// never match a mega value.
+func TestParamFacetCanonicalMilliMega(t *testing.T) {
+	resistance := ParamFacet{
+		Name:      "Resistance",
+		Range:     true,
+		UnitScale: map[string]float64{"mΩ": 0.001, "Ω": 1, "kΩ": 1e3, "MΩ": 1e6},
+		Values: []ParamValue{
+			{Value: "1mΩ", Norm: 0.001},
+			{Value: "100mΩ", Norm: 0.1},
+			{Value: "1MΩ", Norm: 1e6},
+			{Value: "100MΩ", Norm: 1e8},
+		},
+	}
+	// noScale has the same values, but the server sent no unit factors.
+	// Canonical then cannot read the input as a number and compares text.
+	noScale := resistance
+	noScale.UnitScale = nil
+
+	tests := []struct {
+		input string
+		want  []string
+	}{
+		{"1mΩ", []string{"1mΩ"}},
+		{"1MΩ", []string{"1MΩ"}},
+		{"100mΩ", []string{"100mΩ"}},
+		{"100MΩ", []string{"100MΩ"}},
+		{"1 mOhm", []string{"1mΩ"}},
+		{"1 MOhm", []string{"1MΩ"}},
+		{"0.1", []string{"100mΩ"}},
+		{"1000000", []string{"1MΩ"}},
+		{"1mω", []string{"1mΩ"}},
+		{"1Mω", []string{"1MΩ"}},
+	}
+	for _, tt := range tests {
+		if got := resistance.Canonical(tt.input); !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("Canonical(%q) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
+
+	textTests := []struct {
+		input string
+		want  []string
+	}{
+		{"1mΩ", []string{"1mΩ"}},
+		{"1MΩ", []string{"1MΩ"}},
+		{"1mω", []string{"1mΩ"}},
+		{"100MΩ", []string{"100MΩ"}},
+		{"100mω", []string{"100mΩ"}},
+	}
+	for _, tt := range textTests {
+		if got := noScale.Canonical(tt.input); !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("without unit factors: Canonical(%q) = %q, want %q", tt.input, got, tt.want)
+		}
+	}
+}
+
+func TestEqualFoldText(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want bool
+	}{
+		{"X7R", "x7r", true},
+		{"SMD", "smd", true},
+		{"Automotive", "AUTOMOTIVE", true},
+		{"100nF", "100NF", true},
+		{"1mΩ", "1MΩ", false},
+		{"1.8MHz", "1.8mhz", false},
+		{"±10mV", "±10MV", false},
+		{"+/-10mV", "+/-10MV", false},
+		{"-40℃~+125℃", "-40℃~+125℃", true},
+		{"100nF", "100pF", false},
+	}
+	for _, tt := range tests {
+		if got := equalFoldText(tt.a, tt.b); got != tt.want {
+			t.Errorf("equalFoldText(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
 		}
 	}
 }
