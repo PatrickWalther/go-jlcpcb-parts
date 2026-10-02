@@ -203,7 +203,7 @@ facets, err := client.Search.Facets(ctx, &jlcpcb.FacetRequest{
 	ParentID: 2,    // Capacitors
 	LeafID:   2929, // Multilayer Ceramic Capacitors MLCC - SMD/SMT
 	Packages: []string{"0402"},
-	Attributes: []jlcpcb.AttributeFilter{
+	AttributeFilters: []jlcpcb.AttributeFilter{
 		{Name: "Voltage Rating", Values: []string{"16V"}},
 		{Name: "Capacitance", Values: []string{"100nF"}},
 		{Name: "Temperature Coefficient", Values: []string{"X7R"}},
@@ -233,7 +233,7 @@ Get the ids from `ComponentDetail.ParentCategoryID` and `LeafCategoryID`, from `
 | `LibraryTypes` | `orderLibraryTypeList` | Library type filter. The facet endpoint ignores `componentLibTypes`. |
 | `IncludePreferred` | `preferredComponentFlag` | With the `base` library type: basic OR preferred parts. |
 | `PresaleTypes`, `PCBA`, `HasDatasheet` | `presaleTypes`, `pcbAType`, `dateSheet` | The same filters as in a search. |
-| `Attributes` | `paramList` | Attribute filters. The server matches exact strings. |
+| `AttributeFilters` | `paramList` | Attribute filters. The server matches exact strings. |
 | `FacetFor` | `nowCondition` | Removes one filter from the facet counts. |
 
 The client sets `catalogLevel` from the request: 2 with `LeafID`, 1 with `ParentID` or `Keyword`, and 0 without them.
@@ -320,8 +320,7 @@ if err != nil {
 	log.Fatal(err)
 }
 for id, d := range details {
-	product := d.Product()
-	quote := product.PartsOrderQuote(5000)
+	quote := d.Product().PartsOrderQuote(5000)
 	fmt.Println(id, d.ComponentCode, len(d.BuyPrices), quote.MinQty)
 }
 ```
@@ -357,11 +356,16 @@ A detail record sends the parent category in `firstSortName` and the leaf in `se
 A detail record has no preferred flag, no lead time and no merge code.
 `CanPresaleNumber` is 0 where a search row sends a negative value.
 
-`ComponentDetail.Product()` returns the record as a `Product`:
+`ComponentDetail` uses Go initialisms in its field names, for example `ProductBigImageAccessID`, `ReplaceURLSuffix` and `DataManualURL`.
+`Product` keeps the spelling of the wire names for the same fields, for example `ProductBigImageAccessId`, `ReplaceUrlSuffix` and `DataManualUrl`.
+The JSON tags of the two types are the same.
+
+`ComponentDetail.Product()` returns the record as a new `*Product`, so a call chain such as `d.Product().PartsOrderQuote(100)` works:
 
 - `Prices` goes to `ComponentPrices`, and `BuyPrices` goes to `BuyComponentPrices`.
 - The category names go to `FirstSortName` and `SecondSortName` in the order of a search row. Thus `Product.Category()` returns the same parent and leaf.
 - `LCSCComponentID` goes to `ComponentID`.
+- The fields with an initialism go to the fields with the wire spelling, for example `ProductBigImageAccessID` to `ProductBigImageAccessId`.
 - `PreferredComponentFlag` is false. Thus `LibraryType()` returns `LibraryTypeExtended` for a preferred extended part.
 
 ### Assembly library and ordering
@@ -677,10 +681,12 @@ Methods:
 - `ComponentImageURL`, `MinImageURL`, `DataManualURL`, `DataManualOfficialLink`, `LCSCGoodsURL string`
 - `URLSuffix string`: part page URL suffix (only from `DetailsByIDs`)
 
+The field names use Go initialisms. The `Product` fields with the same JSON tags keep the wire spelling (for example `ProductBigImageAccessID` and `ProductBigImageAccessId`).
+
 Methods:
 
 - `Category() (parent, leaf string)`
-- `Product() Product`
+- `Product() *Product`
 - `StableImageURL() string`, `StableThumbnailURL() string`, `StableDatasheetURL() string`
 
 ### `Facets`
@@ -862,7 +868,7 @@ go test -tags=integration -run Integration ./...
 - `Attributes`, `FilterAttribute`, `SortPrimary` and `SortSecondary` are deprecated. They still work.
 - New `client.Product.Detail()`: the exact detail record of one JLC part code.
 - New `client.Product.DetailsByIDs()`: the detail records of many parts by part id, 250 ids for each request.
-- New `ComponentDetail` type with `Category()` and `Product()`.
+- New `ComponentDetail` type with `Category()` and `Product()`. `Product()` returns a new `*Product`.
 - New `WithAPIRoot()` client option.
 - New `client.Search.Facets()` with `FacetRequest`, `Facets`, `ParamFacet` and `ParamFacet.Canonical()`.
 - New `client.Assembly.Attrition()` and `client.Assembly.OrderQuantities()` with `PlacementRow`.

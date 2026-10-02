@@ -592,8 +592,11 @@ func TestComponentDetailProduct(t *testing.T) {
 			t.Fatalf("record %d is missing", ids.ID)
 		}
 		got := detail.Product()
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("%s: Product() differs from the raw record\n got: %+v\nwant: %+v", detail.ComponentCode, got, want)
+		if !reflect.DeepEqual(*got, want) {
+			t.Errorf("%s: Product() differs from the raw record\n got: %+v\nwant: %+v", detail.ComponentCode, *got, want)
+		}
+		if detail.Product() == got {
+			t.Errorf("%s: Product() returned the same pointer twice", detail.ComponentCode)
 		}
 
 		dParent, dLeaf := detail.Category()
@@ -644,11 +647,10 @@ func TestComponentDetailProductQuote(t *testing.T) {
 	if err != nil {
 		t.Fatalf("DetailsByIDs failed: %v", err)
 	}
-	product := details[5888166].Product()
-
 	// C5200613 has stock 0 and CanPresaleNumber 0, so each order is a
-	// pre-order on the sorted buy ladder.
-	quote := product.PartsOrderQuote(10)
+	// pre-order on the sorted buy ladder. The call chain checks that the
+	// Product methods work on the result of Product without a variable.
+	quote := details[5888166].Product().PartsOrderQuote(10)
 	if !quote.PreOrder || quote.MinQty != 7 {
 		t.Errorf("quote = %+v, want a pre-order with minimum 7", quote)
 	}

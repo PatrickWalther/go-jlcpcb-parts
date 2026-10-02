@@ -34,7 +34,7 @@ func viewSimilarFacetRequest() *FacetRequest {
 		ParentID: 2,
 		LeafID:   2929,
 		Packages: []string{"0402"},
-		Attributes: []AttributeFilter{
+		AttributeFilters: []AttributeFilter{
 			{Name: "Voltage Rating", Values: []string{"16V"}},
 			{Name: "Capacitance", Values: []string{"100nF"}},
 			{Name: "Temperature Coefficient", Values: []string{"X7R"}},
@@ -138,7 +138,7 @@ func TestFacetRequestGoldenBodies(t *testing.T) {
 		},
 		{
 			name: "attributes are grouped by name",
-			req: FacetRequest{Attributes: []AttributeFilter{
+			req: FacetRequest{AttributeFilters: []AttributeFilter{
 				{Name: "Voltage Rating", Values: []string{"16V", "25V"}},
 				{Name: "Capacitance", Values: []string{"100nF", ""}},
 				{Name: "Voltage Rating", Values: []string{"25V", "50V"}},

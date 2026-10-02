@@ -33,6 +33,12 @@ const (
 // reverse order. A detail record has no preferred flag, no lead time and no
 // merge code. Use Product to get the record as a Product.
 //
+// ComponentDetail uses Go initialisms in its field names, for example
+// ProductBigImageAccessID, ReplaceURLSuffix and DataManualURL. Product keeps
+// the spelling of the wire names for the same fields, for example
+// ProductBigImageAccessId, ReplaceUrlSuffix and DataManualUrl. The JSON tags
+// of the two types are the same. Product maps the fields.
+//
 // A JSON null decodes to the zero value.
 type ComponentDetail struct {
 	LCSCComponentID          int64       `json:"lcscComponentId"`          // Numeric part id. It equals Product.ComponentID and the LCSC productId
@@ -119,8 +125,10 @@ func (d *ComponentDetail) Category() (parent, leaf string) {
 	return d.ParentCategory, d.LeafCategory
 }
 
-// Product returns the detail record as a Product, so that the Product
-// methods (for example PartsOrderQuote and LibraryType) work on it.
+// Product returns the detail record as a new Product, so that the Product
+// methods (for example PartsOrderQuote and LibraryType) work on it. The
+// result is a pointer, so a call such as d.Product().PartsOrderQuote(100)
+// works.
 //
 // Product copies each field that both types have. It maps these fields:
 //
@@ -136,8 +144,8 @@ func (d *ComponentDetail) Category() (parent, leaf string) {
 // MergedComponentCode are empty. Use a search row to get these fields.
 //
 // Product copies the slices, so a change to the Product does not change d.
-func (d *ComponentDetail) Product() Product {
-	return Product{
+func (d *ComponentDetail) Product() *Product {
+	return &Product{
 		ComponentID:              int(d.LCSCComponentID),
 		ComponentCode:            d.ComponentCode,
 		ComponentModelEn:         d.ComponentModelEn,

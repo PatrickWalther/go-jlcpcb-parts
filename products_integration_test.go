@@ -318,7 +318,7 @@ func TestIntegrationFacetsViewSimilar(t *testing.T) {
 		ParentID: 2,
 		LeafID:   2929,
 		Packages: []string{"0402"},
-		Attributes: []AttributeFilter{
+		AttributeFilters: []AttributeFilter{
 			{Name: "Voltage Rating", Values: []string{"16V"}},
 			{Name: "Capacitance", Values: []string{"100nF"}},
 			{Name: "Temperature Coefficient", Values: []string{"X7R"}},

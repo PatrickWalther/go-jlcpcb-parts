@@ -60,8 +60,7 @@ func ExampleProductService_DetailsByIDs() {
 		return
 	}
 	for id, detail := range details {
-		product := detail.Product()
-		quote := product.PartsOrderQuote(5000)
+		quote := detail.Product().PartsOrderQuote(5000)
 		fmt.Println(id, detail.ComponentCode, quote.PreOrder, quote.MinQty)
 	}
 }
@@ -182,7 +181,7 @@ func ExampleSearchService_Facets() {
 		ParentID: 2,
 		LeafID:   2929,
 		Packages: []string{"0402"},
-		Attributes: []jlcpcb.AttributeFilter{
+		AttributeFilters: []jlcpcb.AttributeFilter{
 			{Name: "Voltage Rating", Values: []string{"16V"}},
 			{Name: "Capacitance", Values: []string{"100nF"}},
 		},

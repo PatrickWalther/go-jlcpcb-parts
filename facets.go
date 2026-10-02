@@ -71,10 +71,10 @@ type FacetRequest struct {
 	PCBA PCBAFilter
 	// HasDatasheet keeps only parts with a datasheet (dateSheet).
 	HasDatasheet bool
-	// Attributes keeps only parts with the given attribute values
+	// AttributeFilters keeps only parts with the given attribute values
 	// (paramList). The values are exact strings: "100nF" matches, but
 	// "0.1uF" does not. Use ParamFacet.Canonical to find the exact strings.
-	Attributes []AttributeFilter
+	AttributeFilters []AttributeFilter
 	// FacetFor removes one filter from the facet counts (nowCondition).
 	// Use a parameter name or one of the FacetFor constants. The server
 	// then counts every facet without that filter, so one call shows which
@@ -311,7 +311,7 @@ func newFacetRequestBody(req *FacetRequest) facetRequestBody {
 	default:
 		body.CatalogLevel = facetCatalogAll
 	}
-	for _, attr := range attributeList(nil, req.Attributes) {
+	for _, attr := range attributeList(nil, req.AttributeFilters) {
 		for name, values := range attr {
 			body.ParamList = append(body.ParamList, facetParam{ParamName: name, ParamValueList: values})
 		}
@@ -524,8 +524,8 @@ func atoiOrZero(s string) int {
 
 // Canonical returns the values of the facet that have the same meaning as
 // input, in the order of Values. It returns nil when no value matches. Use
-// the result in AttributeFilter.Values or FacetRequest.Attributes, because
-// the server matches exact strings only.
+// the result in AttributeFilter.Values or FacetRequest.AttributeFilters,
+// because the server matches exact strings only.
 //
 // A value matches when one of these conditions is true:
 //
