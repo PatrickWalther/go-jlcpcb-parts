@@ -2,6 +2,7 @@ package jlcpcb_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/PatrickWalther/go-jlcpcb-parts"
@@ -33,6 +34,53 @@ func ExampleProductService_Details() {
 		return
 	}
 	fmt.Println(product.ComponentCode)
+}
+
+func ExampleProductService_Detail() {
+	client := jlcpcb.NewClient()
+	detail, err := client.Product.Detail(context.Background(), "C1525")
+	if errors.Is(err, jlcpcb.ErrNotFound) {
+		fmt.Println("JLCPCB does not know this part")
+		return
+	}
+	if err != nil {
+		fmt.Println("detail error:", err)
+		return
+	}
+	fmt.Println(detail.LCSCComponentID, detail.AssemblyProcess, detail.EncapsulationNumber)
+}
+
+func ExampleProductService_DetailsByIDs() {
+	client := jlcpcb.NewClient()
+	details, err := client.Product.DetailsByIDs(context.Background(), []int64{1877, 2392})
+	if err != nil {
+		fmt.Println("batch detail error:", err)
+		return
+	}
+	for id, detail := range details {
+		product := detail.Product()
+		quote := product.PartsOrderQuote(5000)
+		fmt.Println(id, detail.ComponentCode, quote.PreOrder, quote.MinQty)
+	}
+}
+
+func ExampleComponentDetail_Product() {
+	detail := jlcpcb.ComponentDetail{
+		LCSCComponentID:      1877,
+		ComponentCode:        "C1525",
+		ParentCategory:       "Capacitors",
+		LeafCategory:         "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+		ComponentLibraryType: "base",
+		Prices:               []jlcpcb.PriceBreak{{StartNumber: 1, EndNumber: -1, ProductPrice: 0.0045}},
+	}
+
+	product := detail.Product()
+	parent, leaf := product.Category()
+	fmt.Println(product.ComponentID, product.LibraryType())
+	fmt.Println(parent, "/", leaf)
+	// Output:
+	// 1877 basic
+	// Capacitors / Multilayer Ceramic Capacitors MLCC - SMD/SMT
 }
 
 func ExampleSearchService_Query() {

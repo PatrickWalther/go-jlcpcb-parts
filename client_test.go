@@ -3,6 +3,8 @@ package jlcpcb
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -12,6 +14,9 @@ func TestNewClientDefaults(t *testing.T) {
 
 	if client.baseURL != defaultBaseURL {
 		t.Fatalf("expected base URL %q, got %q", defaultBaseURL, client.baseURL)
+	}
+	if client.apiRoot != defaultAPIRoot {
+		t.Fatalf("expected API root %q, got %q", defaultAPIRoot, client.apiRoot)
 	}
 	if client.httpClient == nil {
 		t.Fatal("expected http client to be initialized")
@@ -128,5 +133,92 @@ func TestContextTimeout(t *testing.T) {
 	_, err := client.Search.Keyword(ctx, &SearchRequest{Keyword: "test"})
 	if err == nil {
 		t.Fatal("expected context timeout error")
+	}
+}
+
+func TestClientEndpointOptions(t *testing.T) {
+	tests := []struct {
+		name     string
+		opts     []ClientOption
+		wantBase string
+		wantRoot string
+	}{
+		{
+			name:     "defaults",
+			wantBase: "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood",
+			wantRoot: "https://jlcpcb.com/api",
+		},
+		{
+			name:     "API root moves the search",
+			opts:     []ClientOption{WithAPIRoot("http://127.0.0.1:8080/api/")},
+			wantBase: "http://127.0.0.1:8080/api/overseas-pcb-order/v1/shoppingCart/smtGood",
+			wantRoot: "http://127.0.0.1:8080/api",
+		},
+		{
+			name:     "base URL of a test server keeps the default root",
+			opts:     []ClientOption{WithBaseURL("http://127.0.0.1:8080/")},
+			wantBase: "http://127.0.0.1:8080",
+			wantRoot: "https://jlcpcb.com/api",
+		},
+		{
+			name:     "base URL of a full API proxy gives the root",
+			opts:     []ClientOption{WithBaseURL("https://proxy.example/jlc/overseas-pcb-order/v1/shoppingCart/smtGood/")},
+			wantBase: "https://proxy.example/jlc/overseas-pcb-order/v1/shoppingCart/smtGood",
+			wantRoot: "https://proxy.example/jlc",
+		},
+		{
+			name:     "base URL and API root",
+			opts:     []ClientOption{WithBaseURL("http://search.test"), WithAPIRoot("http://root.test")},
+			wantBase: "http://search.test",
+			wantRoot: "http://root.test",
+		},
+		{
+			name:     "API root wins over a proxy base URL",
+			opts:     []ClientOption{WithAPIRoot("http://root.test"), WithBaseURL("https://proxy.example/jlc/overseas-pcb-order/v1/shoppingCart/smtGood")},
+			wantBase: "https://proxy.example/jlc/overseas-pcb-order/v1/shoppingCart/smtGood",
+			wantRoot: "http://root.test",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client := NewClient(tt.opts...)
+			if client.baseURL != tt.wantBase || client.apiRoot != tt.wantRoot {
+				t.Errorf("base URL %q, root %q, want %q, %q", client.baseURL, client.apiRoot, tt.wantBase, tt.wantRoot)
+			}
+		})
+	}
+}
+
+func TestWithAPIRootServesAllEndpoints(t *testing.T) {
+	var paths []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.URL.Path)
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case componentDetailPath:
+			_, _ = w.Write([]byte(`{"code":200,"data":{"componentCode":"C1525","lcscComponentId":1877}}`))
+		case compareDetailsPath:
+			_, _ = w.Write([]byte(`{"code":200,"data":[{"urlSuffix":"x/C1525","componentDetailVo":{"componentCode":"C1525","lcscComponentId":1877}}]}`))
+		default:
+			_, _ = w.Write([]byte(`{"code":200,"data":{"componentPageInfo":{"total":0,"list":[]}}}`))
+		}
+	}))
+	defer server.Close()
+
+	client := NewClient(WithAPIRoot(server.URL), WithHTTPClient(server.Client()), WithoutCache())
+	ctx := context.Background()
+	if _, err := client.Search.Keyword(ctx, &SearchRequest{Keyword: "C1525"}); err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if _, err := client.Product.Detail(ctx, "C1525"); err != nil {
+		t.Fatalf("detail failed: %v", err)
+	}
+	if _, err := client.Product.DetailsByIDs(ctx, []int64{1877}); err != nil {
+		t.Fatalf("batch detail failed: %v", err)
+	}
+
+	want := []string{smtGoodPath + "/selectSmtComponentList/v2", componentDetailPath, compareDetailsPath}
+	if !reflect.DeepEqual(paths, want) {
+		t.Errorf("paths = %v, want %v", paths, want)
 	}
 }

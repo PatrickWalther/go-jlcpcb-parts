@@ -29,6 +29,8 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 - Page walk that keeps the totals of the first page
 - Category tree with part counts
 - Product details lookup by JLC code or MPN
+- Exact part detail by JLC code, with assembly, MSL, ECCN and category id fields
+- Batch part detail by part id (250 ids for each request), with the pre-order ladder and stable file access ids
 - Assembly library class (basic, preferred, extended) and ordering fields
 - Price ladders sorted by quantity
 - Parts-order quote (stock or pre-order, minimum quantity, price ladder)
@@ -82,7 +84,9 @@ func main() {
 - `client.Search.Keyword(ctx, req)`: search with a keyword (the keyword is required)
 - `client.Search.Query(ctx, req)`: search with an optional keyword
 - `client.Search.Pages(ctx, req, fn)`: call `fn` for each page of a search
-- `client.Product.Details(ctx, identifier)`
+- `client.Product.Details(ctx, identifier)`: keyword search for one part
+- `client.Product.Detail(ctx, code)`: exact detail record of one JLC part code
+- `client.Product.DetailsByIDs(ctx, ids)`: detail records of many parts by part id
 
 ### Search request
 
@@ -179,6 +183,68 @@ On a cache miss, Details sends one keyword search. The page size depends on the 
 Details returns the first result whose `componentCode` or `componentModelEn` is equal to the identifier.
 The match ignores case.
 If no result matches, Details returns the first result.
+Use `Detail` when you need the record of an exact part code.
+
+### Exact and batch part detail
+
+```go
+detail, err := client.Product.Detail(ctx, "C2040")
+if errors.Is(err, jlcpcb.ErrNotFound) {
+	log.Fatal("JLCPCB does not know this part code")
+}
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(detail.LCSCComponentID, detail.AssemblyProcess, detail.MoistureSensitivityLevelEn)
+
+details, err := client.Product.DetailsByIDs(ctx, []int64{1877, 2392, 3349129})
+if err != nil {
+	log.Fatal(err)
+}
+for id, d := range details {
+	product := d.Product()
+	quote := product.PartsOrderQuote(5000)
+	fmt.Println(id, d.ComponentCode, len(d.BuyPrices), quote.MinQty)
+}
+```
+
+`Detail` sends one GET request to `getComponentDetail?componentCode=<CODE>`.
+The code is not case sensitive.
+A code that is not `C` followed by digits gives `ErrInvalidRequest` and sends no request.
+The server answers an unknown code with a record in which every field is null. `Detail` then returns `ErrNotFound`.
+
+`DetailsByIDs` sends POST requests to `compareComponentDetails`.
+The part id is `Product.ComponentID`, `ComponentDetail.LCSCComponentID` or the LCSC `productId`.
+
+- It drops ids of 0 or less and duplicate ids.
+- It sends at most 250 ids in each request.
+- It returns a map keyed by part id. The server sorts the records by part code, not in request order.
+- The server omits unknown ids, unlisted parts and parts with `componentStatus` `"no"`. A missing id is not an error.
+- The server keeps parts that JLCPCB does not sell. Check `IsBuyComponent`.
+- The cache keeps each record by part id. A call requests only the ids that are not in the cache.
+
+Both methods sort `Prices` and `BuyPrices` by `StartNumber`.
+
+| Field | `Detail` | `DetailsByIDs` |
+|---|---|---|
+| `BuyPrices` (pre-order ladder) | nil | set |
+| File access ids | empty | set on most parts |
+| Signed URL lifetime | 30 minutes | 60 minutes |
+| `URLSuffix` | empty | set |
+| Unlisted parts (`componentStatus` `"no"`) | returned | omitted |
+
+A detail record sends the parent category in `firstSortName` and the leaf in `secondSortName`.
+`ComponentDetail` names these fields `ParentCategory` and `LeafCategory`.
+`ParentCategoryID` and `LeafCategoryID` hold the numeric category ids.
+A detail record has no preferred flag, no lead time and no merge code.
+`CanPresaleNumber` is 0 where a search row sends a negative value.
+
+`ComponentDetail.Product()` returns the record as a `Product`:
+
+- `Prices` goes to `ComponentPrices`, and `BuyPrices` goes to `BuyComponentPrices`.
+- The category names go to `FirstSortName` and `SecondSortName` in the order of a search row. Thus `Product.Category()` returns the same parent and leaf.
+- `LCSCComponentID` goes to `ComponentID`.
+- `PreferredComponentFlag` is false. Thus `LibraryType()` returns `LibraryTypeExtended` for a preferred extended part.
 
 ### Assembly library and ordering
 
@@ -355,6 +421,41 @@ Methods:
 - `PartsOrderQuote(qty int) PartsOrderQuote`
 - `LeadTimeDays() (int, bool)`
 
+### `ComponentDetail`
+
+- `LCSCComponentID int64`: numeric part id (`lcscComponentId`)
+- `ComponentCode`, `ComponentModelEn`, `ComponentBrandEn`, `ComponentName`, `ComponentSpecificationEn`, `Describe string`
+- `Attributes []Attribute`
+- `ComponentStatus string`: `"yes"` for a listed part
+- `ParentCategory string`, `LeafCategory string`: category names (`firstSortName`, `secondSortName`)
+- `ParentCategoryID int`, `LeafCategoryID int`: numeric category ids (`firstTypeNameId`, `secondTypeNameId`)
+- `ComponentLibraryType string`, `AssemblyComponentFlag bool`
+- `AssemblyProcess string`: `"SMT"` or `"THT"`
+- `AssemblyMode string`: for example `"smtWeld"` or `"manualWeld"` (hand soldering)
+- `ComponentProductType PCBAEligibility`
+- `XrayFlag bool`: true when the part needs an X-ray inspection
+- `SpecialComponentFee FlexFloat64`: extra assembly fee in USD (0 for most parts)
+- `NeedAuditFlag bool`, `OrderInstructionEnglish string`
+- `ComponentDesignator string`: designator prefix. It is not reliable.
+- `MoistureSensitivityLevelEn string`, `EccnCode string`
+- `StockCount`, `CanPresaleNumber`, `MinPurchaseNum`, `PreMinPurchaseNum int`
+- `InitialPrice FlexFloat64`
+- `Prices []PriceBreak`, `BuyPrices []PriceBreak`: sorted by `StartNumber`
+- `LossNumber`, `LeastPatchNumber int`
+- `EncapsulationNumber int`, `EncapsulationUnit string`: parts per reel, tube or package
+- `WarehouseCode string`
+- `IsBuyComponent string`, `NoBuyReason string`, `AllowPostFlag bool`
+- `ComponentAlternativesCode string`, `AlternativesLCSCComponentID int64`, `ReplaceURLSuffix string`: replacement part
+- `ProductBigImageAccessID`, `MinImageAccessID`, `DataManualFileAccessID string`: stable file access ids
+- `ProductBigImageSignedURL`, `MinImageSignedURL`, `DataManualFileSignedURL string`: signed URLs
+- `ComponentImageURL`, `MinImageURL`, `DataManualURL`, `DataManualOfficialLink`, `LCSCGoodsURL string`
+- `URLSuffix string`: part page URL suffix (only from `DetailsByIDs`)
+
+Methods:
+
+- `Category() (parent, leaf string)`
+- `Product() Product`
+
 ### `LibraryType`
 
 - `LibraryTypeBasic` (`"basic"`)
@@ -368,7 +469,10 @@ Methods:
 ## Client Options
 
 - `WithHTTPClient(*http.Client)`
-- `WithBaseURL(string)` (useful for tests)
+- `WithBaseURL(string)`: base URL of the search endpoint (useful for tests)
+- `WithAPIRoot(string)`: root of the JLCPCB web API, default `https://jlcpcb.com/api`. The detail endpoints use it. When `WithBaseURL` is not set, the search endpoint also uses it.
+
+When the `WithBaseURL` value ends with `/overseas-pcb-order/v1/shoppingCart/smtGood` and `WithAPIRoot` is not set, the client uses the part before this path as the API root.
 - `WithRateLimit(float64)` requests/second
 - `WithRetryConfig(RetryConfig)`
 - `WithCache(Cache)`
@@ -380,7 +484,7 @@ Methods:
 Caching is enabled by default with in-memory cache:
 
 - Search TTL: `5m`
-- Details TTL: `5m`
+- Details TTL: `5m`. It applies to `Details`, `Detail` and the records of `DetailsByIDs`.
 
 Custom cache config:
 
@@ -458,6 +562,10 @@ go test -tags=integration -run Integration ./...
 - New `Product` fields: `ComponentProductType`, `EstimateDate`, `InitialPrice`, `AllowPostFlag`, `MergedComponentCode`, `ReplaceUrlSuffix` and the file access ids.
 - New `Product.Category()`, `Product.PartsOrderQuote()` and `Product.LeadTimeDays()`.
 - `Attributes`, `FilterAttribute`, `SortPrimary` and `SortSecondary` are deprecated. They still work.
+- New `client.Product.Detail()`: the exact detail record of one JLC part code.
+- New `client.Product.DetailsByIDs()`: the detail records of many parts by part id, 250 ids for each request.
+- New `ComponentDetail` type with `Category()` and `Product()`.
+- New `WithAPIRoot()` client option.
 
 ## Changes in v1.1.0
 

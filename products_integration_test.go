@@ -5,6 +5,8 @@ package jlcpcb
 
 import (
 	"context"
+	"errors"
+	"slices"
 	"testing"
 	"time"
 )
@@ -174,5 +176,77 @@ func TestIntegrationSearchAttributeFilters(t *testing.T) {
 		if parent, leaf := p.Category(); parent != "Capacitors" || leaf != "Multilayer Ceramic Capacitors MLCC - SMD/SMT" {
 			t.Errorf("%s has category (%q, %q)", p.ComponentCode, parent, leaf)
 		}
+	}
+}
+
+// TestIntegrationDetailRouteA checks the exact part detail: C1525 has the
+// part id 1877, and an unknown code gives ErrNotFound.
+func TestIntegrationDetailRouteA(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	detail, err := client.Product.Detail(ctx, "c1525")
+	if err != nil {
+		t.Fatalf("detail failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("detail C1525: id %d, %d price tiers (%s)", detail.LCSCComponentID, len(detail.Prices), time.Since(start))
+
+	if detail.ComponentCode != "C1525" || detail.LCSCComponentID != 1877 {
+		t.Errorf("detail = %q id %d, want C1525 id 1877", detail.ComponentCode, detail.LCSCComponentID)
+	}
+	if parent, _ := detail.Category(); parent != "Capacitors" {
+		t.Errorf("parent category = %q, want Capacitors", parent)
+	}
+	if len(detail.Prices) == 0 {
+		t.Error("expected a price ladder")
+	}
+
+	if _, err := client.Product.Detail(ctx, "C999999999"); !errors.Is(err, ErrNotFound) {
+		t.Errorf("unknown code error = %v, want ErrNotFound", err)
+	}
+}
+
+// TestIntegrationDetailsByIDsCompare checks the batch part detail: the id
+// 1877 returns C1525 with a pre-order ladder and the URL suffix.
+func TestIntegrationDetailsByIDsCompare(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	start := time.Now()
+	details, err := client.Product.DetailsByIDs(ctx, []int64{1877})
+	if err != nil {
+		t.Fatalf("batch detail failed after %s: %v", time.Since(start), err)
+	}
+	detail := details[1877]
+	if detail == nil {
+		t.Fatalf("batch detail has no record for id 1877: %v", details)
+	}
+	t.Logf("batch detail 1877: %s, %d buy tiers, URL suffix %q (%s)",
+		detail.ComponentCode, len(detail.BuyPrices), detail.URLSuffix, time.Since(start))
+
+	if detail.ComponentCode != "C1525" {
+		t.Errorf("component code = %q, want C1525", detail.ComponentCode)
+	}
+	if len(detail.BuyPrices) == 0 {
+		t.Error("expected a pre-order ladder (buyPrices)")
+	}
+	sorted := func(breaks []PriceBreak) bool {
+		return slices.IsSortedFunc(breaks, func(a, b PriceBreak) int { return a.StartNumber - b.StartNumber })
+	}
+	if !sorted(detail.Prices) || !sorted(detail.BuyPrices) {
+		t.Errorf("ladders are not sorted: %+v, %+v", detail.Prices, detail.BuyPrices)
+	}
+	if detail.URLSuffix == "" {
+		t.Error("expected the URL suffix of the batch response")
+	}
+	product := detail.Product()
+	if parent, leaf := product.Category(); parent != "Capacitors" || leaf != "Multilayer Ceramic Capacitors MLCC - SMD/SMT" {
+		t.Errorf("Product().Category() = (%q, %q)", parent, leaf)
+	}
+	if product.ComponentID != 1877 || product.LibraryType() != LibraryTypeBasic {
+		t.Errorf("Product() = id %d, library type %q, want 1877 and basic", product.ComponentID, product.LibraryType())
 	}
 }

@@ -19,6 +19,12 @@ type ProductService service
 // Details searches 10 results for a component code and 50 results for any
 // other identifier. It returns the exact componentCode or componentModelEn
 // match. If no result matches exactly, it returns the first result.
+//
+// Details is a keyword search, so it can return a part with a different
+// code. Use Detail for the exact record of a component code, and
+// DetailsByIDs for the records of many parts in few requests. A search row
+// has fields that a detail record does not have: PreferredComponentFlag,
+// EstimateDate and MergedComponentCode.
 func (s *ProductService) Details(ctx context.Context, identifier string) (*Product, error) {
 	normalized := strings.TrimSpace(identifier)
 	if normalized == "" {

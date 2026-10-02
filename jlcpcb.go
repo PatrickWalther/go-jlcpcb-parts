@@ -6,7 +6,8 @@
 // Endpoints are organized into services:
 //
 //   - client.Search  — keyword, category and parametric search
-//   - client.Product — product details lookup
+//   - client.Product — product details lookup by keyword, exact part detail
+//     by component code, and batch part detail by part id
 package jlcpcb
 
 // Version is the current package version.

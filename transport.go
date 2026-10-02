@@ -17,8 +17,21 @@ type apiEnvelope struct {
 	Message json.RawMessage `json:"message"`
 }
 
-// do performs an HTTP request with retry support and parses API-level errors.
+// do performs an HTTP request to the search base URL plus path, with retry
+// support, and parses API-level errors.
 func (c *Client) do(ctx context.Context, method, path string, params url.Values, reqBody interface{}, result interface{}) error {
+	return c.doURL(ctx, method, c.baseURL+path, params, reqBody, result)
+}
+
+// doAPI performs an HTTP request to the API root plus path, with retry
+// support, and parses API-level errors.
+func (c *Client) doAPI(ctx context.Context, method, path string, params url.Values, reqBody interface{}, result interface{}) error {
+	return c.doURL(ctx, method, c.apiRoot+path, params, reqBody, result)
+}
+
+// doURL performs an HTTP request to endpoint with retry support and parses
+// API-level errors.
+func (c *Client) doURL(ctx context.Context, method, endpoint string, params url.Values, reqBody interface{}, result interface{}) error {
 	var lastErr error
 	maxAttempts := c.retryConfig.MaxRetries + 1
 
@@ -34,7 +47,7 @@ func (c *Client) do(ctx context.Context, method, path string, params url.Values,
 			return fmt.Errorf("jlcpcb: rate limiter wait failed: %w", err)
 		}
 
-		statusCode, err := c.doOnce(ctx, method, path, params, reqBody, result)
+		statusCode, err := c.doOnce(ctx, method, endpoint, params, reqBody, result)
 		if err == nil {
 			return nil
 		}
@@ -48,8 +61,8 @@ func (c *Client) do(ctx context.Context, method, path string, params url.Values,
 	return lastErr
 }
 
-func (c *Client) doOnce(ctx context.Context, method, path string, params url.Values, reqBody interface{}, result interface{}) (int, error) {
-	reqURL := c.baseURL + path
+func (c *Client) doOnce(ctx context.Context, method, endpoint string, params url.Values, reqBody interface{}, result interface{}) (int, error) {
+	reqURL := endpoint
 	if len(params) > 0 {
 		reqURL += "?" + params.Encode()
 	}

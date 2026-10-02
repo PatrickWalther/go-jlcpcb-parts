@@ -7,7 +7,13 @@ import (
 )
 
 const (
-	defaultBaseURL   = "https://jlcpcb.com/api/overseas-pcb-order/v1/shoppingCart/smtGood"
+	// defaultAPIRoot is the root of the JLCPCB web API.
+	defaultAPIRoot = "https://jlcpcb.com/api"
+	// smtGoodPath is the path of the parts service below the API root. The
+	// search endpoint and compareComponentDetails are below this path.
+	smtGoodPath = "/overseas-pcb-order/v1/shoppingCart/smtGood"
+	// defaultBaseURL is the default base URL of the search endpoint.
+	defaultBaseURL   = defaultAPIRoot + smtGoodPath
 	defaultTimeout   = 30 * time.Second
 	defaultRateLimit = 5.0 // requests per second
 	userAgent        = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -38,6 +44,7 @@ func DefaultCacheConfig() CacheConfig {
 type Client struct {
 	httpClient  *http.Client
 	baseURL     string
+	apiRoot     string
 	rateLimiter *RateLimiter
 	cache       Cache
 	cacheConfig CacheConfig
@@ -58,10 +65,30 @@ func WithHTTPClient(client *http.Client) ClientOption {
 	}
 }
 
-// WithBaseURL sets a custom base URL.
+// WithBaseURL sets a custom base URL for the search endpoint. The client
+// sends a search to the base URL plus "/selectSmtComponentList/v2".
+//
+// WithBaseURL does not change the API root of the detail endpoints, with one
+// exception: when the base URL ends with the default parts service path
+// "/overseas-pcb-order/v1/shoppingCart/smtGood" and WithAPIRoot is not set,
+// the client uses the part before this path as the API root. Thus a proxy of
+// the full API needs only WithBaseURL.
 func WithBaseURL(baseURL string) ClientOption {
 	return func(c *Client) {
 		c.baseURL = strings.TrimRight(baseURL, "/")
+	}
+}
+
+// WithAPIRoot sets the root of the JLCPCB web API. The default root is
+// "https://jlcpcb.com/api". ProductService.Detail and
+// ProductService.DetailsByIDs send their requests below this root.
+//
+// When WithBaseURL is not set, the search endpoint also moves below this
+// root. Thus one test server can serve all endpoints. WithBaseURL overrides
+// the search base URL.
+func WithAPIRoot(root string) ClientOption {
+	return func(c *Client) {
+		c.apiRoot = strings.TrimRight(root, "/")
 	}
 }
 
@@ -106,7 +133,6 @@ func NewClient(opts ...ClientOption) *Client {
 		httpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},
-		baseURL:     defaultBaseURL,
 		rateLimiter: NewRateLimiter(defaultRateLimit),
 		cacheConfig: DefaultCacheConfig(),
 		retryConfig: DefaultRetryConfig(),
@@ -115,6 +141,7 @@ func NewClient(opts ...ClientOption) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
+	c.resolveEndpoints()
 
 	if c.cacheConfig.Enabled && c.cache == nil {
 		c.cache = NewMemoryCache()
@@ -125,6 +152,20 @@ func NewClient(opts ...ClientOption) *Client {
 	c.Product = (*ProductService)(&c.common)
 
 	return c
+}
+
+// resolveEndpoints sets the API root and the search base URL that the
+// options did not set. An explicit option always wins.
+func (c *Client) resolveEndpoints() {
+	if c.apiRoot == "" {
+		c.apiRoot = defaultAPIRoot
+		if root, ok := strings.CutSuffix(c.baseURL, smtGoodPath); ok && root != "" {
+			c.apiRoot = root
+		}
+	}
+	if c.baseURL == "" {
+		c.baseURL = c.apiRoot + smtGoodPath
+	}
 }
 
 // ClearCache clears all cached responses.
