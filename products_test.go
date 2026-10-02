@@ -315,8 +315,18 @@ func TestSearchKeywordRequestNormalization(t *testing.T) {
 	if captured.CurrentPage != 1 {
 		t.Fatalf("expected default page=1, got %d", captured.CurrentPage)
 	}
-	if captured.PageSize != 100 {
-		t.Fatalf("expected max page size clamp=100, got %d", captured.PageSize)
+	if captured.PageSize != 999 {
+		t.Fatalf("expected page size 999 below the cap, got %d", captured.PageSize)
+	}
+
+	if _, err := client.Search.Keyword(context.Background(), &SearchRequest{
+		Keyword:  "led",
+		PageSize: 5000,
+	}); err != nil {
+		t.Fatalf("search failed: %v", err)
+	}
+	if captured.PageSize != 1000 {
+		t.Fatalf("expected max page size clamp=1000, got %d", captured.PageSize)
 	}
 }
 
@@ -480,8 +490,8 @@ func TestSearchKeywordSendsPackageFilter(t *testing.T) {
 }
 
 func TestSearchKeywordCacheKeyIncludesPackages(t *testing.T) {
-	plain := cacheKeyForSearch(&SearchRequest{Keyword: "18pF"}, "")
-	filtered := cacheKeyForSearch(&SearchRequest{Keyword: "18pF", Packages: []string{"0603"}}, "")
+	plain := cacheKeyForSearch(newSearchRequestBody(&SearchRequest{Keyword: "18pF"}))
+	filtered := cacheKeyForSearch(newSearchRequestBody(&SearchRequest{Keyword: "18pF", Packages: []string{"0603"}}))
 	if plain == filtered {
 		t.Fatal("the cache key must differ when a package filter is set")
 	}

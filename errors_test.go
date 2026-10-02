@@ -35,6 +35,11 @@ func TestAPIErrorUnwrap(t *testing.T) {
 			err:  &APIError{StatusCode: http.StatusInternalServerError, Code: 500},
 			want: ErrServer,
 		},
+		{
+			name: "rejected request",
+			err:  &APIError{StatusCode: http.StatusOK, Code: 101},
+			want: ErrRejected,
+		},
 	}
 
 	for _, tt := range tests {
@@ -94,6 +99,7 @@ func TestShouldRetryByAPICode(t *testing.T) {
 		{503, true},
 		{504, true},
 		{404, false},
+		{101, false},
 	}
 
 	for _, tt := range tests {

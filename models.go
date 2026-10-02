@@ -1,6 +1,7 @@
 package jlcpcb
 
 import (
+	"bytes"
 	"cmp"
 	"encoding/json"
 	"fmt"
@@ -39,6 +40,56 @@ func (f *FlexFloat64) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("cannot unmarshal %s into FlexFloat64", string(data))
 }
 
+// FlexString handles JSON values that may be either a string or a number.
+// A number keeps its JSON text, for example 10 decodes to "10". A JSON null
+// decodes to "".
+type FlexString string
+
+// UnmarshalJSON implements json.Unmarshaler for FlexString.
+func (s *FlexString) UnmarshalJSON(data []byte) error {
+	trimmed := bytes.TrimSpace(data)
+	if string(trimmed) == "null" {
+		*s = ""
+		return nil
+	}
+	var str string
+	if err := json.Unmarshal(trimmed, &str); err == nil {
+		*s = FlexString(str)
+		return nil
+	}
+	var num json.Number
+	if err := json.Unmarshal(trimmed, &num); err == nil {
+		*s = FlexString(num.String())
+		return nil
+	}
+	return fmt.Errorf("cannot unmarshal %s into FlexString", string(data))
+}
+
+// PCBAEligibility tells which PCBA types accept a part
+// (componentProductType).
+type PCBAEligibility int
+
+const (
+	// PCBAEligibilityBoth means that Economic and Standard PCBA accept the part.
+	PCBAEligibilityBoth PCBAEligibility = 0
+	// PCBAEligibilityEconomicOnly means that only Economic PCBA accepts the part.
+	PCBAEligibilityEconomicOnly PCBAEligibility = 1
+	// PCBAEligibilityStandardOnly means that only Standard PCBA accepts the part.
+	PCBAEligibilityStandardOnly PCBAEligibility = 2
+)
+
+// AllowsEconomic reports whether Economic PCBA accepts the part. It returns
+// false for an unknown value.
+func (e PCBAEligibility) AllowsEconomic() bool {
+	return e == PCBAEligibilityBoth || e == PCBAEligibilityEconomicOnly
+}
+
+// AllowsStandard reports whether Standard PCBA accepts the part. It returns
+// false for an unknown value.
+func (e PCBAEligibility) AllowsStandard() bool {
+	return e == PCBAEligibilityBoth || e == PCBAEligibilityStandardOnly
+}
+
 // PriceBreak represents a quantity-based price tier.
 type PriceBreak struct {
 	StartNumber  int         `json:"startNumber"`  // Minimum quantity for this tier
@@ -62,8 +113,8 @@ type Product struct {
 	Attributes               []Attribute  `json:"attributes"`               // Specifications
 	DataManualUrl            string       `json:"dataManualUrl"`            // Datasheet URL
 	Describe                 string       `json:"describe"`                 // Description
-	FirstSortName            string       `json:"firstSortName"`            // Primary category
-	SecondSortName           string       `json:"secondSortName"`           // Secondary category
+	FirstSortName            string       `json:"firstSortName"`            // Leaf category in a search row (see Category)
+	SecondSortName           string       `json:"secondSortName"`           // Parent category in a search row (see Category)
 	IsBuyComponent           string       `json:"isBuyComponent"`           // Can be purchased
 	UrlSuffix                string       `json:"urlSuffix"`                // URL suffix for webpage
 	LcscGoodsUrl             string       `json:"lcscGoodsUrl"`             // LCSC product URL
@@ -71,9 +122,9 @@ type Product struct {
 	// Assembly library and ordering fields. A JSON null decodes to the zero value.
 	ComponentLibraryType      string `json:"componentLibraryType"`      // Raw library type: "base" or "expand"
 	PreferredComponentFlag    bool   `json:"preferredComponentFlag"`    // True for a preferred extended part
-	LossNumber                int    `json:"lossNumber"`                // Attrition: extra parts that JLCPCB adds to an order
+	LossNumber                int    `json:"lossNumber"`                // Base term of the attrition (extra parts) of an assembly order
 	LeastPatchNumber          int    `json:"leastPatchNumber"`          // Minimum placement quantity
-	CanPresaleNumber          int    `json:"canPresaleNumber"`          // Quantity open for pre-order (can be negative)
+	CanPresaleNumber          int    `json:"canPresaleNumber"`          // Largest parts order from stock; a larger order is a pre-order (can be negative)
 	NoBuyReason               string `json:"noBuyReason"`               // Reason that JLCPCB does not sell the part (empty for null)
 	EncapsulationNumber       int    `json:"encapsulationNumber"`       // Parts per reel or package
 	PreMinPurchaseNum         int    `json:"preMinPurchaseNum"`         // Minimum pre-order purchase quantity
@@ -89,6 +140,22 @@ type Product struct {
 	MinImageAccessIdUrl        string `json:"minImageAccessIdUrl"`        // Signed URL of the small image
 	DataManualFileAccessIdUrl  string `json:"dataManualFileAccessIdUrl"`  // Signed URL of the datasheet copy that JLCPCB hosts
 	DataManualOfficialLink     string `json:"dataManualOfficialLink"`     // Datasheet URL at the manufacturer (often empty)
+
+	// PCBA, pricing and replacement fields of a v2 search row. A JSON null
+	// decodes to the zero value.
+	ComponentProductType PCBAEligibility `json:"componentProductType"` // PCBA types that accept the part
+	EstimateDate         FlexString      `json:"estimateDate"`         // Estimated lead time in days (often empty, see LeadTimeDays)
+	InitialPrice         FlexFloat64     `json:"initialPrice"`         // ComponentPrices tier price at MinPurchaseNum
+	AllowPostFlag        bool            `json:"allowPostFlag"`        // True when the customer can consign the part to JLCPCB
+	MergedComponentCode  string          `json:"mergedComponentCode"`  // Merge or alternative part code; active parts have it too, so it is not an EOL marker
+	ReplaceUrlSuffix     string          `json:"replaceUrlSuffix"`     // Part page URL suffix of MergedComponentCode, for example "RaspberryPi-RP2040/C2040"
+
+	// Stable file access ids. A file access id has no expiry time, unlike a
+	// signed URL. The v2 search sends null for these ids today. The classic
+	// search and the detail records send them. A JSON null decodes to "".
+	ProductBigImageAccessId string `json:"productBigImageAccessId"` // File access id of the large image
+	MinImageAccessId        string `json:"minImageAccessId"`        // File access id of the small image
+	DataManualFileAccessId  string `json:"dataManualFileAccessId"`  // File access id of the datasheet copy that JLCPCB hosts
 }
 
 // LibraryType is the JLCPCB assembly library class of a part.
@@ -207,6 +274,32 @@ func SortPriceBreaks(breaks []PriceBreak) []PriceBreak {
 	return sorted
 }
 
+// Category returns the parent and leaf category names of a search row, for
+// example "Capacitors" and "Multilayer Ceramic Capacitors MLCC - SMD/SMT".
+//
+// A search row sends the leaf in firstSortName and the parent in
+// secondSortName. A search request and a detail record use the reverse
+// order. Category returns the names in the true order.
+func (p *Product) Category() (parent, leaf string) {
+	return p.SecondSortName, p.FirstSortName
+}
+
+// LeadTimeDays returns the estimated lead time in days from EstimateDate.
+// It returns false when EstimateDate is empty or is not a whole number of
+// days that is 0 or more.
+//
+// Only v2 search rows send EstimateDate, and only some rows with stock or
+// with a negative CanPresaleNumber. The value is null on every pre-order
+// row with stock 0, so it is not a lead time for such a part. The JLCPCB
+// part page shows it only for an order larger than CanPresaleNumber.
+func (p *Product) LeadTimeDays() (int, bool) {
+	days, err := strconv.Atoi(strings.TrimSpace(string(p.EstimateDate)))
+	if err != nil || days < 0 {
+		return 0, false
+	}
+	return days, true
+}
+
 // GetProductURL returns the JLCPCB product page URL.
 func (p *Product) GetProductURL() string {
 	if p.UrlSuffix != "" {
@@ -215,7 +308,10 @@ func (p *Product) GetProductURL() string {
 	return fmt.Sprintf("https://jlcpcb.com/partdetail/%s", p.ComponentCode)
 }
 
-// FilterAttribute represents a component attribute filter.
+// FilterAttribute represents a component attribute filter with one value.
+//
+// Deprecated: Use AttributeFilter, which accepts more than one value. The
+// JSON tags of FilterAttribute are not the wire shape of a search.
 type FilterAttribute struct {
 	Name  string `json:"attributeName"`
 	Value string `json:"attributeValue"`

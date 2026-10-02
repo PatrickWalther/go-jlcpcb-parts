@@ -1,0 +1,429 @@
+{
+  "code": 200,
+  "data": {
+    "componentPageInfo": {
+      "total": 2,
+      "list": [
+        {
+          "componentId": 1877,
+          "componentLibraryType": "base",
+          "stockCount": 21582153,
+          "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "erpComponentName": "100nF ±10% 16V",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl05b104ko5nnnc_C1525.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0045
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0034
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0029
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0025
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0024
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0023
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0043
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0024
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0023
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0028
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0033
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0022
+            }
+          ],
+          "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+          "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+          "canPresaleNumber": 15730998,
+          "componentProductType": 0,
+          "mergedComponentCode": null,
+          "urlSuffix": "1877-CL05B104KO5NNNC/C1525",
+          "leastPatchNumber": 20,
+          "lossNumber": 10,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": null,
+          "replaceUrlSuffix": null,
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": true,
+          "estimateDate": "3",
+          "fullReelPrice": null,
+          "encapsulationNumber": 10000,
+          "shopCostPrice": 0.01279,
+          "preMinPurchaseNum": 2654,
+          "minPurchaseNum": 1,
+          "initialPrice": 0.0045,
+          "componentCode": "C1525",
+          "componentBrandEn": "Samsung Electro-Mechanics",
+          "componentModelEn": "CL05B104KO5NNNC",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8552476004846223360-C1525-%25E6%25AD%25A3%25E9%259D%25A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL05B104KO5NNNC_C1525.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8579707269992677376-C1525.pdf?response-content-disposition=attachment%3B%20filename%3DC1525.pdf%3B%20filename%2A%3DUTF-8%27%27C1525.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "Samsung Electro-Mechanics CL05B104KO5NNNC",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8552476005446144000-C1525-%25E6%25AD%25A3%25E9%259D%25A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "0402",
+          "describe": "100nF 16V X7R ±10% 0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "Voltage Rating",
+              "attribute_value_name": "16V"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±10%"
+            },
+            {
+              "attribute_name_en": "Capacitance",
+              "attribute_value_name": "100nF"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "X7R"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "secondSortName": "Capacitors",
+          "componentBrandHigh": null,
+          "remarkHigh": null,
+          "componentModelHigh": null,
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": null,
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        },
+        {
+          "componentId": 291005,
+          "componentLibraryType": "base",
+          "stockCount": 12476592,
+          "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "erpComponentName": "100nF ±10% 50V",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl05b104kb54pnc_C307331.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0089
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0068
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0059
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0052
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.005
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0048
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0086
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0057
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.005
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0066
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0046
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0048
+            }
+          ],
+          "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+          "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+          "canPresaleNumber": 8443693,
+          "componentProductType": 0,
+          "mergedComponentCode": null,
+          "urlSuffix": "291005-CL05B104KB54PNC/C307331",
+          "leastPatchNumber": 20,
+          "lossNumber": 10,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": null,
+          "replaceUrlSuffix": null,
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": true,
+          "estimateDate": null,
+          "fullReelPrice": null,
+          "encapsulationNumber": 10000,
+          "shopCostPrice": 0.02345,
+          "preMinPurchaseNum": 1327,
+          "minPurchaseNum": 1,
+          "initialPrice": 0.0089,
+          "componentCode": "C307331",
+          "componentBrandEn": "Samsung Electro-Mechanics",
+          "componentModelEn": "CL05B104KB54PNC",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8760633757650952192-C307331-front.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL05B104KB54PNC_C307331.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8554627388276903936-C307331.pdf?response-content-disposition=attachment%3B%20filename%3DC307331.pdf%3B%20filename%2A%3DUTF-8%27%27C307331.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "Samsung Electro-Mechanics CL05B104KB54PNC",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8760633758846734336-C307331-front.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            },
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "0402",
+          "describe": "100nF 50V X7R ±10% 0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "Voltage Rating",
+              "attribute_value_name": "50V"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±10%"
+            },
+            {
+              "attribute_name_en": "Capacitance",
+              "attribute_value_name": "100nF"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "X7R"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "secondSortName": "Capacitors",
+          "componentBrandHigh": null,
+          "remarkHigh": null,
+          "componentModelHigh": null,
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": null,
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        }
+      ],
+      "pageNum": 1,
+      "pageSize": 25,
+      "size": 0,
+      "startRow": 0,
+      "endRow": 0,
+      "pages": 1,
+      "prePage": 0,
+      "nextPage": 0,
+      "isFirstPage": false,
+      "isLastPage": false,
+      "hasPreviousPage": false,
+      "hasNextPage": false,
+      "navigatePages": 0,
+      "navigatepageNums": null,
+      "navigateFirstPage": 0,
+      "navigateLastPage": 0
+    },
+    "sortAndCountVoList": [
+      {
+        "sortUuid": "385244332062031874",
+        "sortName": "Capacitors",
+        "sortImgUrl": "https://rs.jlcpcb.com/static/image/product-page/parts/capacitors_1007016_-%282%29.webp",
+        "componentCount": 2,
+        "childSortList": [
+          {
+            "sortUuid": "385244381135388676",
+            "sortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+            "sortImgUrl": null,
+            "componentCount": 2,
+            "childSortList": null,
+            "parentId": 2,
+            "componentSortKeyId": 2929,
+            "grade": 2,
+            "enDescription": "",
+            "iconFileUrl": null,
+            "iconFileId": null,
+            "thumbnailFileId": null,
+            "thumbnailFileUrl": null,
+            "hotFlag": false,
+            "nextClassSelectFlag": false,
+            "showImgeFlag": false
+          }
+        ],
+        "parentId": 0,
+        "componentSortKeyId": 2,
+        "grade": 1,
+        "enDescription": "",
+        "iconFileUrl": null,
+        "iconFileId": "8759873237654081536",
+        "thumbnailFileId": "8760537268102803456",
+        "thumbnailFileUrl": "https://rs.jlcpcb.com/static/image/product-page/parts/capacitors_1007016_-%282%29.webp",
+        "hotFlag": true,
+        "nextClassSelectFlag": false,
+        "showImgeFlag": false
+      }
+    ],
+    "presaleTypeList": [],
+    "brandList": [],
+    "basePart": null,
+    "preferredPart": null,
+    "economicPart": null,
+    "standardPart": null,
+    "dataSheetPart": null,
+    "photo": null,
+    "queryString": null
+  },
+  "message": null
+}

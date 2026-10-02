@@ -5,9 +5,9 @@
 //
 // Endpoints are organized into services:
 //
-//   - client.Search  — keyword search
+//   - client.Search  — keyword, category and parametric search
 //   - client.Product — product details lookup
 package jlcpcb
 
 // Version is the current package version.
-const Version = "1.1.0"
+const Version = "1.4.0"

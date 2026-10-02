@@ -11,7 +11,7 @@ A Go client for JLCPCB parts search endpoints used by https://jlcpcb.com/parts.
 
 ## Requirements
 
-- Go 1.22+
+- Go 1.23+
 - No external dependencies (stdlib only)
 
 ## Installation
@@ -24,9 +24,15 @@ go get github.com/PatrickWalther/go-jlcpcb-parts
 
 - Service-based API (`client.Search`, `client.Product`)
 - Keyword part search with filters and pagination
+- Search without a keyword by category and attribute values
+- Server-side filters for library type, stock, PCBA type and datasheets, and sort options
+- Page walk that keeps the totals of the first page
+- Category tree with part counts
 - Product details lookup by JLC code or MPN
 - Assembly library class (basic, preferred, extended) and ordering fields
 - Price ladders sorted by quantity
+- Parts-order quote (stock or pre-order, minimum quantity, price ladder)
+- PCBA type eligibility and lead time fields
 - Typed error handling (`errors.Is`)
 - Optional in-memory response caching
 - Rate limiting and retry/backoff
@@ -73,7 +79,9 @@ func main() {
 
 ### Services
 
-- `client.Search.Keyword(ctx, req)`
+- `client.Search.Keyword(ctx, req)`: search with a keyword (the keyword is required)
+- `client.Search.Query(ctx, req)`: search with an optional keyword
+- `client.Search.Pages(ctx, req, fn)`: call `fn` for each page of a search
 - `client.Product.Details(ctx, identifier)`
 
 ### Search request
@@ -82,19 +90,79 @@ func main() {
 resp, err := client.Search.Keyword(ctx, &jlcpcb.SearchRequest{
 	Keyword:       "capacitor",
 	Page:          1,   // default: 1
-	PageSize:      20,  // default: 50, max: 100
-	PresaleType:   jlcpcb.PresaleTypeAny,   // Any, Stock, Buy, Post
-	StockOnly:     false,                   // if true and PresaleTypeAny => stock search
+	PageSize:      20,  // default: 50, max: 1000
+	PresaleType:   jlcpcb.PresaleTypeAny,    // Any, Stock, Buy, Post
+	StockOnly:     false,                    // stockFlag: only parts with stock > 0
 	ComponentType: jlcpcb.ComponentTypeBase, // Any, Base, Expand
 	Brands:        []string{"TDK", "Murata"},
-	Packages:      []string{"0402"},           // the endpoint filters by package
-	Attributes: []jlcpcb.FilterAttribute{
-		{Name: "Package", Value: "0402"},
-	},
-	SortPrimary:   "",
-	SortSecondary: "",
+	Packages:      []string{"0402"}, // the endpoint filters by package
 })
 ```
+
+The server applies all filters together: a part must match each filter.
+
+### Category and parametric search
+
+`Query` accepts the same request as `Keyword`, but the keyword is optional.
+This example returns the basic and preferred 0402 ceramic capacitors of 100nF or 1uF that have stock and that Economic PCBA accepts:
+
+```go
+resp, err := client.Search.Query(ctx, &jlcpcb.SearchRequest{
+	Category: jlcpcb.Category{
+		Parent: "Capacitors",
+		Leaf:   "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+	},
+	Packages: []string{"0402"},
+	AttributeFilters: []jlcpcb.AttributeFilter{
+		{Name: "Capacitance", Values: []string{"100nF", "1uF"}},
+		{Name: "Voltage Rating", Values: []string{"25V", "50V"}},
+	},
+	LibraryTypes:     []jlcpcb.ComponentType{jlcpcb.ComponentTypeBase},
+	IncludePreferred: true,
+	StockOnly:        true,
+	PCBA:             jlcpcb.PCBAFilterEconomic,
+	Sort:             jlcpcb.SortByStock,
+	SortDescending:   true,
+	CategoryCounts:   true,
+})
+```
+
+| Field | Wire field | Effect |
+|---|---|---|
+| `Category` | `firstSortName` (parent), `secondSortName` (leaf) | Category filter by name. The server ignores numeric category ids. |
+| `AttributeFilters` | `componentAttributeList` | Sent as `[{"<name>":["<value>",...]}]`. The values of one filter are OR. The filters are AND. The server matches exact strings: `"100nF"` matches, `"0.1uF"` does not. |
+| `LibraryTypes` | `componentLibTypes` | Library type filter (`base`, `expand`). |
+| `IncludePreferred` | `preferredComponentFlag` | With the `base` library type: basic OR preferred parts. Alone: preferred extended parts only. |
+| `PresaleTypes` | `presaleTypes` | Availability classes. The class `stock` includes some rows with stock 0. |
+| `StockOnly` | `stockFlag` | Only parts with stock > 0. When `PresaleType` and `PresaleTypes` are empty, it also sends `presaleType` `stock`. |
+| `MinStock` | `startStockNumber` | Only parts with stock >= `MinStock`. |
+| `PCBA` | `pcbAType` | `PCBAFilterEconomic` (1) removes the parts that Economic PCBA does not accept. `PCBAFilterStandard` is 2. |
+| `Sort`, `SortDescending` | `sortMode`, `sortASC` | `SortByModel`, `SortByStock` or `SortByPrice`, ascending or descending. |
+| `HasDatasheet` | `dateSheet` | Only parts with a datasheet. |
+| `CategoryCounts` | `searchType` 3 | `SearchResponse.Categories` holds the category tree with part counts. |
+
+`Attributes` (one value for each entry), `SortPrimary` and `SortSecondary` are deprecated.
+They still work. Use `AttributeFilters`, `Category.Parent` and `Category.Leaf`.
+`SortPrimary` and `SortSecondary` are category filters, not sort fields.
+
+The server rejects a request body that it cannot read with envelope code 101.
+`errors.Is(err, jlcpcb.ErrRejected)` is then true.
+
+### Pages
+
+```go
+err := client.Search.Pages(ctx, &jlcpcb.SearchRequest{
+	Category: jlcpcb.Category{Parent: "Resistors", Leaf: "Chip Resistor - Surface Mount"},
+	PageSize: 500,
+}, func(page *jlcpcb.SearchResponse) error {
+	fmt.Printf("page %d of %d: %d parts\n", page.Page, page.Pages, len(page.Products))
+	return nil
+})
+```
+
+`Pages` starts at `req.Page` and stops after the last page or at the first page without products.
+When `fn` returns an error, `Pages` stops and returns that error.
+A page past the last page returns `TotalCount` 0 and `Pages` 0, so `Pages` copies these values from the first page into each later page.
 
 ### Product details
 
@@ -174,6 +242,49 @@ The live API sends the image only in the signed `AccessIdUrl` fields.
 
 `DatasheetURLs()` returns `dataManualUrl`, `dataManualFileAccessIdUrl` and `dataManualOfficialLink` in this order, without empty or duplicate values.
 
+### Parts order, PCBA type and lead time
+
+```go
+quote := product.PartsOrderQuote(5000)
+if quote.PreOrder {
+	fmt.Println("JLCPCB fills the whole quantity as a pre-order")
+}
+fmt.Println("minimum quantity:", quote.MinQty)
+for _, pb := range quote.Ladder {
+	fmt.Printf("%d+: %.4f USD\n", pb.StartNumber, float64(pb.ProductPrice))
+}
+
+if !product.ComponentProductType.AllowsEconomic() {
+	fmt.Println("Economic PCBA does not accept this part")
+}
+if days, ok := product.LeadTimeDays(); ok {
+	fmt.Println("estimated lead time:", days, "days")
+}
+parent, leaf := product.Category()
+```
+
+`PartsOrderQuote(qty)` copies the rule of the JLCPCB parts shop:
+
+- An order of `qty <= CanPresaleNumber` ships from stock. The ladder is `ComponentPrices`.
+- A larger order is a pre-order for the whole quantity. The ladder is `BuyComponentPrices`.
+- The minimum quantity is `max(MinPurchaseNum, PreMinPurchaseNum)` when `qty > CanPresaleNumber`, when `CanPresaleNumber <= 0`, or when `CanPresaleNumber < MinPurchaseNum`. Otherwise it is `MinPurchaseNum`.
+
+This rule is for a parts order.
+The limit for a PCBA order can differ.
+JLCPCB keeps part of its stock for PCBA orders, so a PCBA order probably draws on `StockCount`.
+This PCBA limit is inferred from UI text and is not verified.
+`PartsOrderQuote` does not check `Buyable()`.
+
+`ComponentProductType` tells which PCBA types accept the part: `PCBAEligibilityBoth` (0), `PCBAEligibilityEconomicOnly` (1) or `PCBAEligibilityStandardOnly` (2).
+
+`LeadTimeDays()` reads `estimateDate`.
+Only v2 search rows send it, and only some rows with stock.
+It is null on pre-order rows with stock 0, so it is not a lead time for such a part.
+
+`Category()` returns the parent and the leaf category in the true order.
+A search row sends the leaf in `firstSortName` and the parent in `secondSortName`.
+A search request and a detail record use the reverse order.
+
 A signed URL expires 30 minutes after the response.
 Download the file soon, and do not store the URL.
 The default cache keeps a response for 5 minutes, so a cached URL is still valid.
@@ -186,6 +297,8 @@ The default cache keeps a response for 5 minutes, so a cached URL is still valid
 - `TotalCount int`
 - `PageSize int`
 - `Page int`
+- `Pages int`: number of pages for this page size
+- `Categories []CategoryCount`: category tree with part counts (only with `CategoryCounts`)
 
 ### `Product`
 
@@ -202,16 +315,16 @@ The default cache keeps a response for 5 minutes, so a cached URL is still valid
 - `Attributes []Attribute`
 - `DataManualUrl string`
 - `Describe string`
-- `FirstSortName string`
-- `SecondSortName string`
+- `FirstSortName string`: leaf category in a search row (see `Category()`)
+- `SecondSortName string`: parent category in a search row (see `Category()`)
 - `IsBuyComponent string`
 - `UrlSuffix string`
 - `LcscGoodsUrl string`
 - `ComponentLibraryType string`: raw library type, `"base"` or `"expand"`
 - `PreferredComponentFlag bool`: true for a preferred extended part
-- `LossNumber int`: attrition, the extra parts that JLCPCB adds to an order
+- `LossNumber int`: base term of the attrition (extra parts) of an assembly order. JLCPCB adds more parts for large quantities and for double-sided assembly.
 - `LeastPatchNumber int`: minimum placement quantity
-- `CanPresaleNumber int`: quantity open for pre-order (can be negative)
+- `CanPresaleNumber int`: largest parts order from stock. A larger order is a pre-order. Search rows can send a negative value.
 - `NoBuyReason string`: reason that JLCPCB does not sell the part
 - `EncapsulationNumber int`: parts per reel or package
 - `PreMinPurchaseNum int`: minimum pre-order purchase quantity
@@ -221,6 +334,13 @@ The default cache keeps a response for 5 minutes, so a cached URL is still valid
 - `ProductBigImageAccessIdUrl string`, `MinImageAccessIdUrl string`: signed image URLs
 - `DataManualFileAccessIdUrl string`: signed URL of the datasheet copy that JLCPCB hosts
 - `DataManualOfficialLink string`: datasheet URL at the manufacturer (often empty)
+- `ComponentProductType PCBAEligibility`: PCBA types that accept the part
+- `EstimateDate FlexString`: estimated lead time in days (often empty, see `LeadTimeDays()`)
+- `InitialPrice FlexFloat64`: `ComponentPrices` tier price at `MinPurchaseNum`
+- `AllowPostFlag bool`: true when the customer can consign the part to JLCPCB
+- `MergedComponentCode string`: merge or alternative part code. Active parts have it too, so it is not an EOL marker.
+- `ReplaceUrlSuffix string`: part page URL suffix of `MergedComponentCode`
+- `ProductBigImageAccessId string`, `MinImageAccessId string`, `DataManualFileAccessId string`: stable file access ids. The v2 search sends null for them today.
 
 A JSON `null` decodes to the zero value: `""`, `0`, or `false`.
 
@@ -231,6 +351,9 @@ Methods:
 - `Buyable() bool`
 - `SortedComponentPrices() []PriceBreak`
 - `SortedBuyComponentPrices() []PriceBreak`
+- `Category() (parent, leaf string)`
+- `PartsOrderQuote(qty int) PartsOrderQuote`
+- `LeadTimeDays() (int, bool)`
 
 ### `LibraryType`
 
@@ -285,6 +408,7 @@ Sentinel errors:
 - `jlcpcb.ErrNotFound`
 - `jlcpcb.ErrRateLimited`
 - `jlcpcb.ErrServer`
+- `jlcpcb.ErrRejected`: the server rejected the request with envelope code 101. The message of this code is generic, so the cause is not known.
 
 Use with `errors.Is`:
 
@@ -321,6 +445,19 @@ Integration tests (live API, opt-in):
 ```bash
 go test -tags=integration -run Integration ./...
 ```
+
+## Changes in v1.4.0
+
+- Fix: `Attributes` used a body shape that the server rejects with envelope code 101. The search now sends `componentAttributeList` as `[{"<name>":["<value>",...]}]`.
+- Fix: envelope code 101 maps to the new `ErrRejected`.
+- Fix: the `Version` constant and the comments of `FirstSortName`, `SecondSortName`, `CanPresaleNumber` and `LossNumber`.
+- The `PageSize` cap is 1000 (before: 100). The default stays 50.
+- New `Search.Query` and `Search.Pages`.
+- New request fields: `IncludePreferred`, `Category`, `AttributeFilters`, `LibraryTypes`, `PresaleTypes`, `MinStock`, `PCBA`, `Sort`, `SortDescending`, `HasDatasheet` and `CategoryCounts`.
+- New response fields: `SearchResponse.Pages` and `SearchResponse.Categories`.
+- New `Product` fields: `ComponentProductType`, `EstimateDate`, `InitialPrice`, `AllowPostFlag`, `MergedComponentCode`, `ReplaceUrlSuffix` and the file access ids.
+- New `Product.Category()`, `Product.PartsOrderQuote()` and `Product.LeadTimeDays()`.
+- `Attributes`, `FilterAttribute`, `SortPrimary` and `SortSecondary` are deprecated. They still work.
 
 ## Changes in v1.1.0
 

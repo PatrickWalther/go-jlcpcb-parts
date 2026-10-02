@@ -98,3 +98,81 @@ func TestIntegrationSearchAndDetailsFlow(t *testing.T) {
 		t.Fatal("expected details response with component code")
 	}
 }
+
+// contractClient returns a client for the search contract tests. It sends
+// at most 1 request per second and does not cache responses.
+func contractClient() *Client {
+	return NewClient(WithRateLimit(1), WithoutCache())
+}
+
+// TestIntegrationSearchIncludePreferredTotals checks that the server honors
+// preferredComponentFlag: basic OR preferred = basic + preferred.
+func TestIntegrationSearchIncludePreferredTotals(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	total := func(name string, req SearchRequest) int {
+		t.Helper()
+		req.Keyword = "SOIC-8"
+		req.PageSize = 1
+		start := time.Now()
+		resp, err := client.Search.Keyword(ctx, &req)
+		if err != nil {
+			t.Fatalf("%s search failed after %s: %v", name, time.Since(start), err)
+		}
+		t.Logf("%s: total %d (%s)", name, resp.TotalCount, time.Since(start))
+		return resp.TotalCount
+	}
+
+	basicOrPreferred := total("basic or preferred", SearchRequest{ComponentType: ComponentTypeBase, IncludePreferred: true})
+	basic := total("basic", SearchRequest{ComponentType: ComponentTypeBase})
+	preferred := total("preferred", SearchRequest{IncludePreferred: true})
+
+	if preferred == 0 {
+		t.Errorf("preferred-only search returned no parts")
+	}
+	if basicOrPreferred != basic+preferred {
+		t.Errorf("basic or preferred = %d, want basic %d + preferred %d", basicOrPreferred, basic, preferred)
+	}
+}
+
+// TestIntegrationSearchAttributeFilters checks the componentAttributeList
+// map shape. The server rejects the older shape with envelope code 101.
+func TestIntegrationSearchAttributeFilters(t *testing.T) {
+	client := contractClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	values := []string{"100nF", "1uF"}
+	start := time.Now()
+	resp, err := client.Search.Query(ctx, &SearchRequest{
+		PageSize:         50,
+		Category:         Category{Parent: "Capacitors", Leaf: "Multilayer Ceramic Capacitors MLCC - SMD/SMT"},
+		Packages:         []string{"0402"},
+		LibraryTypes:     []ComponentType{ComponentTypeBase},
+		AttributeFilters: []AttributeFilter{{Name: "Capacitance", Values: values}},
+	})
+	if err != nil {
+		t.Fatalf("attribute filter search failed after %s: %v", time.Since(start), err)
+	}
+	t.Logf("attribute filter search: total %d, pages %d (%s)", resp.TotalCount, resp.Pages, time.Since(start))
+
+	if resp.TotalCount == 0 || len(resp.Products) == 0 {
+		t.Fatal("expected basic 0402 capacitors of 100nF or 1uF")
+	}
+	for _, p := range resp.Products {
+		capacitance := ""
+		for _, attr := range p.Attributes {
+			if attr.Name == "Capacitance" {
+				capacitance = attr.Value
+			}
+		}
+		if capacitance != values[0] && capacitance != values[1] {
+			t.Errorf("%s has capacitance %q, want one of %v", p.ComponentCode, capacitance, values)
+		}
+		if parent, leaf := p.Category(); parent != "Capacitors" || leaf != "Multilayer Ceramic Capacitors MLCC - SMD/SMT" {
+			t.Errorf("%s has category (%q, %q)", p.ComponentCode, parent, leaf)
+		}
+	}
+}

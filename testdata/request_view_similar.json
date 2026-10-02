@@ -1,0 +1,39 @@
+{
+  "keyword": null,
+  "currentPage": 1,
+  "pageSize": 25,
+  "presaleType": "",
+  "searchType": 3,
+  "componentLibraryType": null,
+  "componentAttributeList": [
+    {
+      "Capacitance": [
+        "100nF"
+      ]
+    },
+    {
+      "Temperature Coefficient": [
+        "X7R"
+      ]
+    }
+  ],
+  "componentBrandList": [],
+  "componentSpecificationList": [
+    "0402"
+  ],
+  "paramList": [],
+  "firstSortName": "Capacitors",
+  "secondSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+  "searchSource": "search",
+  "stockFlag": false,
+  "componentLibTypes": [
+    "base"
+  ],
+  "preferredComponentFlag": true,
+  "presaleTypes": [
+    "stock"
+  ],
+  "pcbAType": 1,
+  "sortMode": "STOCK_SORT",
+  "sortASC": "DESC"
+}

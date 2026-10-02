@@ -1,0 +1,828 @@
+{
+  "code": 200,
+  "data": {
+    "componentPageInfo": {
+      "total": 15991,
+      "list": [
+        {
+          "componentId": 1877,
+          "componentLibraryType": "base",
+          "stockCount": 21582897,
+          "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "erpComponentName": "100nF ±10% 16V",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_samsung-electro-mechanics-cl05b104ko5nnnc_C1525.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0045
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0034
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0029
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0025
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0024
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0023
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0043
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0024
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0023
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0028
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0033
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0022
+            }
+          ],
+          "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+          "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+          "canPresaleNumber": 15731372,
+          "componentProductType": 0,
+          "mergedComponentCode": null,
+          "urlSuffix": "1877-CL05B104KO5NNNC/C1525",
+          "leastPatchNumber": 20,
+          "lossNumber": 10,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": null,
+          "replaceUrlSuffix": null,
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": true,
+          "estimateDate": "3",
+          "fullReelPrice": null,
+          "encapsulationNumber": 10000,
+          "shopCostPrice": 0.01279,
+          "preMinPurchaseNum": 2654,
+          "minPurchaseNum": 1,
+          "initialPrice": 0.0045,
+          "componentCode": "C1525",
+          "componentBrandEn": "Samsung Electro-Mechanics",
+          "componentModelEn": "CL05B104KO5NNNC",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8552476004846223360-C1525-%25E6%25AD%25A3%25E9%259D%25A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_Samsung-Electro-Mechanics-CL05B104KO5NNNC_C1525.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8579707269992677376-C1525.pdf?response-content-disposition=attachment%3B%20filename%3DC1525.pdf%3B%20filename%2A%3DUTF-8%27%27C1525.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "Samsung Electro-Mechanics CL05B104KO5NNNC",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8552476005446144000-C1525-%25E6%25AD%25A3%25E9%259D%25A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "0402",
+          "describe": "100nF 16V X7R ±10% 0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "Voltage Rating",
+              "attribute_value_name": "16V"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±10%"
+            },
+            {
+              "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+              "attribute_name_en": "Capacitance",
+              "attribute_value_name": "100nF"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "X7R"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "secondSortName": "Capacitors",
+          "componentBrandHigh": null,
+          "remarkHigh": "<span class='lucene_highlight_class'>100nF</span> 16V X7R ±10% <span class='lucene_highlight_class'>0402</span> Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "componentModelHigh": null,
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": "<span class='lucene_highlight_class'>0402</span>",
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        },
+        {
+          "componentId": 90320,
+          "componentLibraryType": "expand",
+          "stockCount": 12,
+          "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "erpComponentName": "MSASJ063SB5104KFNA01 100nF ±10% 6.3V",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_taiyo-yuden-jmk063bj104kp-f_C89140.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0012
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0012
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 14999,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15000,
+              "endNumber": 15199,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15200,
+              "endNumber": 15399,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15400,
+              "endNumber": -1,
+              "productPrice": 0.0011
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 14999,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15400,
+              "endNumber": -1,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15200,
+              "endNumber": 15399,
+              "productPrice": 0.0011
+            },
+            {
+              "startNumber": 15000,
+              "endNumber": 15199,
+              "productPrice": 0.0011
+            }
+          ],
+          "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+          "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+          "canPresaleNumber": 8,
+          "componentProductType": 2,
+          "mergedComponentCode": "",
+          "urlSuffix": "TaiyoYuden-JMK063BJ104KPF/C89140",
+          "leastPatchNumber": 20,
+          "lossNumber": 10,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": "",
+          "replaceUrlSuffix": null,
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": null,
+          "estimateDate": "33",
+          "fullReelPrice": null,
+          "encapsulationNumber": 15000,
+          "shopCostPrice": 0.00461,
+          "preMinPurchaseNum": 8203,
+          "minPurchaseNum": 1,
+          "initialPrice": 0.0012,
+          "componentCode": "C89140",
+          "componentBrandEn": "Taiyo Yuden",
+          "componentModelEn": "JMK063BJ104KP-F",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583720298579836928-C89140/C89140-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Taiyo-Yuden-JMK063BJ104KP-F_C89140.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8589839595359154177-C89140.pdf?response-content-disposition=attachment%3B%20filename%3DC89140.pdf%3B%20filename%2A%3DUTF-8%27%27C89140.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "Taiyo Yuden JMK063BJ104KP-F",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583720299519496192-C89140/C89140-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "0201",
+          "describe": "100nF 6.3V X5R ±10% 0201 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "Voltage Rating",
+              "attribute_value_name": "6.3V"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±10%"
+            },
+            {
+              "attribute_value_name_high": "<span class='lucene_highlight_class'>100nF</span>",
+              "attribute_name_en": "Capacitance",
+              "attribute_value_name": "100nF"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "X5R"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "secondSortName": "Capacitors",
+          "componentBrandHigh": null,
+          "remarkHigh": "<span class='lucene_highlight_class'>100nF</span> 6.3V X5R ±10% <span class='lucene_highlight_class'>0201</span> Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "componentModelHigh": null,
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": "<span class='lucene_highlight_class'>0201</span>",
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        },
+        {
+          "componentId": 3349129,
+          "componentLibraryType": "expand",
+          "stockCount": 0,
+          "componentTypeEn": "Microcontrollers (MCU/MPU/SOC)",
+          "erpComponentName": "微控制器",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/microcontrollers-mcu-mpu-soc_raspberry-pi-rp2040_C2961140.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 9,
+              "productPrice": 1.5217
+            },
+            {
+              "startNumber": 10,
+              "endNumber": 29,
+              "productPrice": 1.4908
+            },
+            {
+              "startNumber": 30,
+              "endNumber": 99,
+              "productPrice": 1.4696
+            },
+            {
+              "startNumber": 100,
+              "endNumber": 101,
+              "productPrice": 1.4485
+            },
+            {
+              "startNumber": 102,
+              "endNumber": 103,
+              "productPrice": 1.4485
+            },
+            {
+              "startNumber": 104,
+              "endNumber": -1,
+              "productPrice": 1.4485
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 100,
+              "endNumber": 101,
+              "productPrice": 1.3954
+            },
+            {
+              "startNumber": 30,
+              "endNumber": 99,
+              "productPrice": 1.4157
+            },
+            {
+              "startNumber": 1,
+              "endNumber": 9,
+              "productPrice": 1.4658
+            },
+            {
+              "startNumber": 102,
+              "endNumber": 103,
+              "productPrice": 1.3954
+            },
+            {
+              "startNumber": 104,
+              "endNumber": -1,
+              "productPrice": 1.3954
+            },
+            {
+              "startNumber": 10,
+              "endNumber": 29,
+              "productPrice": 1.4361
+            }
+          ],
+          "firstSortAccessId": "020f44184a0843cfbab4d2906384b0aa",
+          "secondSortAccessId": "4dce313c6749477f9b4c051cebfc1018",
+          "canPresaleNumber": 0,
+          "componentProductType": 0,
+          "mergedComponentCode": "C2040",
+          "urlSuffix": "RaspberryPi-RP2040/C2961140",
+          "leastPatchNumber": 0,
+          "lossNumber": 0,
+          "isBuyComponent": "0",
+          "noBuyReason": "This product is no longer manufactured.",
+          "componentAlternativesCode": "C2040",
+          "replaceUrlSuffix": "RaspberryPi-RP2040/C2040",
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": true,
+          "estimateDate": null,
+          "fullReelPrice": null,
+          "encapsulationNumber": 3400,
+          "shopCostPrice": 6.6569,
+          "preMinPurchaseNum": 6,
+          "minPurchaseNum": 6,
+          "initialPrice": 1.5217,
+          "componentCode": "C2961140",
+          "componentBrandEn": "Raspberry Pi",
+          "componentModelEn": "RP2040",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583643824555479040-C2961140/C2961140-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2202081030_Raspberry-Pi-RP2040_C2961140.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8588955069236985856-C2961140.pdf?response-content-disposition=attachment%3B%20filename%3DC2961140.pdf%3B%20filename%2A%3DUTF-8%27%27C2961140.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "Raspberry Pi RP2040",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583643825411928064-C2961140/C2961140-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "QFN-56-EP(7x7)",
+          "describe": "QFN-56-EP(7x7) Microcontrollers (MCU/MPU/SOC) ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "CPU Maximum Speed",
+              "attribute_value_name": "133MHz"
+            },
+            {
+              "attribute_name_en": "Program Memory Type",
+              "attribute_value_name": "External"
+            },
+            {
+              "attribute_name_en": "Voltage - Supply",
+              "attribute_value_name": "1.8V~3.3V"
+            },
+            {
+              "attribute_name_en": "RAM Size",
+              "attribute_value_name": "264KB"
+            },
+            {
+              "attribute_name_en": "Core Size",
+              "attribute_value_name": "32 Bit"
+            },
+            {
+              "attribute_name_en": "CPU Core",
+              "attribute_value_name": "ARM Cortex-M0+"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Microcontrollers (MCU/MPU/SOC)",
+          "secondSortName": "Embedded Processors & Controllers",
+          "componentBrandHigh": null,
+          "remarkHigh": null,
+          "componentModelHigh": "<span class='lucene_highlight_class'>RP2040</span>",
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": null,
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        },
+        {
+          "componentId": 18484158,
+          "componentLibraryType": "expand",
+          "stockCount": 2190,
+          "componentTypeEn": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "erpComponentName": "100nF ±10% 10V",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/multilayer-ceramic-capacitors-mlcc-smd-smt_murata-electronics-gcm155r71a104ka55j_C17354991.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.0051
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.0041
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0035
+            },
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0032
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0029
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0027
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 10000,
+              "endNumber": 49999,
+              "productPrice": 0.0031
+            },
+            {
+              "startNumber": 100000,
+              "endNumber": -1,
+              "productPrice": 0.0026
+            },
+            {
+              "startNumber": 1000,
+              "endNumber": 2999,
+              "productPrice": 0.004
+            },
+            {
+              "startNumber": 3000,
+              "endNumber": 9999,
+              "productPrice": 0.0034
+            },
+            {
+              "startNumber": 50000,
+              "endNumber": 99999,
+              "productPrice": 0.0028
+            },
+            {
+              "startNumber": 1,
+              "endNumber": 999,
+              "productPrice": 0.005
+            }
+          ],
+          "firstSortAccessId": "1a513feddccb44f5bf49e1f5b9e5ffdb",
+          "secondSortAccessId": "7e74f1d772c74e3d99bc4868d21962f2",
+          "canPresaleNumber": -3654,
+          "componentProductType": 0,
+          "mergedComponentCode": null,
+          "urlSuffix": "18484158-GCM155R71A104KA55J/C17354991",
+          "leastPatchNumber": 20,
+          "lossNumber": 8,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": null,
+          "replaceUrlSuffix": null,
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": null,
+          "estimateDate": null,
+          "fullReelPrice": null,
+          "encapsulationNumber": 50000,
+          "shopCostPrice": 0.0119,
+          "preMinPurchaseNum": 2201,
+          "minPurchaseNum": 2201,
+          "initialPrice": 0.0041,
+          "componentCode": "C17354991",
+          "componentBrandEn": "Murata Electronics",
+          "componentModelEn": "GCM155R71A104KA55J",
+          "componentImageUrl": null,
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": null,
+          "dataManualUrl": "",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8597536366078922752-C17354991.pdf?response-content-disposition=attachment%3B%20filename%3DC17354991.pdf%3B%20filename%2A%3DUTF-8%27%27C17354991.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "muRata GCM155R71A104KA55J",
+          "minImage": null,
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": null,
+          "imageList": null,
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "0402",
+          "describe": "100nF 10V X7R ±10% 0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS",
+          "attributes": [
+            {
+              "attribute_name_en": "Voltage Rating",
+              "attribute_value_name": "10V"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±10%"
+            },
+            {
+              "attribute_name_en": "Capacitance",
+              "attribute_value_name": "100nF"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "X7R"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Multilayer Ceramic Capacitors MLCC - SMD/SMT",
+          "secondSortName": "Capacitors",
+          "componentBrandHigh": null,
+          "remarkHigh": null,
+          "componentModelHigh": null,
+          "componentCodeHigh": "<span class='lucene_highlight_class'>C17354991</span>",
+          "componentSpecificationHigh": null,
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        },
+        {
+          "componentId": 9196,
+          "componentLibraryType": "expand",
+          "stockCount": 129880,
+          "componentTypeEn": "Resistor Networks, Arrays",
+          "erpComponentName": "10kΩ ±5% 【插件】",
+          "componentSource": "shop",
+          "lcscGoodsUrl": "https://www.lcsc.com/product-detail/resistor-networks-arrays_fh-guangdong-fenghua-advanced-tech-a09-103jp_C8692.html",
+          "componentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 49,
+              "productPrice": 0.1494
+            },
+            {
+              "startNumber": 50,
+              "endNumber": 149,
+              "productPrice": 0.1216
+            },
+            {
+              "startNumber": 150,
+              "endNumber": 499,
+              "productPrice": 0.1078
+            },
+            {
+              "startNumber": 500,
+              "endNumber": 2499,
+              "productPrice": 0.0974
+            },
+            {
+              "startNumber": 2500,
+              "endNumber": 4999,
+              "productPrice": 0.0891
+            },
+            {
+              "startNumber": 5000,
+              "endNumber": -1,
+              "productPrice": 0.0851
+            }
+          ],
+          "buyComponentPrices": [
+            {
+              "startNumber": 1,
+              "endNumber": 49,
+              "productPrice": 0.144
+            },
+            {
+              "startNumber": 2500,
+              "endNumber": 4999,
+              "productPrice": 0.0859
+            },
+            {
+              "startNumber": 5000,
+              "endNumber": -1,
+              "productPrice": 0.082
+            },
+            {
+              "startNumber": 50,
+              "endNumber": 149,
+              "productPrice": 0.1172
+            },
+            {
+              "startNumber": 150,
+              "endNumber": 499,
+              "productPrice": 0.1039
+            },
+            {
+              "startNumber": 500,
+              "endNumber": 2499,
+              "productPrice": 0.0939
+            }
+          ],
+          "firstSortAccessId": "b97df1fd049743c0a0330513eac35a72",
+          "secondSortAccessId": "1a8d45d7b0ba42f89796c77e971f3075",
+          "canPresaleNumber": 128639,
+          "componentProductType": 0,
+          "mergedComponentCode": "C26615",
+          "urlSuffix": "9196-A09103JP/C8692",
+          "leastPatchNumber": 2,
+          "lossNumber": 0,
+          "isBuyComponent": "1",
+          "noBuyReason": null,
+          "componentAlternativesCode": "C26615",
+          "replaceUrlSuffix": "27360-10_K_5/C26615",
+          "preferredComponentFlag": false,
+          "allowPostFlag": true,
+          "score": null,
+          "idleFlag": true,
+          "estimateDate": null,
+          "fullReelPrice": null,
+          "encapsulationNumber": 200,
+          "shopCostPrice": 0.35473,
+          "preMinPurchaseNum": 75,
+          "minPurchaseNum": 1,
+          "initialPrice": 0.1494,
+          "componentCode": "C8692",
+          "componentBrandEn": "FH (Guangdong Fenghua Advanced Tech)",
+          "componentModelEn": "A09-103JP",
+          "componentImageUrl": "",
+          "productBigImageAccessId": null,
+          "productBigImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583054460096954368-C8692/C8692-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualUrl": "https://www.lcsc.com/datasheet/lcsc_datasheet_2304140030_FH--Guangdong-Fenghua-Advanced-Tech-A09-103JP_C8692.pdf",
+          "dataManualFileAccessId": null,
+          "dataManualFileAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtDataManualFile/8588886946978807808-C8692.pdf?response-content-disposition=attachment%3B%20filename%3DC8692.pdf%3B%20filename%2A%3DUTF-8%27%27C8692.pdf&x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "dataManualOfficialLink": "",
+          "componentName": "FH A09-103JP",
+          "minImage": "",
+          "minImageAccessId": null,
+          "minImageAccessIdUrl": "https://jlc-prod-smt.oss-eu-central-1.aliyuncs.com/smtComponentImageFile/8583054461103722496-C8692/C8692-%E6%AD%A3%E9%9D%A2.jpg?x-oss-date=FIXTURE&x-oss-expires=FIXTURE&x-oss-security-token=FIXTURE&x-oss-signature-version=OSS4-HMAC-SHA256&x-oss-credential=FIXTURE&x-oss-signature=FIXTURE",
+          "imageList": [
+            {
+              "productImage": null,
+              "productImageAccessId": null,
+              "productBigImage": null,
+              "productBigImageAccessId": null,
+              "fileType": null
+            }
+          ],
+          "manufacturerBlackFlag": null,
+          "componentNameEn": null,
+          "componentSpecificationEn": "SIP-9-2.54mm",
+          "describe": "10kΩ 125mW 8 9 ±100ppm/℃ ±5% SIP-9-2.54mm Resistor Networks, Arrays ROHS",
+          "attributes": [
+            {
+              "attribute_value_name_high": "<span class='lucene_highlight_class'>10kΩ</span>",
+              "attribute_name_en": "Resistance",
+              "attribute_value_name": "10kΩ"
+            },
+            {
+              "attribute_name_en": "Power(Watts)",
+              "attribute_value_name": "125mW"
+            },
+            {
+              "attribute_name_en": "Number of Resistors",
+              "attribute_value_name": "8"
+            },
+            {
+              "attribute_name_en": "Tolerance",
+              "attribute_value_name": "±5%"
+            },
+            {
+              "attribute_name_en": "Number of Pins",
+              "attribute_value_name": "9"
+            },
+            {
+              "attribute_name_en": "Temperature Coefficient",
+              "attribute_value_name": "±100ppm/℃"
+            }
+          ],
+          "rankScore": null,
+          "firstSortName": "Resistor Networks, Arrays",
+          "secondSortName": "Resistors",
+          "componentBrandHigh": null,
+          "remarkHigh": "<span class='lucene_highlight_class'>10kΩ</span> 125mW 8 9 ±100ppm/℃ ±5% SIP-9-2.54mm Resistor Networks, Arrays ROHS",
+          "componentModelHigh": null,
+          "componentCodeHigh": null,
+          "componentSpecificationHigh": null,
+          "rohsFlag": 1,
+          "shopShowPriceFlag": true,
+          "shopShowForeignPriceFlag": true,
+          "shopRealPriceFlag": true,
+          "assemblyComponentFlag": false,
+          "rohsFileId": null,
+          "rohsUrl": null
+        }
+      ],
+      "pageNum": 1,
+      "pageSize": 100,
+      "size": 0,
+      "startRow": 0,
+      "endRow": 0,
+      "pages": 160,
+      "prePage": 0,
+      "nextPage": 0,
+      "isFirstPage": false,
+      "isLastPage": false,
+      "hasPreviousPage": false,
+      "hasNextPage": false,
+      "navigatePages": 0,
+      "navigatepageNums": null,
+      "navigateFirstPage": 0,
+      "navigateLastPage": 0
+    },
+    "sortAndCountVoList": null,
+    "presaleTypeList": [],
+    "brandList": [],
+    "basePart": null,
+    "preferredPart": null,
+    "economicPart": null,
+    "standardPart": null,
+    "dataSheetPart": null,
+    "photo": null,
+    "queryString": "100nF 0201"
+  },
+  "message": null
+}

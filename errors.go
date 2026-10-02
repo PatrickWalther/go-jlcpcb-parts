@@ -21,7 +21,16 @@ var (
 
 	// ErrServer indicates server-side failures.
 	ErrServer = errors.New("jlcpcb: server error")
+
+	// ErrRejected indicates that the server rejected the request with
+	// envelope code 101. The message of this code is generic ("unknown
+	// system error, try again later"), so the cause is not known. A request
+	// body with a wrong shape is one known cause.
+	ErrRejected = errors.New("jlcpcb: request rejected")
 )
+
+// envelopeCodeRejected is the envelope code of a rejected request.
+const envelopeCodeRejected = 101
 
 // APIError represents an error returned by the JLCPCB API.
 type APIError struct {
@@ -50,6 +59,8 @@ func (e *APIError) Unwrap() error {
 	}
 
 	switch code {
+	case envelopeCodeRejected:
+		return ErrRejected
 	case http.StatusBadRequest:
 		return ErrInvalidRequest
 	case http.StatusNotFound:
